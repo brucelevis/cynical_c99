@@ -1,10 +1,12 @@
 #include <stdio.h>
+#include <cglm/types.h>
 #include "GL/glew.h"
 #include "GL/GL.h"
 #include "GLFW/glfw3.h"
 #include "common.h"
 #include "file.h"
 #include "graphics.h"
+#include "cglm/vec3.h"
 
 #define FILE_BUFFER_SIZE 2048
 byte FILE_BUFFER[FILE_BUFFER_SIZE];
@@ -50,6 +52,14 @@ int main() {
     }
 
     shader_t shader = create_shader(vert_shader, frag_shader);
+    model_t quad = create_quad();
+
+    for (int i = 0; i < 6; ++i) {
+        vec3 pos = quad.positions[i];
+        printf("%f %f %f\n", pos.x, pos.y, pos.z);
+    }
+
+    destroy_model(quad);
 
     glUseProgram(shader.handle);
     check_gl_error();
