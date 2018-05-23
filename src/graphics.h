@@ -38,7 +38,7 @@ typedef struct model {
     uint vertices_count;
 
     uint *indexes;
-    uint indexes_len;
+    uint indexes_count;
 } model_t;
 
 typedef struct mesh {
@@ -74,8 +74,8 @@ void print_model(model_t model);
     if (!compiled) {\
         int len;\
         CREATE_TEMP_STR_BUFFER();\
-        glGetShaderInfoLog(shader, TEMP_STR_BUFFER_LEN, &len, INFO_BUFFER);\
-        ERROR(INFO_BUFFER);\
+        glGetShaderInfoLog(shader, TEMP_STR_BUFFER_LEN, &len, TEMP_BUFFER);\
+        ERROR(TEMP_BUFFER);\
     }\
 }\
 
@@ -85,8 +85,8 @@ void print_model(model_t model);
     if (!compiled) {\
         int len;\
         CREATE_TEMP_STR_BUFFER();\
-        glGetProgramInfoLog(program, TEMP_STR_BUFFER_LEN, &len, INFO_BUFFER);\
-        ERROR(INFO_BUFFER);\
+        glGetProgramInfoLog(program, TEMP_STR_BUFFER_LEN, &len, TEMP_BUFFER);\
+        ERROR(TEMP_BUFFER);\
     }\
 }\
 
@@ -94,8 +94,8 @@ void print_model(model_t model);
     GLenum error = glGetError();\
     if (error != GL_NO_ERROR) {\
         CREATE_TEMP_STR_BUFFER();\
-        sprintf(INFO_BUFFER, "OpenGL error: '%i'\n", error);\
-        ERROR(INFO_BUFFER);\
+        sprintf(TEMP_BUFFER, "OpenGL error: '%i'\n", error);\
+        ERROR(TEMP_BUFFER);\
     }\
 }\
 

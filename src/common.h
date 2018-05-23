@@ -17,7 +17,7 @@ typedef unsigned char ushort;
 #define _OUT_
 
 #define TEMP_STR_BUFFER_LEN 1024
-#define CREATE_TEMP_STR_BUFFER() byte INFO_BUFFER[TEMP_STR_BUFFER_LEN]
+#define CREATE_TEMP_STR_BUFFER() byte TEMP_BUFFER[TEMP_STR_BUFFER_LEN]
 
 #define PRINT_LINE_FILE(file) {\
     fprintf(file, "\n AT: %s:%i \n", __FILE__, __LINE__);\

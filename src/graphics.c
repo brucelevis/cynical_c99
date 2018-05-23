@@ -111,7 +111,7 @@ model_t create_quad() {
     model.colors_ptr_offset = colors;
     model.vertices_count = QUAD_VERT_COUNT;
     model.indexes = index;
-    model.indexes_len = QUAD_INDEX_COUNT;
+    model.indexes_count = QUAD_INDEX_COUNT;
     return model;
 }
 
@@ -192,18 +192,17 @@ mesh_t create_mesh(model_t model) {
             0,
             (void *) color_offset
     );
-
     CHECK_GL_ERROR();
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    if (model.indexes_len) {
+    if (model.indexes_count) {
         glGenBuffers(1, &vio);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vio);
 
         glBufferData(
                 GL_ELEMENT_ARRAY_BUFFER,
-                sizeof(uint) * model.indexes_len,
+                sizeof(uint) * model.indexes_count,
                 model.indexes,
                 GL_STATIC_DRAW
         );
@@ -219,7 +218,7 @@ mesh_t create_mesh(model_t model) {
     mesh.vio = vio;
 
     if (vio) {
-        mesh.elements_len = model.indexes_len;
+        mesh.elements_len = model.indexes_count;
     } else {
         mesh.elements_len = model.vertices_count;
     }
