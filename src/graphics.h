@@ -9,9 +9,22 @@
 #include "common.h"
 #include "cglm/vec3.h"
 
+#define VERT_POS_INDEX 0
+
 typedef struct model {
     vec3 *positions;
+    uint positions_len;
+
+    uint *indexes;
+    uint indexes_len;
 } model_t;
+
+typedef struct mesh {
+    uint vao;
+    uint vbo;
+    uint vio;
+    uint elements_len;
+} mesh_t;
 
 typedef struct shader {
     uint handle;
@@ -23,7 +36,17 @@ void destroy_shader(shader_t shader);
 model_t create_quad();
 void destroy_model(model_t model);
 
-#define check_shader_compilation(shader) {\
+mesh_t create_mesh(model_t model);
+void destroy_mesh(mesh_t mesh);
+void draw_mesh(mesh_t mesh);
+
+#ifdef DEV
+
+void print_model(model_t model);
+
+#endif
+
+#define CHECK_SHADER_COMPILATION(shader) {\
     int compiled;\
     glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);\
     if (!compiled) {\
@@ -34,7 +57,7 @@ void destroy_model(model_t model);
     }\
 }\
 
-#define check_program_linkage(program) {\
+#define CHECK_PROGRAM_LINKAGE(program) {\
     int compiled;\
     glGetProgramiv(program, GL_LINK_STATUS, &compiled);\
     if (!compiled) {\
@@ -45,7 +68,7 @@ void destroy_model(model_t model);
     }\
 }\
 
-#define check_gl_error() {\
+#define CHECK_GL_ERROR() {\
     GLenum error = glGetError();\
     if (error != GL_NO_ERROR) {\
         CREATE_TEMP_STR_BUFFER();\

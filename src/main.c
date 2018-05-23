@@ -1,3 +1,7 @@
+/*
+ * TODO: FIX DESTIONATION VECTORS - PASS THEM AS POINTERS
+ */
+
 #include <stdio.h>
 #include <cglm/types.h>
 #include "GL/glew.h"
@@ -53,16 +57,12 @@ int main() {
 
     shader_t shader = create_shader(vert_shader, frag_shader);
     model_t quad = create_quad();
+    mesh_t quad_mesh = create_mesh(quad);
 
-    for (int i = 0; i < 6; ++i) {
-        vec3 pos = quad.positions[i];
-        printf("%f %f %f\n", pos.x, pos.y, pos.z);
-    }
-
-    destroy_model(quad);
+    print_model(quad);
 
     glUseProgram(shader.handle);
-    check_gl_error();
+    CHECK_GL_ERROR();
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -74,8 +74,16 @@ int main() {
         glClearColor(255, 0, 0, 255);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        draw_mesh(quad_mesh);
+
         glfwSwapBuffers(window);
     }
+
+    destroy_shader(shader);
+    destroy_model(quad);
+    destroy_mesh(quad_mesh);
+
+    CHECK_GL_ERROR();
 
     glfwDestroyWindow(window);
     glfwTerminate();
