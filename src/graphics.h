@@ -9,11 +9,23 @@
 #include "common.h"
 #include "cglm/vec3.h"
 
+#define VERT_POS_NAME "position"
+#define VERT_UV_NAME "uv"
+#define VERT_COLOR_NAME "color"
+
 #define VERT_POS_INDEX 0
+#define VERT_UV_INDEX 1
+#define VERT_COLOR_INDEX 2
+
+typedef struct vertex {
+    vec3 position;
+    vec2 uv;
+    vec4 color;
+} vertex_t;
 
 typedef struct model {
-    vec3 *positions;
-    uint positions_len;
+    vertex_t *vertices;
+    uint vertices_len;
 
     uint *indexes;
     uint indexes_len;

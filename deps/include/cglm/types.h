@@ -26,7 +26,16 @@
 #  define CGLM_ALIGN_IF(X) /* no alignment */
 #endif
 
-typedef float vec2[2];
+typedef struct {
+    union {
+        struct {
+            float x;
+            float y;
+        };
+        float data[2];
+    };
+} vec2;
+
 typedef CGLM_ALIGN_IF(8)  struct {
     union {
         struct {
@@ -56,6 +65,12 @@ typedef CGLM_ALIGN_IF(16) struct {
             float y;
             float z;
             float w;
+        };
+        struct {
+            float r;
+            float g;
+            float b;
+            float a;
         };
         float data[4];
     };
