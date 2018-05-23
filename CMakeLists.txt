@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.8.2)
 project(raw_gl)
 
 set(CMAKE_C_STANDARD 99)

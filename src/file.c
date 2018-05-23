@@ -20,12 +20,13 @@ file_status_t read_file_data(const char *file_path, byte *buffer, uint buffer_si
     fseek(file, 0, SEEK_SET);
 
     file_status_t result;
-    if (len > buffer_size) {
+    if (len + 1> buffer_size) {
         result = BUFFER_TOO_SMALL;
     } else {
-        *file_length = len;
+        *file_length = len + 1;
         fread(buffer, sizeof(byte), (uint) len, file);
         result = FILE_OK;
+        buffer[len] = '\0';
     }
 
     fclose(file);
