@@ -45,7 +45,7 @@ void destroy_shader(shader_t shader) {
 }
 
 model_t create_quad() {
-    vec3 *points = malloc(sizeof(vec3) * 6);
+    vec3 *points = malloc(sizeof(vec3) * 4);
 
     points[0].x = -1;
     points[0].y = -1;
@@ -60,27 +60,30 @@ model_t create_quad() {
     points[2].z = 0;
 
     points[3].x = -1;
-    points[3].y = -1;
+    points[3].y = 1;
     points[3].z = 0;
 
-    points[4].x = -1;
-    points[4].y = 1;
-    points[4].z = 0;
-
-    points[5].x = 1;
-    points[5].y = 1;
-    points[5].z = 0;
+    uint *index = malloc(sizeof(uint) * 6);
+    index[0] = 0;
+    index[1] = 1;
+    index[2] = 2;
+    index[3] = 1;
+    index[4] = 3;
+    index[5] = 2;
 
     model_t model;
     model.positions = points;
-    model.positions_len = 6;
-    model.indexes = null;
-    model.indexes_len = 0;
+    model.positions_len = 4;
+    model.indexes = index;
+    model.indexes_len = 6;
     return model;
 }
 
 void destroy_model(model_t model) {
     free(model.positions);
+    if (model.indexes) {
+        free(model.indexes);
+    }
 }
 
 #ifdef DEV
