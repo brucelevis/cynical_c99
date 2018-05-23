@@ -38,12 +38,12 @@ typedef struct {
 
 typedef CGLM_ALIGN_IF(8)  struct {
     union {
+        float data[3];
         struct {
             float x;
             float y;
             float z;
         };
-        float data[3];
     };
 } *vec3, vec3_t;
 

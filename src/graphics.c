@@ -47,49 +47,56 @@ void destroy_shader(shader_t shader) {
 }
 
 model_t create_quad() {
-    vertex_t *vertices = malloc(sizeof(vertex_t) * 4);
+    const int QUAD_VERT_COUNT = 4;
+    const int QUAD_INDEX_COUNT = 6;
 
-    vertices[0].position.x = -1;
-    vertices[0].position.y = -1;
-    vertices[0].position.z = 0;
-    vertices[0].uv.x = 0;
-    vertices[0].uv.y = 0;
-    vertices[0].color.r = 1;
-    vertices[0].color.g = 0;
-    vertices[0].color.b = 0;
-    vertices[0].color.a = 1;
+    float *vertices = malloc(FULL_MODEL_BYTE_SIZE(QUAD_VERT_COUNT));
 
-    vertices[1].position.x = 1;
-    vertices[1].position.y = -1;
-    vertices[1].position.z = 0;
-    vertices[1].uv.x = 1;
-    vertices[1].uv.y = 0;
-    vertices[1].color.r = 0;
-    vertices[1].color.g = 1;
-    vertices[1].color.b = 0;
-    vertices[1].color.a = 1;
+    vec3_t *positions = (vec3_t *) vertices;
+    vec2_t *uvs = (vec2_t *) (((void *) positions) + UV_BYTE_OFFSET(4));
+    vec4_t *colors = (vec4_t *) (((void *) positions) + COLOR_BYTE_OFFSET(4));
 
-    vertices[2].position.x = 1;
-    vertices[2].position.y = 1;
-    vertices[2].position.z = 0;
-    vertices[2].uv.x = 1;
-    vertices[2].uv.y = 1;
-    vertices[2].color.r = 0;
-    vertices[2].color.g = 0;
-    vertices[2].color.b = 1;
-    vertices[2].color.a = 1;
+    positions[0].x = -1;
+    positions[0].y = -1;
+    positions[0].z = 0;
+    uvs[0].x = 0;
+    uvs[0].y = 0;
+    colors[0].r = 1;
+    colors[0].g = 0;
+    colors[0].b = 0;
+    colors[0].a = 1;
 
-    vertices[3].position.x = -1;
-    vertices[3].position.y = 1;
-    vertices[3].position.z = 0;
-    vertices[3].uv.x = 0;
-    vertices[3].uv.y = 1;
-    vertices[3].color.r = 1;
-    vertices[3].color.g = 1;
-    vertices[3].color.b = 0;
-    vertices[3].color.a = 1;
+    positions[1].x = 1;
+    positions[1].y = -1;
+    positions[1].z = 0;
+    uvs[1].x = 1;
+    uvs[1].y = 0;
+    colors[1].r = 0;
+    colors[1].g = 1;
+    colors[1].b = 0;
+    colors[1].a = 1;
 
-    uint *index = malloc(sizeof(uint) * 6);
+    positions[2].x = 1;
+    positions[2].y = 1;
+    positions[2].z = 0;
+    uvs[2].x = 1;
+    uvs[2].y = 1;
+    colors[2].r = 0;
+    colors[2].g = 0;
+    colors[2].b = 1;
+    colors[2].a = 1;
+
+    positions[3].x = -1;
+    positions[3].y = 1;
+    positions[3].z = 0;
+    uvs[3].x = 0;
+    uvs[3].y = 1;
+    colors[3].r = 1;
+    colors[3].g = 1;
+    colors[3].b = 0;
+    colors[3].a = 1;
+
+    uint *index = malloc(sizeof(uint) * QUAD_INDEX_COUNT);
     index[0] = 0;
     index[1] = 1;
     index[2] = 2;
@@ -98,15 +105,18 @@ model_t create_quad() {
     index[5] = 2;
 
     model_t model;
-    model.vertices = vertices;
-    model.vertices_len = 4;
+    model.full_vertices_data = vertices;
+    model.positions_ptr_offset = positions;
+    model.uvs_ptr_offset = uvs;
+    model.colors_ptr_offset = colors;
+    model.vertices_count = QUAD_VERT_COUNT;
     model.indexes = index;
-    model.indexes_len = 6;
+    model.indexes_len = QUAD_INDEX_COUNT;
     return model;
 }
 
 void destroy_model(model_t model) {
-    free(model.vertices);
+    free(model.full_vertices_data);
     if (model.indexes) {
         free(model.indexes);
     }
@@ -115,13 +125,17 @@ void destroy_model(model_t model) {
 #ifdef DEV
 
 void print_model(model_t model) {
-    for (int i = 0; i < model.vertices_len; ++i) {
-        vertex_t vert = model.vertices[i];
+
+    for (int i = 0; i < model.vertices_count; ++i) {
+        vec3_t pos = model.positions_ptr_offset[i];
+        vec2_t uv = model.uvs_ptr_offset[i];
+        vec4_t color = model.colors_ptr_offset[i];
+
         printf(
                 "x: %f y: %f z: %f - r: %f g: %f b: %f a: %f - u: %f v: %f \n",
-                vert.position.x, vert.position.y, vert.position.z,
-                vert.color.r, vert.color.g, vert.color.b, vert.color.a,
-                vert.uv.x, vert.uv.y
+                pos.x, pos.y, pos.z,
+                color.r, color.g, color.b, color.a,
+                uv.x, uv.y
         );
     }
 }
@@ -133,82 +147,50 @@ mesh_t create_mesh(model_t model) {
     uint vbo;
     uint vio = 0;
 
+    const int full_model_size = FULL_MODEL_BYTE_SIZE(model.vertices_count);
+    const int pos_offset = POS_BYTE_OFFSET(model.vertices_count);
+    const int uv_offset = UV_BYTE_OFFSET(model.vertices_count);
+    const int color_offset = COLOR_BYTE_OFFSET(model.vertices_count);
+
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
     glGenBuffers(1, &vbo);
 
-    const int POS_SIZE = 3; // x, y, z
-    const int UV_SIZE = 2; // u, v
-    const int COLOR_SIZE = 4; // r, g, b, a
-
-    const int VERTEX_SIZE = (POS_SIZE + UV_SIZE + COLOR_SIZE) * sizeof(float);
-
-    const int POS_OFFSET = 0;
-    const int UV_OFFSET = (POS_SIZE * sizeof(float));
-    const int COLOR_OFFSET = ((POS_SIZE + UV_SIZE) * sizeof(float));
-
-    // TODO(temdisponivel): temp alloc this
-    uint all_data_size = VERTEX_SIZE * model.vertices_len;
-
-    float *all_data = (float *) malloc(all_data_size);
-
-    int all_data_index = 0;
-    for (int i = 0; i < model.vertices_len; ++i) {
-        vertex_t v = model.vertices[i];
-
-        // Position
-        all_data[all_data_index++] = v.position.x;
-        all_data[all_data_index++] = v.position.y;
-        all_data[all_data_index++] = v.position.z;
-
-        // UV
-        all_data[all_data_index++] = v.uv.x;
-        all_data[all_data_index++] = v.uv.y;
-
-        // Color
-        all_data[all_data_index++] = v.color.r;
-        all_data[all_data_index++] = v.color.g;
-        all_data[all_data_index++] = v.color.b;
-        all_data[all_data_index++] = v.color.a;
-    }
-
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(
             GL_ARRAY_BUFFER,
-            all_data_size,
-            all_data,
+            full_model_size,
+            model.full_vertices_data,
             GL_STATIC_DRAW
     );
     CHECK_GL_ERROR();
 
-    free(all_data);
-
     glVertexAttribPointer(
             VERT_POS_INDEX,
-            POS_SIZE,
+            POS_DIMENTION,
             GL_FLOAT,
             GL_FALSE,
-            VERTEX_SIZE,
-            (void *) POS_OFFSET
+            0,
+            (void *) pos_offset
     );
 
     glVertexAttribPointer(
             VERT_UV_INDEX,
-            UV_SIZE,
+            UV_DIMENTION,
             GL_FLOAT,
             GL_FALSE,
-            VERTEX_SIZE,
-            (void *) UV_OFFSET
+            0,
+            (void *) uv_offset
     );
 
     glVertexAttribPointer(
             VERT_COLOR_INDEX,
-            COLOR_SIZE,
+            COLOR_DIMENTION,
             GL_FLOAT,
             GL_FALSE,
-            VERTEX_SIZE,
-            (void *) COLOR_OFFSET
+            0,
+            (void *) color_offset
     );
 
     CHECK_GL_ERROR();
@@ -239,7 +221,7 @@ mesh_t create_mesh(model_t model) {
     if (vio) {
         mesh.elements_len = model.indexes_len;
     } else {
-        mesh.elements_len = model.vertices_len;
+        mesh.elements_len = model.vertices_count;
     }
 
     return mesh;
