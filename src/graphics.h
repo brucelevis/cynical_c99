@@ -18,9 +18,9 @@
 #define VERT_COLOR_INDEX 2
 
 typedef struct vertex {
-    vec3 position;
-    vec2 uv;
-    vec4 color;
+    vec3_t position;
+    vec2_t uv;
+    vec4_t color;
 } vertex_t;
 
 typedef struct model {

@@ -34,7 +34,7 @@ typedef struct {
         };
         float data[2];
     };
-} vec2;
+} *vec2, vec2_t;
 
 typedef CGLM_ALIGN_IF(8)  struct {
     union {
@@ -45,7 +45,7 @@ typedef CGLM_ALIGN_IF(8)  struct {
         };
         float data[3];
     };
-} vec3;
+} *vec3, vec3_t;
 
 typedef struct {
     union {
@@ -56,7 +56,7 @@ typedef struct {
         };
         int data[3];
     };
-} ivec3;
+} *ivec3, ivec3_t;
 
 typedef CGLM_ALIGN_IF(16) struct {
     union {
@@ -74,7 +74,7 @@ typedef CGLM_ALIGN_IF(16) struct {
         };
         float data[4];
     };
-} vec4;
+} *vec4, vec4_t;
 
 typedef struct {
     union {
@@ -83,9 +83,9 @@ typedef struct {
             vec3 y;
             vec3 z;
         };
-        vec3 data[3];
+        vec3_t data[3];
     };
-} mat3;
+} *mat3, mat3_t;
 
 typedef CGLM_ALIGN_IF(16) struct {
     union {
@@ -95,9 +95,9 @@ typedef CGLM_ALIGN_IF(16) struct {
             vec4 z;
             vec4 w;
         };
-        vec4 data[4];
+        vec4_t data[4];
     };
-} mat4;
+} *mat4, mat4_t;
 
 typedef vec4 versor;
 
