@@ -7,7 +7,7 @@
 
 #include "GL/glew.h"
 #include "common.h"
-#include "cglm/vec3.h"
+#include "math/maths.h"
 #include <mem.h>
 
 #define VERT_POS_NAME "position"
@@ -23,11 +23,11 @@
 #define COLOR_DIMENTION 4 // r, g, b, a
 
 #define FULL_MODEL_BYTE_SIZE(vertice_count) FULL_VERTEX_SIZE * vertice_count
-#define FULL_VERTEX_SIZE (POS_DIMENTION + UV_DIMENTION + COLOR_DIMENTION) * sizeof(float)
+#define FULL_VERTEX_SIZE ((POS_DIMENTION + UV_DIMENTION + COLOR_DIMENTION) * sizeof(float))
 
 #define POS_BYTE_OFFSET(vertice_count) 0
-#define UV_BYTE_OFFSET(vertice_count) (POS_DIMENTION * vertice_count * sizeof(float))
-#define COLOR_BYTE_OFFSET(vertice_count) ((POS_DIMENTION + UV_DIMENTION) * vertice_count * sizeof(float))
+#define UV_BYTE_OFFSET(vertice_count) (POS_DIMENTION * (vertice_count) * sizeof(float))
+#define COLOR_BYTE_OFFSET(vertice_count) ((POS_DIMENTION + UV_DIMENTION) * (vertice_count) * sizeof(float))
 
 typedef struct model {
     float *full_vertices_data;

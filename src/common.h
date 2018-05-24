@@ -16,6 +16,14 @@ typedef unsigned char ushort;
 #define null NULL
 #define _OUT_
 
+#if defined(_MSC_VER)
+#  define INLINE __forceinline
+#else
+#  define EXPORT __attribute__((visibility("default")))
+#  define INLINE static inline __attribute((always_inline))
+#endif
+
+
 #define TEMP_STR_BUFFER_LEN 1024
 #define CREATE_TEMP_STR_BUFFER() byte TEMP_BUFFER[TEMP_STR_BUFFER_LEN]
 

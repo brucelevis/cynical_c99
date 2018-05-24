@@ -63,18 +63,16 @@
 #ifdef DEBUG
 # include <assert.h>
 #endif
-/*
 
-#define GLM_MAT4_IDENTITY_INIT  {(vec4_t){1.0f, 0.0f, 0.0f, 0.0f},                    \
-                                 (vec4_t){0.0f, 1.0f, 0.0f, 0.0f},                    \
-                                 (vec4_t){0.0f, 0.0f, 1.0f, 0.0f},                    \
-                                 (vec4_t){0.0f, 0.0f, 0.0f, 1.0f}}
+#define GLM_MAT4_IDENTITY_INIT  {{1.0f, 0.0f, 0.0f, 0.0f},                    \
+                                 {0.0f, 1.0f, 0.0f, 0.0f},                    \
+                                 {0.0f, 0.0f, 1.0f, 0.0f},                    \
+                                 {0.0f, 0.0f, 0.0f, 1.0f}}
 
-#define GLM_MAT4_ZERO_INIT      {(vec4_t){0.0f, 0.0f, 0.0f, 0.0f},                    \
-                                 (vec4_t){0.0f, 0.0f, 0.0f, 0.0f},                    \
-                                 (vec4_t){0.0f, 0.0f, 0.0f, 0.0f},                    \
-                                 (vec4_t){0.0f, 0.0f, 0.0f, 0.0f}}
-*/
+#define GLM_MAT4_ZERO_INIT      {{0.0f, 0.0f, 0.0f, 0.0f},                    \
+                                 {0.0f, 0.0f, 0.0f, 0.0f},                    \
+                                 {0.0f, 0.0f, 0.0f, 0.0f},                    \
+
 
 /* for C only */
 #define GLM_MAT4_IDENTITY ((mat4)GLM_MAT4_IDENTITY_INIT)
@@ -112,13 +110,13 @@ CGLM_INLINE
 void
 glm_mat4_copy(mat4 mat, mat4 dest) {
 #ifdef __AVX__
-    glmm_store256(dest->data[0], glmm_load256(mat->data[0]));
-    glmm_store256(dest->data[2], glmm_load256(mat->data[2]));
+    glmm_store256(dest[0], glmm_load256(mat[0]));
+    glmm_store256(dest[2], glmm_load256(mat[2]));
 #elif defined( __SSE__ ) || defined( __SSE2__ )
-    glmm_store(dest->data[0], glmm_load(mat->data[0]));
-    glmm_store(dest->data[1], glmm_load(mat->data[1]));
-    glmm_store(dest->data[2], glmm_load(mat->data[2]));
-    glmm_store(dest->data[3], glmm_load(mat->data[3]));
+    glmm_store(dest[0], glmm_load(mat[0]));
+    glmm_store(dest[1], glmm_load(mat[1]));
+    glmm_store(dest[2], glmm_load(mat[2]));
+    glmm_store(dest[3], glmm_load(mat[3]));
 #else
     glm_mat4_ucopy(mat, dest);
 #endif
@@ -141,11 +139,7 @@ glm_mat4_copy(mat4 mat, mat4 dest) {
 CGLM_INLINE
 void
 glm_mat4_identity(mat4 mat) {
-    mat4 m;
-    make_vec4(1, 0, 0, 0, &m->data[0]);
-    make_vec4(0, 1, 0, 0, &m->data[1]);
-    make_vec4(0, 0, 1, 0, &m->data[2]);
-    make_vec4(0, 0, 0, 1, &m->data[3]);
+    mat4 m = GLM_MAT4_IDENTITY_INIT;
     glm_mat4_copy(m, mat);
 }
 
@@ -158,17 +152,17 @@ glm_mat4_identity(mat4 mat) {
 CGLM_INLINE
 void
 glm_mat4_pick3(mat4 mat, mat3 dest) {
-    dest->data[0].data[0] = mat->data[0].data[0];
-    dest->data[0].data[1] = mat->data[0].data[1];
-    dest->data[0].data[2] = mat->data[0].data[2];
+    dest[0][0] = mat[0][0];
+    dest[0][1] = mat[0][1];
+    dest[0][2] = mat[0][2];
 
-    dest->data[1].data[0] = mat->data[1].data[0];
-    dest->data[1].data[1] = mat->data[1].data[1];
-    dest->data[1].data[2] = mat->data[1].data[2];
+    dest[1][0] = mat[1][0];
+    dest[1][1] = mat[1][1];
+    dest[1][2] = mat[1][2];
 
-    dest->data[2].data[0] = mat->data[2].data[0];
-    dest->data[2].data[1] = mat->data[2].data[1];
-    dest->data[2].data[2] = mat->data[2].data[2];
+    dest[2][0] = mat[2][0];
+    dest[2][1] = mat[2][1];
+    dest[2][2] = mat[2][2];
 }
 
 /*!
@@ -182,17 +176,17 @@ glm_mat4_pick3(mat4 mat, mat3 dest) {
 CGLM_INLINE
 void
 glm_mat4_pick3t(mat4 mat, mat3 dest) {
-    dest->data[0].data[0] = mat->data[0].data[0];
-    dest->data[0].data[1] = mat->data[1].data[0];
-    dest->data[0].data[2] = mat->data[2].data[0];
+    dest[0][0] = mat[0][0];
+    dest[0][1] = mat[1][0];
+    dest[0][2] = mat[2][0];
 
-    dest->data[1].data[0] = mat->data[0].data[1];
-    dest->data[1].data[1] = mat->data[1].data[1];
-    dest->data[1].data[2] = mat->data[2].data[1];
+    dest[1][0] = mat[0][1];
+    dest[1][1] = mat[1][1];
+    dest[1][2] = mat[2][1];
 
-    dest->data[2].data[0] = mat->data[0].data[2];
-    dest->data[2].data[1] = mat->data[1].data[2];
-    dest->data[2].data[2] = mat->data[2].data[2];
+    dest[2][0] = mat[0][2];
+    dest[2][1] = mat[1][2];
+    dest[2][2] = mat[2][2];
 }
 
 /*!
@@ -204,17 +198,17 @@ glm_mat4_pick3t(mat4 mat, mat3 dest) {
 CGLM_INLINE
 void
 glm_mat4_ins3(mat3 mat, mat4 dest) {
-    dest->data[0].data[0] = mat->data[0].data[0];
-    dest->data[0].data[1] = mat->data[0].data[1];
-    dest->data[0].data[2] = mat->data[0].data[2];
+    dest[0][0] = mat[0][0];
+    dest[0][1] = mat[0][1];
+    dest[0][2] = mat[0][2];
 
-    dest->data[1].data[0] = mat->data[1].data[0];
-    dest->data[1].data[1] = mat->data[1].data[1];
-    dest->data[1].data[2] = mat->data[1].data[2];
+    dest[1][0] = mat[1][0];
+    dest[1][1] = mat[1][1];
+    dest[1][2] = mat[1][2];
 
-    dest->data[2].data[0] = mat->data[2].data[0];
-    dest->data[2].data[1] = mat->data[2].data[1];
-    dest->data[2].data[2] = mat->data[2].data[2];
+    dest[2][0] = mat[2][0];
+    dest[2][1] = mat[2][1];
+    dest[2][2] = mat[2][2];
 }
 
 /*!
@@ -241,55 +235,55 @@ glm_mat4_mul(mat4 m1, mat4 m2, mat4 dest) {
 #elif defined( __ARM_NEON_FP )
     glm_mat4_mul_neon(m1, m2, dest);
 #else
-    float a00 = m1->data[0].data[0];
-    float a01 = m1->data[0].data[1];
-    float a02 = m1->data[0].data[2];
-    float a03 = m1->data[0].data[3];
-    float a10 = m1->data[1].data[0];
-    float a11 = m1->data[1].data[1];
-    float a12 = m1->data[1].data[2];
-    float a13 = m1->data[1].data[3];
-    float a20 = m1->data[2].data[0];
-    float a21 = m1->data[2].data[1];
-    float a22 = m1->data[2].data[2];
-    float a23 = m1->data[2].data[3];
-    float a30 = m1->data[3].data[0];
-    float a31 = m1->data[3].data[1];
-    float a32 = m1->data[3].data[2];
-    float a33 = m1->data[3].data[3];
-    float b00 = m2->data[0].data[0];
-    float b01 = m2->data[0].data[1];
-    float b02 = m2->data[0].data[2];
-    float b03 = m2->data[0].data[3];
-    float b10 = m2->data[1].data[0];
-    float b11 = m2->data[1].data[1];
-    float b12 = m2->data[1].data[2];
-    float b13 = m2->data[1].data[3];
-    float b20 = m2->data[2].data[0];
-    float b21 = m2->data[2].data[1];
-    float b22 = m2->data[2].data[2];
-    float b23 = m2->data[2].data[3];
-    float b30 = m2->data[3].data[0];
-    float b31 = m2->data[3].data[1];
-    float b32 = m2->data[3].data[2];
-    float b33 = m2->data[3].data[3];
+    float a00 = m1[0][0];
+    float a01 = m1[0][1];
+    float a02 = m1[0][2];
+    float a03 = m1[0][3];
+    float a10 = m1[1][0];
+    float a11 = m1[1][1];
+    float a12 = m1[1][2];
+    float a13 = m1[1][3];
+    float a20 = m1[2][0];
+    float a21 = m1[2][1];
+    float a22 = m1[2][2];
+    float a23 = m1[2][3];
+    float a30 = m1[3][0];
+    float a31 = m1[3][1];
+    float a32 = m1[3][2];
+    float a33 = m1[3][3];
+    float b00 = m2[0][0];
+    float b01 = m2[0][1];
+    float b02 = m2[0][2];
+    float b03 = m2[0][3];
+    float b10 = m2[1][0];
+    float b11 = m2[1][1];
+    float b12 = m2[1][2];
+    float b13 = m2[1][3];
+    float b20 = m2[2][0];
+    float b21 = m2[2][1];
+    float b22 = m2[2][2];
+    float b23 = m2[2][3];
+    float b30 = m2[3][0];
+    float b31 = m2[3][1];
+    float b32 = m2[3][2];
+    float b33 = m2[3][3];
 
-    dest->data[0].data[0] = a00 * b00 + a10 * b01 + a20 * b02 + a30 * b03;
-    dest->data[0].data[1] = a01 * b00 + a11 * b01 + a21 * b02 + a31 * b03;
-    dest->data[0].data[2] = a02 * b00 + a12 * b01 + a22 * b02 + a32 * b03;
-    dest->data[0].data[3] = a03 * b00 + a13 * b01 + a23 * b02 + a33 * b03;
-    dest->data[1].data[0] = a00 * b10 + a10 * b11 + a20 * b12 + a30 * b13;
-    dest->data[1].data[1] = a01 * b10 + a11 * b11 + a21 * b12 + a31 * b13;
-    dest->data[1].data[2] = a02 * b10 + a12 * b11 + a22 * b12 + a32 * b13;
-    dest->data[1].data[3] = a03 * b10 + a13 * b11 + a23 * b12 + a33 * b13;
-    dest->data[2].data[0] = a00 * b20 + a10 * b21 + a20 * b22 + a30 * b23;
-    dest->data[2].data[1] = a01 * b20 + a11 * b21 + a21 * b22 + a31 * b23;
-    dest->data[2].data[2] = a02 * b20 + a12 * b21 + a22 * b22 + a32 * b23;
-    dest->data[2].data[3] = a03 * b20 + a13 * b21 + a23 * b22 + a33 * b23;
-    dest->data[3].data[0] = a00 * b30 + a10 * b31 + a20 * b32 + a30 * b33;
-    dest->data[3].data[1] = a01 * b30 + a11 * b31 + a21 * b32 + a31 * b33;
-    dest->data[3].data[2] = a02 * b30 + a12 * b31 + a22 * b32 + a32 * b33;
-    dest->data[3].data[3] = a03 * b30 + a13 * b31 + a23 * b32 + a33 * b33;
+    dest[0][0] = a00 * b00 + a10 * b01 + a20 * b02 + a30 * b03;
+    dest[0][1] = a01 * b00 + a11 * b01 + a21 * b02 + a31 * b03;
+    dest[0][2] = a02 * b00 + a12 * b01 + a22 * b02 + a32 * b03;
+    dest[0][3] = a03 * b00 + a13 * b01 + a23 * b02 + a33 * b03;
+    dest[1][0] = a00 * b10 + a10 * b11 + a20 * b12 + a30 * b13;
+    dest[1][1] = a01 * b10 + a11 * b11 + a21 * b12 + a31 * b13;
+    dest[1][2] = a02 * b10 + a12 * b11 + a22 * b12 + a32 * b13;
+    dest[1][3] = a03 * b10 + a13 * b11 + a23 * b12 + a33 * b13;
+    dest[2][0] = a00 * b20 + a10 * b21 + a20 * b22 + a30 * b23;
+    dest[2][1] = a01 * b20 + a11 * b21 + a21 * b22 + a31 * b23;
+    dest[2][2] = a02 * b20 + a12 * b21 + a22 * b22 + a32 * b23;
+    dest[2][3] = a03 * b20 + a13 * b21 + a23 * b22 + a33 * b23;
+    dest[3][0] = a00 * b30 + a10 * b31 + a20 * b32 + a30 * b33;
+    dest[3][1] = a01 * b30 + a11 * b31 + a21 * b32 + a31 * b33;
+    dest[3][2] = a02 * b30 + a12 * b31 + a22 * b32 + a32 * b33;
+    dest[3][3] = a03 * b30 + a13 * b31 + a23 * b32 + a33 * b33;
 #endif
 }
 
@@ -341,13 +335,13 @@ glm_mat4_mulv(mat4 m, vec4 v, vec4 dest) {
     glm_mat4_mulv_sse2(m, v, dest);
 #else
     vec4 res;
-    res->data[0] = m->data[0].data[0] * v->data[0] + m->data[1].data[0] * v->data[1] + m->data[2].data[0] * v->data[2] + m->data[3].data[0] * v->data[3];
+    res[0] = m[0][0] * v[0] + m[1][0] * v[1] + m[2][0] * v[2] + m[3][0] * v[3];
     
-    res->data[1] = m->data[0].data[1] * v->data[0] + m->data[1].data[1] * v->data[1] + m->data[2].data[1] * v->data[2] + m->data[3].data[1] * v->data[3];
+    res[1] = m[0][1] * v[0] + m[1][1] * v[1] + m[2][1] * v[2] + m[3][1] * v[3];
     
-    res->data[2] = m->data[0].data[2] * v->data[0] + m->data[1].data[2] * v->data[1] + m->data[2].data[2] * v->data[2] + m->data[3].data[2] * v->data[3];
+    res[2] = m[0][2] * v[0] + m[1][2] * v[1] + m[2][2] * v[2] + m[3][2] * v[3];
     
-    res->data[3] = m->data[0].data[3] * v->data[0] + m->data[1].data[3] * v->data[1] + m->data[2].data[3] * v->data[2] + m->data[3].data[3] * v->data[3];
+    res[3] = m[0][3] * v[0] + m[1][3] * v[1] + m[2][3] * v[2] + m[3][3] * v[3];
     
     glm_vec4_copy(res, dest);
 #endif
@@ -366,39 +360,39 @@ glm_mat4_quat(mat4 m, versor dest) {
 
     /* it seems using like m12 instead of m[1][2] causes extra instructions */
 
-    trace = m->data[0].data[0] + m->data[1].data[1] + m->data[2].data[2];
+    trace = m[0][0] + m[1][1] + m[2][2];
     if (trace >= 0.0f) {
         r = sqrtf(1.0f + trace);
         rinv = 0.5f / r;
 
-        dest->data[0] = rinv * (m->data[1].data[2] - m->data[2].data[1]);
-        dest->data[1] = rinv * (m->data[2].data[0] - m->data[0].data[2]);
-        dest->data[2] = rinv * (m->data[0].data[1] - m->data[1].data[0]);
-        dest->data[3] = r * 0.5f;
-    } else if (m->data[0].data[0] >= m->data[1].data[1] && m->data[0].data[0] >= m->data[2].data[2]) {
-        r = sqrtf(1.0f - m->data[1].data[1] - m->data[2].data[2] + m->data[0].data[0]);
+        dest[0] = rinv * (m[1][2] - m[2][1]);
+        dest[1] = rinv * (m[2][0] - m[0][2]);
+        dest[2] = rinv * (m[0][1] - m[1][0]);
+        dest[3] = r * 0.5f;
+    } else if (m[0][0] >= m[1][1] && m[0][0] >= m[2][2]) {
+        r = sqrtf(1.0f - m[1][1] - m[2][2] + m[0][0]);
         rinv = 0.5f / r;
 
-        dest->data[0] = r * 0.5f;
-        dest->data[1] = rinv * (m->data[0].data[1] + m->data[1].data[0]);
-        dest->data[2] = rinv * (m->data[0].data[2] + m->data[2].data[0]);
-        dest->data[3] = rinv * (m->data[1].data[2] - m->data[2].data[1]);
-    } else if (m->data[1].data[1] >= m->data[2].data[2]) {
-        r = sqrtf(1.0f - m->data[0].data[0] - m->data[2].data[2] + m->data[1].data[1]);
+        dest[0] = r * 0.5f;
+        dest[1] = rinv * (m[0][1] + m[1][0]);
+        dest[2] = rinv * (m[0][2] + m[2][0]);
+        dest[3] = rinv * (m[1][2] - m[2][1]);
+    } else if (m[1][1] >= m[2][2]) {
+        r = sqrtf(1.0f - m[0][0] - m[2][2] + m[1][1]);
         rinv = 0.5f / r;
 
-        dest->data[0] = rinv * (m->data[0].data[1] + m->data[1].data[0]);
-        dest->data[1] = r * 0.5f;
-        dest->data[2] = rinv * (m->data[1].data[2] + m->data[2].data[1]);
-        dest->data[3] = rinv * (m->data[2].data[0] - m->data[0].data[2]);
+        dest[0] = rinv * (m[0][1] + m[1][0]);
+        dest[1] = r * 0.5f;
+        dest[2] = rinv * (m[1][2] + m[2][1]);
+        dest[3] = rinv * (m[2][0] - m[0][2]);
     } else {
-        r = sqrtf(1.0f - m->data[0].data[0] - m->data[1].data[1] + m->data[2].data[2]);
+        r = sqrtf(1.0f - m[0][0] - m[1][1] + m[2][2]);
         rinv = 0.5f / r;
 
-        dest->data[0] = rinv * (m->data[0].data[2] + m->data[2].data[0]);
-        dest->data[1] = rinv * (m->data[1].data[2] + m->data[2].data[1]);
-        dest->data[2] = r * 0.5f;
-        dest->data[3] = rinv * (m->data[0].data[1] - m->data[1].data[0]);
+        dest[0] = rinv * (m[0][2] + m[2][0]);
+        dest[1] = rinv * (m[1][2] + m[2][1]);
+        dest[2] = r * 0.5f;
+        dest[3] = rinv * (m[0][1] - m[1][0]);
     }
 }
 
@@ -413,12 +407,12 @@ CGLM_INLINE
 void
 glm_mat4_mulv3(mat4 m, vec3 v, vec3 dest) {
     vec3 res;
-    res->data[0] = m->data[0].data[0] * v->data[0] + m->data[1].data[0] * v->data[1] + m->data[2].data[0] * v->data[2];
-    
-    res->data[1] = m->data[0].data[1] * v->data[0] + m->data[1].data[1] * v->data[1] + m->data[2].data[1] * v->data[2];
-    
-    res->data[2] = m->data[0].data[2] * v->data[0] + m->data[1].data[2] * v->data[1] + m->data[2].data[2] * v->data[2];
-    
+    res[0] = m[0][0] * v[0] + m[1][0] * v[1] + m[2][0] * v[2];
+
+    res[1] = m[0][1] * v[0] + m[1][1] * v[1] + m[2][1] * v[2];
+
+    res[2] = m[0][2] * v[0] + m[1][2] * v[1] + m[2][2] * v[2];
+
     glm_vec_copy(res, dest);
 }
 
@@ -436,22 +430,22 @@ glm_mat4_transpose_to(mat4 m, mat4 dest) {
 #if defined( __SSE__ ) || defined( __SSE2__ )
     glm_mat4_transp_sse2(m, dest);
 #else
-    dest->data[0].data[0] = m->data[0].data[0];
-    dest->data[1].data[0] = m->data[0].data[1];
-    dest->data[0].data[1] = m->data[1].data[0];
-    dest->data[1].data[1] = m->data[1].data[1];
-    dest->data[0].data[2] = m->data[2].data[0];
-    dest->data[1].data[2] = m->data[2].data[1];
-    dest->data[0].data[3] = m->data[3].data[0];
-    dest->data[1].data[3] = m->data[3].data[1];
-    dest->data[2].data[0] = m->data[0].data[2];
-    dest->data[3].data[0] = m->data[0].data[3];
-    dest->data[2].data[1] = m->data[1].data[2];
-    dest->data[3].data[1] = m->data[1].data[3];
-    dest->data[2].data[2] = m->data[2].data[2];
-    dest->data[3].data[2] = m->data[2].data[3];
-    dest->data[2].data[3] = m->data[3].data[2];
-    dest->data[3].data[3] = m->data[3].data[3];
+    dest[0][0] = m[0][0];
+    dest[1][0] = m[0][1];
+    dest[0][1] = m[1][0];
+    dest[1][1] = m[1][1];
+    dest[0][2] = m[2][0];
+    dest[1][2] = m[2][1];
+    dest[0][3] = m[3][0];
+    dest[1][3] = m[3][1];
+    dest[2][0] = m[0][2];
+    dest[3][0] = m[0][3];
+    dest[2][1] = m[1][2];
+    dest[3][1] = m[1][3];
+    dest[2][2] = m[2][2];
+    dest[3][2] = m[2][3];
+    dest[2][3] = m[3][2];
+    dest[3][3] = m[3][3];
 #endif
 }
 
@@ -485,22 +479,22 @@ glm_mat4_transpose(mat4 m) {
 CGLM_INLINE
 void
 glm_mat4_scale_p(mat4 m, float s) {
-    m->data[0].data[0] *= s;
-    m->data[0].data[1] *= s;
-    m->data[0].data[2] *= s;
-    m->data[0].data[3] *= s;
-    m->data[1].data[0] *= s;
-    m->data[1].data[1] *= s;
-    m->data[1].data[2] *= s;
-    m->data[1].data[3] *= s;
-    m->data[2].data[0] *= s;
-    m->data[2].data[1] *= s;
-    m->data[2].data[2] *= s;
-    m->data[2].data[3] *= s;
-    m->data[3].data[0] *= s;
-    m->data[3].data[1] *= s;
-    m->data[3].data[2] *= s;
-    m->data[3].data[3] *= s;
+    m[0][0] *= s;
+    m[0][1] *= s;
+    m[0][2] *= s;
+    m[0][3] *= s;
+    m[1][0] *= s;
+    m[1][1] *= s;
+    m[1][2] *= s;
+    m[1][3] *= s;
+    m[2][0] *= s;
+    m[2][1] *= s;
+    m[2][2] *= s;
+    m[2][3] *= s;
+    m[3][0] *= s;
+    m[3][1] *= s;
+    m[3][2] *= s;
+    m[3][3] *= s;
 }
 
 /*!
@@ -536,22 +530,22 @@ glm_mat4_det(mat4 mat) {
 #else
     /* [square] det(A) = det(At) */
     float t[6];
-    float a = mat->data[0].data[0];
-    float b = mat->data[0].data[1];
-    float c = mat->data[0].data[2];
-    float d = mat->data[0].data[3];
-    float e = mat->data[1].data[0];
-    float f = mat->data[1].data[1];
-    float g = mat->data[1].data[2];
-    float h = mat->data[1].data[3];
-    float i = mat->data[2].data[0];
-    float j = mat->data[2].data[1];
-    float k = mat->data[2].data[2];
-    float l = mat->data[2].data[3];
-    float m = mat->data[3].data[0];
-    float n = mat->data[3].data[1];
-    float o = mat->data[3].data[2];
-    float p = mat->data[3].data[3];
+    float a = mat[0][0];
+    float b = mat[0][1];
+    float c = mat[0][2];
+    float d = mat[0][3];
+    float e = mat[1][0];
+    float f = mat[1][1];
+    float g = mat[1][2];
+    float h = mat[1][3];
+    float i = mat[2][0];
+    float j = mat[2][1];
+    float k = mat[2][2];
+    float l = mat[2][3];
+    float m = mat[3][0];
+    float n = mat[3][1];
+    float o = mat[3][2];
+    float p = mat[3][3];
 
     t[0] = k * p - o * l;
     t[1] = j * p - n * l;
@@ -581,22 +575,22 @@ glm_mat4_inv(mat4 mat, mat4 dest) {
 #else
     float t[6];
     float det;
-    float a = mat->data[0].data[0];
-    float b = mat->data[0].data[1];
-    float c = mat->data[0].data[2];
-    float d = mat->data[0].data[3];
-    float e = mat->data[1].data[0];
-    float f = mat->data[1].data[1];
-    float g = mat->data[1].data[2];
-    float h = mat->data[1].data[3];
-    float i = mat->data[2].data[0];
-    float j = mat->data[2].data[1];
-    float k = mat->data[2].data[2];
-    float l = mat->data[2].data[3];
-    float m = mat->data[3].data[0];
-    float n = mat->data[3].data[1];
-    float o = mat->data[3].data[2];
-    float p = mat->data[3].data[3];
+    float a = mat[0][0];
+    float b = mat[0][1];
+    float c = mat[0][2];
+    float d = mat[0][3];
+    float e = mat[1][0];
+    float f = mat[1][1];
+    float g = mat[1][2];
+    float h = mat[1][3];
+    float i = mat[2][0];
+    float j = mat[2][1];
+    float k = mat[2][2];
+    float l = mat[2][3];
+    float m = mat[3][0];
+    float n = mat[3][1];
+    float o = mat[3][2];
+    float p = mat[3][3];
 
     t[0] = k * p - o * l;
     t[1] = j * p - n * l;
@@ -605,15 +599,15 @@ glm_mat4_inv(mat4 mat, mat4 dest) {
     t[4] = i * o - m * k;
     t[5] = i * n - m * j;
 
-    dest->data[0].data[0] = f * t[0] - g * t[1] + h * t[2];
-    dest->data[1].data[0] = -(e * t[0] - g * t[3] + h * t[4]);
-    dest->data[2].data[0] = e * t[1] - f * t[3] + h * t[5];
-    dest->data[3].data[0] = -(e * t[2] - f * t[4] + g * t[5]);
+    dest[0][0] = f * t[0] - g * t[1] + h * t[2];
+    dest[1][0] = -(e * t[0] - g * t[3] + h * t[4]);
+    dest[2][0] = e * t[1] - f * t[3] + h * t[5];
+    dest[3][0] = -(e * t[2] - f * t[4] + g * t[5]);
 
-    dest->data[0].data[1] = -(b * t[0] - c * t[1] + d * t[2]);
-    dest->data[1].data[1] = a * t[0] - c * t[3] + d * t[4];
-    dest->data[2].data[1] = -(a * t[1] - b * t[3] + d * t[5]);
-    dest->data[3].data[1] = a * t[2] - b * t[4] + c * t[5];
+    dest[0][1] = -(b * t[0] - c * t[1] + d * t[2]);
+    dest[1][1] = a * t[0] - c * t[3] + d * t[4];
+    dest[2][1] = -(a * t[1] - b * t[3] + d * t[5]);
+    dest[3][1] = a * t[2] - b * t[4] + c * t[5];
 
     t[0] = g * p - o * h;
     t[1] = f * p - n * h;
@@ -622,10 +616,10 @@ glm_mat4_inv(mat4 mat, mat4 dest) {
     t[4] = e * o - m * g;
     t[5] = e * n - m * f;
 
-    dest->data[0].data[2] = b * t[0] - c * t[1] + d * t[2];
-    dest->data[1].data[2] = -(a * t[0] - c * t[3] + d * t[4]);
-    dest->data[2].data[2] = a * t[1] - b * t[3] + d * t[5];
-    dest->data[3].data[2] = -(a * t[2] - b * t[4] + c * t[5]);
+    dest[0][2] = b * t[0] - c * t[1] + d * t[2];
+    dest[1][2] = -(a * t[0] - c * t[3] + d * t[4]);
+    dest[2][2] = a * t[1] - b * t[3] + d * t[5];
+    dest[3][2] = -(a * t[2] - b * t[4] + c * t[5]);
 
     t[0] = g * l - k * h;
     t[1] = f * l - j * h;
@@ -634,13 +628,13 @@ glm_mat4_inv(mat4 mat, mat4 dest) {
     t[4] = e * k - i * g;
     t[5] = e * j - i * f;
 
-    dest->data[0].data[3] = -(b * t[0] - c * t[1] + d * t[2]);
-    dest->data[1].data[3] = a * t[0] - c * t[3] + d * t[4];
-    dest->data[2].data[3] = -(a * t[1] - b * t[3] + d * t[5]);
-    dest->data[3].data[3] = a * t[2] - b * t[4] + c * t[5];
+    dest[0][3] = -(b * t[0] - c * t[1] + d * t[2]);
+    dest[1][3] = a * t[0] - c * t[3] + d * t[4];
+    dest[2][3] = -(a * t[1] - b * t[3] + d * t[5]);
+    dest[3][3] = a * t[2] - b * t[4] + c * t[5];
 
-    det = 1.0f / (a *   dest->data[0].data[0] + b * dest->data[1].data[0]
-                  + c * dest->data[2].data[0] + d * dest->data[3].data[0]);
+    det = 1.0f / (a *   dest[0][0] + b * dest[1][0]
+                  + c * dest[2][0] + d * dest[3][0]);
 
     glm_mat4_scale_p(dest, det);
 #endif
@@ -679,9 +673,9 @@ CGLM_INLINE
 void
 glm_mat4_swap_col(mat4 mat, int col1, int col2) {
     vec4 tmp;
-    glm_vec4_copy(&mat->data[col1], tmp);
-    glm_vec4_copy(&mat->data[col2], &mat->data[col1]);
-    glm_vec4_copy(tmp, &mat->data[col2]);
+    glm_vec4_copy(mat[col1], tmp);
+    glm_vec4_copy(mat[col2], mat[col1]);
+    glm_vec4_copy(tmp, mat[col2]);
 }
 
 /*!
@@ -695,20 +689,20 @@ CGLM_INLINE
 void
 glm_mat4_swap_row(mat4 mat, int row1, int row2) {
     vec4 tmp;
-    tmp->data[0] = mat->data[0].data[row1];
-    tmp->data[1] = mat->data[1].data[row1];
-    tmp->data[2] = mat->data[2].data[row1];
-    tmp->data[3] = mat->data[3].data[row1];
+    tmp[0] = mat[0][row1];
+    tmp[1] = mat[1][row1];
+    tmp[2] = mat[2][row1];
+    tmp[3] = mat[3][row1];
 
-    mat->data[0].data[row1] = mat->data[0].data[row2];
-    mat->data[1].data[row1] = mat->data[1].data[row2];
-    mat->data[2].data[row1] = mat->data[2].data[row2];
-    mat->data[3].data[row1] = mat->data[3].data[row2];
+    mat[0][row1] = mat[0][row2];
+    mat[1][row1] = mat[1][row2];
+    mat[2][row1] = mat[2][row2];
+    mat[3][row1] = mat[3][row2];
 
-    mat->data[0].data[row2] = tmp->data[0];
-    mat->data[1].data[row2] = tmp->data[1];
-    mat->data[2].data[row2] = tmp->data[2];
-    mat->data[3].data[row2] = tmp->data[3];
+    mat[0][row2] = tmp[0];
+    mat[1][row2] = tmp[1];
+    mat[2][row2] = tmp[2];
+    mat[3][row2] = tmp[3];
 }
 
 #endif /* cglm_mat_h */

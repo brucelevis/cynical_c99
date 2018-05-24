@@ -26,80 +26,21 @@
 #  define CGLM_ALIGN_IF(X) /* no alignment */
 #endif
 
-typedef struct {
-    union {
-        struct {
-            float x;
-            float y;
-        };
-        float data[2];
-    };
-} *vec2, vec2_t;
+typedef float vec2[2];
 
-typedef CGLM_ALIGN_IF(8)  struct {
-    union {
-        float data[3];
-        struct {
-            float x;
-            float y;
-            float z;
-        };
-    };
-} *vec3, vec3_t;
+typedef CGLM_ALIGN_IF(8) float vec3[3];
 
-typedef struct {
-    union {
-        struct {
-            float x;
-            float y;
-            float z;
-        };
-        int data[3];
-    };
-} *ivec3, ivec3_t;
+typedef int ivec3[3];
 
-typedef CGLM_ALIGN_IF(16) struct {
-    union {
-        struct {
-            float x;
-            float y;
-            float z;
-            float w;
-        };
-        struct {
-            float r;
-            float g;
-            float b;
-            float a;
-        };
-        float data[4];
-    };
-} *vec4, vec4_t;
+typedef CGLM_ALIGN_IF(16) float vec4[4];
 
-typedef struct {
-    union {
-        struct {
-            vec3_t x;
-            vec3_t y;
-            vec3_t z;
-        };
-        vec3_t data[3];
-    };
-} *mat3, mat3_t;
+typedef vec3 mat3[3];
 
-typedef CGLM_ALIGN_IF(16) struct {
-    union {
-        struct {
-            vec4_t x;
-            vec4_t y;
-            vec4_t z;
-            vec4_t w;
-        };
-        vec4_t data[4];
-    };
-} *mat4, mat4_t;
+typedef CGLM_ALIGN_IF(16) vec4 mat4[4];
 
 typedef vec4 versor;
+
+typedef vec4 color;
 
 #define CGLM_PI    ((float)M_PI)
 #define CGLM_PI_2  ((float)M_PI_2)

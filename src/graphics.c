@@ -52,49 +52,49 @@ model_t create_quad() {
 
     float *vertices = malloc(FULL_MODEL_BYTE_SIZE(QUAD_VERT_COUNT));
 
-    vec3_t *positions = (vec3_t *) vertices;
-    vec2_t *uvs = (vec2_t *) (((void *) positions) + UV_BYTE_OFFSET(4));
-    vec4_t *colors = (vec4_t *) (((void *) positions) + COLOR_BYTE_OFFSET(4));
+    vec3 *positions = (vec3 *) vertices;
+    vec2 *uvs = (vec2 *) (((void *) positions) + UV_BYTE_OFFSET(4));
+    vec4 *colors = (vec4 *) (((void *) positions) + COLOR_BYTE_OFFSET(4));
 
-    positions[0].x = -1;
-    positions[0].y = -1;
-    positions[0].z = 0;
-    uvs[0].x = 0;
-    uvs[0].y = 0;
-    colors[0].r = 1;
-    colors[0].g = 0;
-    colors[0].b = 0;
-    colors[0].a = 1;
+    positions[0][0] = -1;
+    positions[0][1] = -1;
+    positions[0][2] = 0;
+    uvs[0][0] = 0;
+    uvs[0][1] = 0;
+    colors[0][0] = 1;
+    colors[0][1] = 0;
+    colors[0][2] = 0;
+    colors[0][3] = 1;
 
-    positions[1].x = 1;
-    positions[1].y = -1;
-    positions[1].z = 0;
-    uvs[1].x = 1;
-    uvs[1].y = 0;
-    colors[1].r = 0;
-    colors[1].g = 1;
-    colors[1].b = 0;
-    colors[1].a = 1;
+    positions[1][0] = 1;
+    positions[1][1] = -1;
+    positions[1][2] = 0;
+    uvs[1][0] = 1;
+    uvs[1][1] = 0;
+    colors[1][0] = 0;
+    colors[1][1] = 1;
+    colors[1][2] = 0;
+    colors[1][3] = 1;
 
-    positions[2].x = 1;
-    positions[2].y = 1;
-    positions[2].z = 0;
-    uvs[2].x = 1;
-    uvs[2].y = 1;
-    colors[2].r = 0;
-    colors[2].g = 0;
-    colors[2].b = 1;
-    colors[2].a = 1;
+    positions[2][0] = 1;
+    positions[2][1] = 1;
+    positions[2][2] = 0;
+    uvs[2][0] = 1;
+    uvs[2][1] = 1;
+    colors[2][0] = 0;
+    colors[2][1] = 0;
+    colors[2][2] = 1;
+    colors[2][3] = 1;
 
-    positions[3].x = -1;
-    positions[3].y = 1;
-    positions[3].z = 0;
-    uvs[3].x = 0;
-    uvs[3].y = 1;
-    colors[3].r = 1;
-    colors[3].g = 1;
-    colors[3].b = 0;
-    colors[3].a = 1;
+    positions[3][0] = -1;
+    positions[3][1] = 1;
+    positions[3][2] = 0;
+    uvs[3][0] = 0;
+    uvs[3][1] = 1;
+    colors[3][0] = 1;
+    colors[3][1] = 1;
+    colors[3][2] = 0;
+    colors[3][3] = 1;
 
     uint *index = malloc(sizeof(uint) * QUAD_INDEX_COUNT);
     index[0] = 0;
@@ -127,15 +127,16 @@ void destroy_model(model_t model) {
 void print_model(model_t model) {
 
     for (int i = 0; i < model.vertices_count; ++i) {
-        vec3_t pos = model.positions_ptr_offset[i];
-        vec2_t uv = model.uvs_ptr_offset[i];
-        vec4_t color = model.colors_ptr_offset[i];
+        vec3 a = model.positions_ptr_offset[i];
+        vec3 pos = ;
+        vec3 uv = model.uvs_ptr_offset[i];
+        vec3 color = model.colors_ptr_offset[i];
 
         printf(
                 "x: %f y: %f z: %f - r: %f g: %f b: %f a: %f - u: %f v: %f \n",
-                pos.x, pos.y, pos.z,
-                color.r, color.g, color.b, color.a,
-                uv.x, uv.y
+                x(pos), y(pos), z(pos),
+                r(color), g(color), b(color), a(color),
+                x(uv), y(uv)
         );
     }
 }

@@ -84,6 +84,14 @@
 #define GLM_ZUP  ((vec3){0.0f, 0.0f, 1.0f})
 #define GLM_XUP  ((vec3){1.0f, 0.0f, 0.0f})
 
+CGLM_INLINE
+void
+make_vec3(float x, float y, float z, vec3 dest) {
+  dest[0] = x;
+  dest[1] = y;
+  dest[2] = z;
+}
+
 /*!
  * @brief init vec3 using vec4
  *
@@ -93,9 +101,9 @@
 CGLM_INLINE
 void
 glm_vec3(vec4 v4, vec3 dest) {
-  dest->data[0] = v4->data[0];
-  dest->data[1] = v4->data[1];
-  dest->data[2] = v4->data[2];
+  dest[0] = v4[0];
+  dest[1] = v4[1];
+  dest[2] = v4[2];
 }
 
 /*!
@@ -107,9 +115,9 @@ glm_vec3(vec4 v4, vec3 dest) {
 CGLM_INLINE
 void
 glm_vec_copy(vec3 a, vec3 dest) {
-  dest->data[0] = a->data[0];
-  dest->data[1] = a->data[1];
-  dest->data[2] = a->data[2];
+  dest[0] = a[0];
+  dest[1] = a[1];
+  dest[2] = a[2];
 }
 
 /*!
@@ -120,9 +128,9 @@ glm_vec_copy(vec3 a, vec3 dest) {
 CGLM_INLINE
 void
 glm_vec_zero(vec3 v) {
-  v->data[0] = 0.0f;
-  v->data[1] = 0.0f;
-  v->data[2] = 0.0f;
+  v[0] = 0.0f;
+  v[1] = 0.0f;
+  v[2] = 0.0f;
 }
 
 /*!
@@ -133,9 +141,9 @@ glm_vec_zero(vec3 v) {
 CGLM_INLINE
 void
 glm_vec_one(vec3 v) {
-  v->data[0] = 1.0f;
-  v->data[1] = 1.0f;
-  v->data[2] = 1.0f;
+  v[0] = 1.0f;
+  v[1] = 1.0f;
+  v[2] = 1.0f;
 }
 
 /*!
@@ -149,7 +157,7 @@ glm_vec_one(vec3 v) {
 CGLM_INLINE
 float
 glm_vec_dot(vec3 a, vec3 b) {
-  return a->data[0] * b->data[0] + a->data[1] * b->data[1] + a->data[2] * b->data[2];
+  return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 }
 
 /*!
@@ -163,9 +171,9 @@ CGLM_INLINE
 void
 glm_vec_cross(vec3 a, vec3 b, vec3 d) {
   /* (u2.v3 - u3.v2, u3.v1 - u1.v3, u1.v2 - u2.v1) */
-  d->data[0] = a->data[1] * b->data[2] - a->data[2] * b->data[1];
-  d->data[1] = a->data[2] * b->data[0] - a->data[0] * b->data[2];
-  d->data[2] = a->data[0] * b->data[1] - a->data[1] * b->data[0];
+  d[0] = a[1] * b[2] - a[2] * b[1];
+  d[1] = a[2] * b[0] - a[0] * b[2];
+  d[2] = a[0] * b[1] - a[1] * b[0];
 }
 
 /*!
@@ -208,9 +216,9 @@ glm_vec_norm(vec3 vec) {
 CGLM_INLINE
 void
 glm_vec_add(vec3 a, vec3 b, vec3 dest) {
-  dest->data[0] = a->data[0] + b->data[0];
-  dest->data[1] = a->data[1] + b->data[1];
-  dest->data[2] = a->data[2] + b->data[2];
+  dest[0] = a[0] + b[0];
+  dest[1] = a[1] + b[1];
+  dest[2] = a[2] + b[2];
 }
 
 /*!
@@ -223,9 +231,9 @@ glm_vec_add(vec3 a, vec3 b, vec3 dest) {
 CGLM_INLINE
 void
 glm_vec_adds(vec3 v, float s, vec3 dest) {
-  dest->data[0] = v->data[0] + s;
-  dest->data[1] = v->data[1] + s;
-  dest->data[2] = v->data[2] + s;
+  dest[0] = v[0] + s;
+  dest[1] = v[1] + s;
+  dest[2] = v[2] + s;
 }
 
 /*!
@@ -238,9 +246,9 @@ glm_vec_adds(vec3 v, float s, vec3 dest) {
 CGLM_INLINE
 void
 glm_vec_sub(vec3 a, vec3 b, vec3 dest) {
-  dest->data[0] = a->data[0] - b->data[0];
-  dest->data[1] = a->data[1] - b->data[1];
-  dest->data[2] = a->data[2] - b->data[2];
+  dest[0] = a[0] - b[0];
+  dest[1] = a[1] - b[1];
+  dest[2] = a[2] - b[2];
 }
 
 /*!
@@ -253,9 +261,9 @@ glm_vec_sub(vec3 a, vec3 b, vec3 dest) {
 CGLM_INLINE
 void
 glm_vec_subs(vec3 v, float s, vec3 dest) {
-  dest->data[0] = v->data[0] - s;
-  dest->data[1] = v->data[1] - s;
-  dest->data[2] = v->data[2] - s;
+  dest[0] = v[0] - s;
+  dest[1] = v[1] - s;
+  dest[2] = v[2] - s;
 }
 
 /*!
@@ -263,14 +271,14 @@ glm_vec_subs(vec3 v, float s, vec3 dest) {
  *
  * @param a v1
  * @param b v2
- * @param d v3 = (a->data[0] * b->data[0], a->data[1] * b->data[1], a->data[2] * b->data[2])
+ * @param d v3 = (a[0] * b[0], a[1] * b[1], a[2] * b[2])
  */
 CGLM_INLINE
 void
 glm_vec_mul(vec3 a, vec3 b, vec3 d) {
-  d->data[0] = a->data[0] * b->data[0];
-  d->data[1] = a->data[1] * b->data[1];
-  d->data[2] = a->data[2] * b->data[2];
+  d[0] = a[0] * b[0];
+  d[1] = a[1] * b[1];
+  d[2] = a[2] * b[2];
 }
 
 /*!
@@ -283,9 +291,9 @@ glm_vec_mul(vec3 a, vec3 b, vec3 d) {
 CGLM_INLINE
 void
 glm_vec_scale(vec3 v, float s, vec3 dest) {
-  dest->data[0] = v->data[0] * s;
-  dest->data[1] = v->data[1] * s;
-  dest->data[2] = v->data[2] * s;
+  dest[0] = v[0] * s;
+  dest[1] = v[1] * s;
+  dest[2] = v[2] * s;
 }
 
 /*!
@@ -314,14 +322,14 @@ glm_vec_scale_as(vec3 v, float s, vec3 dest) {
  *
  * @param[in]  a    vector 1
  * @param[in]  b    vector 2
- * @param[out] dest result = (a->data[0]/b->data[0], a->data[1]/b->data[1], a->data[2]/b->data[2])
+ * @param[out] dest result = (a[0]/b[0], a[1]/b[1], a[2]/b[2])
  */
 CGLM_INLINE
 void
 glm_vec_div(vec3 a, vec3 b, vec3 dest) {
-  dest->data[0] = a->data[0] / b->data[0];
-  dest->data[1] = a->data[1] / b->data[1];
-  dest->data[2] = a->data[2] / b->data[2];
+  dest[0] = a[0] / b[0];
+  dest[1] = a[1] / b[1];
+  dest[2] = a[2] / b[2];
 }
 
 /*!
@@ -329,14 +337,14 @@ glm_vec_div(vec3 a, vec3 b, vec3 dest) {
  *
  * @param[in]  v    vector
  * @param[in]  s    scalar
- * @param[out] dest result = (a->data[0]/s, a->data[1]/s, a->data[2]/s)
+ * @param[out] dest result = (a[0]/s, a[1]/s, a[2]/s)
  */
 CGLM_INLINE
 void
 glm_vec_divs(vec3 v, float s, vec3 dest) {
-  dest->data[0] = v->data[0] / s;
-  dest->data[1] = v->data[1] / s;
-  dest->data[2] = v->data[2] / s;
+  dest[0] = v[0] / s;
+  dest[1] = v[1] / s;
+  dest[2] = v[2] / s;
 }
 
 /*!
@@ -351,9 +359,9 @@ glm_vec_divs(vec3 v, float s, vec3 dest) {
 CGLM_INLINE
 void
 glm_vec_addadd(vec3 a, vec3 b, vec3 dest) {
-  dest->data[0] += a->data[0] + b->data[0];
-  dest->data[1] += a->data[1] + b->data[1];
-  dest->data[2] += a->data[2] + b->data[2];
+  dest[0] += a[0] + b[0];
+  dest[1] += a[1] + b[1];
+  dest[2] += a[2] + b[2];
 }
 
 /*!
@@ -368,9 +376,9 @@ glm_vec_addadd(vec3 a, vec3 b, vec3 dest) {
 CGLM_INLINE
 void
 glm_vec_subadd(vec3 a, vec3 b, vec3 dest) {
-  dest->data[0] += a->data[0] - b->data[0];
-  dest->data[1] += a->data[1] - b->data[1];
-  dest->data[2] += a->data[2] - b->data[2];
+  dest[0] += a[0] - b[0];
+  dest[1] += a[1] - b[1];
+  dest[2] += a[2] - b[2];
 }
 
 /*!
@@ -385,9 +393,9 @@ glm_vec_subadd(vec3 a, vec3 b, vec3 dest) {
 CGLM_INLINE
 void
 glm_vec_muladd(vec3 a, vec3 b, vec3 dest) {
-  dest->data[0] += a->data[0] * b->data[0];
-  dest->data[1] += a->data[1] * b->data[1];
-  dest->data[2] += a->data[2] * b->data[2];
+  dest[0] += a[0] * b[0];
+  dest[1] += a[1] * b[1];
+  dest[2] += a[2] * b[2];
 }
 
 /*!
@@ -402,9 +410,9 @@ glm_vec_muladd(vec3 a, vec3 b, vec3 dest) {
 CGLM_INLINE
 void
 glm_vec_muladds(vec3 a, float s, vec3 dest) {
-  dest->data[0] += a->data[0] * s;
-  dest->data[1] += a->data[1] * s;
-  dest->data[2] += a->data[2] * s;
+  dest[0] += a[0] * s;
+  dest[1] += a[1] * s;
+  dest[2] += a[2] * s;
 }
 
 /*!
@@ -415,9 +423,9 @@ glm_vec_muladds(vec3 a, float s, vec3 dest) {
 CGLM_INLINE
 void
 glm_vec_flipsign(vec3 v) {
-  v->data[0] = -v->data[0];
-  v->data[1] = -v->data[1];
-  v->data[2] = -v->data[2];
+  v[0] = -v[0];
+  v[1] = -v[1];
+  v[2] = -v[2];
 }
 
 /*!
@@ -429,9 +437,9 @@ glm_vec_flipsign(vec3 v) {
 CGLM_INLINE
 void
 glm_vec_flipsign_to(vec3 v, vec3 dest) {
-  dest->data[0] = -v->data[0];
-  dest->data[1] = -v->data[1];
-  dest->data[2] = -v->data[2];
+  dest[0] = -v[0];
+  dest[1] = -v[1];
+  dest[2] = -v[2];  
 }
 
 /*!
@@ -471,7 +479,7 @@ glm_vec_normalize(vec3 v) {
   norm = glm_vec_norm(v);
 
   if (norm == 0.0f) {
-    v->data[0] = v->data[1] = v->data[2] = 0.0f;
+    v[0] = v[1] = v[2] = 0.0f;
     return;
   }
 
@@ -567,13 +575,13 @@ void
 glm_vec_rotate_m4(mat4 m, vec3 v, vec3 dest) {
   vec4 x, y, z, res;
 
-  glm_vec4_normalize_to(&m->data[0], x);
-  glm_vec4_normalize_to(&m->data[1], y);
-  glm_vec4_normalize_to(&m->data[2], z);
+  glm_vec4_normalize_to(m[0], x);
+  glm_vec4_normalize_to(m[1], y);
+  glm_vec4_normalize_to(m[2], z);
 
-  glm_vec4_scale(x,   v->data[0], res);
-  glm_vec4_muladds(y, v->data[1], res);
-  glm_vec4_muladds(z, v->data[2], res);
+  glm_vec4_scale(x,   v[0], res);
+  glm_vec4_muladds(y, v[1], res);
+  glm_vec4_muladds(z, v[2], res);
 
   glm_vec3(res, dest);
 }
@@ -590,17 +598,17 @@ void
 glm_vec_rotate_m3(mat3 m, vec3 v, vec3 dest) {
   vec4 res, x, y, z;
 
-  glm_vec4(&m->data[0], 0.0f, x);
-  glm_vec4(&m->data[1], 0.0f, y);
-  glm_vec4(&m->data[2], 0.0f, z);
+  glm_vec4(m[0], 0.0f, x);
+  glm_vec4(m[1], 0.0f, y);
+  glm_vec4(m[2], 0.0f, z);
 
   glm_vec4_normalize(x);
   glm_vec4_normalize(y);
   glm_vec4_normalize(z);
 
-  glm_vec4_scale(x,   v->data[0], res);
-  glm_vec4_muladds(y, v->data[1], res);
-  glm_vec4_muladds(z, v->data[2], res);
+  glm_vec4_scale(x,   v[0], res);
+  glm_vec4_muladds(y, v[1], res);
+  glm_vec4_muladds(z, v[2], res);
 
   glm_vec3(res, dest);
 }
@@ -644,9 +652,9 @@ glm_vec_center(vec3 v1, vec3 v2, vec3 dest) {
 CGLM_INLINE
 float
 glm_vec_distance(vec3 v1, vec3 v2) {
-  return sqrtf(glm_pow2(v2->data[0] - v1->data[0])
-             + glm_pow2(v2->data[1] - v1->data[1])
-             + glm_pow2(v2->data[2] - v1->data[2]));
+  return sqrtf(glm_pow2(v2[0] - v1[0])
+             + glm_pow2(v2[1] - v1[1])
+             + glm_pow2(v2[2] - v1[2]));
 }
 
 /*!
@@ -659,9 +667,9 @@ glm_vec_distance(vec3 v1, vec3 v2) {
 CGLM_INLINE
 void
 glm_vec_maxv(vec3 v1, vec3 v2, vec3 dest) {
-  dest->data[0] = glm_max(v1->data[0], v2->data[0]);
-  dest->data[1] = glm_max(v1->data[1], v2->data[1]);
-  dest->data[2] = glm_max(v1->data[2], v2->data[2]);
+  dest[0] = glm_max(v1[0], v2[0]);
+  dest[1] = glm_max(v1[1], v2[1]);
+  dest[2] = glm_max(v1[2], v2[2]);
 }
 
 /*!
@@ -674,9 +682,9 @@ glm_vec_maxv(vec3 v1, vec3 v2, vec3 dest) {
 CGLM_INLINE
 void
 glm_vec_minv(vec3 v1, vec3 v2, vec3 dest) {
-  dest->data[0] = glm_min(v1->data[0], v2->data[0]);
-  dest->data[1] = glm_min(v1->data[1], v2->data[1]);
-  dest->data[2] = glm_min(v1->data[2], v2->data[2]);
+  dest[0] = glm_min(v1[0], v2[0]);
+  dest[1] = glm_min(v1[1], v2[1]);
+  dest[2] = glm_min(v1[2], v2[2]);
 }
 
 /*!
@@ -688,9 +696,9 @@ glm_vec_minv(vec3 v1, vec3 v2, vec3 dest) {
 CGLM_INLINE
 void
 glm_vec_ortho(vec3 v, vec3 dest) {
-  dest->data[0] = v->data[1] - v->data[2];
-  dest->data[1] = v->data[2] - v->data[0];
-  dest->data[2] = v->data[0] - v->data[1];
+  dest[0] = v[1] - v[2];
+  dest[1] = v[2] - v[0];
+  dest[2] = v[0] - v[1];
 }
 
 /*!
@@ -703,9 +711,9 @@ glm_vec_ortho(vec3 v, vec3 dest) {
 CGLM_INLINE
 void
 glm_vec_clamp(vec3 v, float minVal, float maxVal) {
-  v->data[0] = glm_clamp(v->data[0], minVal, maxVal);
-  v->data[1] = glm_clamp(v->data[1], minVal, maxVal);
-  v->data[2] = glm_clamp(v->data[2], minVal, maxVal);
+  v[0] = glm_clamp(v[0], minVal, maxVal);
+  v[1] = glm_clamp(v[1], minVal, maxVal);
+  v[2] = glm_clamp(v[2], minVal, maxVal);
 }
 
 /*!
