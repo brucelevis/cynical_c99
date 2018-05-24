@@ -71,6 +71,15 @@
 #define GLM_VEC4_BLACK      ((vec4)GLM_VEC4_BLACK_INIT)
 #define GLM_VEC4_ZERO       ((vec4)GLM_VEC4_ZERO_INIT)
 
+CGLM_INLINE
+void
+make_vec4(float x, float y, float z, float w, vec4 dest) {
+  dest->x = x;
+  dest->y = y;
+  dest->z = z;
+  dest->w = w;
+}
+
 /*!
  * @brief init vec4 using vec3
  *

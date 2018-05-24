@@ -11,6 +11,8 @@
 #include "file.h"
 #include "graphics.h"
 #include "cglm/vec3.h"
+#include "cglm/mat4.h"
+#include "cglm/cam.h"
 
 #define FILE_BUFFER_SIZE 2048
 byte FILE_BUFFER[FILE_BUFFER_SIZE];
@@ -58,6 +60,8 @@ int main() {
     shader_t shader = create_shader(vert_shader, frag_shader);
     model_t quad = create_quad();
     mesh_t quad_mesh = create_mesh(quad);
+    
+    mat4 MVP, view, proj, model;
 
     print_model(quad);
 

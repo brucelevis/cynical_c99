@@ -79,9 +79,9 @@ typedef CGLM_ALIGN_IF(16) struct {
 typedef struct {
     union {
         struct {
-            vec3 x;
-            vec3 y;
-            vec3 z;
+            vec3_t x;
+            vec3_t y;
+            vec3_t z;
         };
         vec3_t data[3];
     };
@@ -90,10 +90,10 @@ typedef struct {
 typedef CGLM_ALIGN_IF(16) struct {
     union {
         struct {
-            vec4 x;
-            vec4 y;
-            vec4 z;
-            vec4 w;
+            vec4_t x;
+            vec4_t y;
+            vec4_t z;
+            vec4_t w;
         };
         vec4_t data[4];
     };
