@@ -58,7 +58,7 @@ int main() {
     model_t quad = create_quad();
     mesh_t quad_mesh = create_mesh(quad);
     
-    mat4_t MVP, view, proj, model;
+    mat4_t MVP, view, proj, view_proj, model;
     vec3_t dir, center, up;
     
     mat4_identity(&MVP);
@@ -66,14 +66,22 @@ int main() {
     mat4_identity(&proj);
     mat4_identity(&model);
     
-    vec3_set(0, 0, -1, &dir);
+    quat_t rot;
+    vec3_t axis = VEC3_MAKE_FORWARD();
+    quat_angle_axis(&axis, RAD(60), &rot);
+    
+    transform_t trans = trans_make(vec3_make(1, 1, 0), VEC3_MAKE_ONE(), rot);
+    trans_get_mat4(&trans, &model);
+    
+    vec3_set(0, 0, -10000, &dir);
     vec3_set(0, 0, 10, &center);
     vec3_set(0, 1, 0, &up);
     
     mat4_look(&center, &dir, &up, &view);
-    mat4_perspective(RAD(45), 16 / 9.f, .001, 10000, &proj);
-    
-    //mat4_mul(&view, &proj, &MVP);
+    mat4_perspective(RAD(60), 16 / 9.f, .001f, 10000.f, &proj);
+
+    mat4_mul(&proj, &view, &view_proj);
+    mat4_mul(&model, &view_proj, &MVP);
     
     print_model(quad);
 

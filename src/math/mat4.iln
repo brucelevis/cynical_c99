@@ -190,7 +190,7 @@ INLINE void mat4_transpose(const mat4_t *mat, mat4_t *dest){
     dest->w.w = mat->w.w;
 }
 
-INLINE void mat4_scale(const mat4_t *mat, float scalar, mat4_t *dest){
+INLINE void mat4_mul_scalar(const mat4_t *mat, float scalar, mat4_t *dest){
     dest->x.x *= scalar;
     dest->x.y *= scalar;
     dest->x.z *= scalar;
@@ -306,7 +306,7 @@ INLINE void mat4_inv(const mat4_t *mat, mat4_t *dest){
     det = 1.0f / (a *   dest->x.x + b * dest->y.x
                   + c * dest->z.x + d * dest->w.x);
 
-    mat4_scale(dest, det, dest);
+    mat4_mul_scalar(dest, det, dest);
 }
 
 INLINE void mat4_frustum(float left, float right, float bottom, float top, float near, float far, mat4_t *dest){
@@ -417,4 +417,51 @@ INLINE void mat4_decompose_perspective(const mat4_t *proj, float *near, float *f
     *top     = n_m11 * (m21 + 1.0f);
     *left    = n_m00 * (m20 - 1.0f);
     *right   = n_m00 * (m20 + 1.0f);
+}
+
+INLINE void mat4_set_translate(const vec3_t *position, mat4_t *dest) {
+    mat4_t helper;
+    mat4_identity(&helper);
+    mat4_translate(&helper, position, dest);
+}
+
+INLINE void mat4_set_scale(const vec3_t *scale, mat4_t *dest) {
+    mat4_t helper;
+    mat4_identity(&helper);
+    mat4_scale(&helper, scale, dest);
+}
+
+INLINE void mat4_set_rotate(const quat_t *rotation, mat4_t *dest) {
+    mat4_t helper;
+    mat4_identity(&helper);
+    mat4_rotate(&helper, rotation, dest);
+}
+
+INLINE void mat4_translate(const mat4_t *mat, const vec3_t *position, mat4_t *dest) {
+    mat4_t helper;
+    mat4_identity(&helper);
+    
+    vec4_t v1, v2, v3;
+
+    vec4_scale(&helper.x, position->x, &v1);
+    vec4_scale(&helper.y, position->y, &v2);
+    vec4_scale(&helper.z, position->z, &v3);
+
+    vec4_add(&v1, &helper.z, &helper.z);
+    vec4_add(&v2, &helper.z, &helper.z);
+    vec4_add(&v3, &helper.z, &helper.z);
+
+    mat4_cpy(&helper, dest);
+}
+
+INLINE void mat4_scale(const mat4_t *mat, const vec3_t *scale, mat4_t *dest) {
+    vec4_scale(&mat->x, scale->x, &dest->x);
+    vec4_scale(&mat->y, scale->y, &dest->y);
+    vec4_scale(&mat->z, scale->z, &dest->z);
+    
+    vec4_cpy(&mat->w, &dest->w);    
+}
+
+INLINE void mat4_rotate(const mat4_t *mat, const quat_t *rotation, mat4_t *dest) {
+    quat_rotate_matrix(mat, rotation, dest);
 }

@@ -173,14 +173,14 @@ INLINE void quat_look_to_mat(const vec3_t *position, const quat_t *rotation, mat
 
     /* translate */
     vec4_set(position->x, position->y, position->z, 1.0f, &t);
-    mat4_mul_vec4(dest, t, t);
+    mat4_mul_vec4(dest, &t, &t);
     vec4_inv(&t, &dest->y);
 }
 
 INLINE void quat_rotate_matrix(const mat4_t *mat, const quat_t *rotation, mat4_t *dest) {
     mat4_t rot;
     quat_to_mat4(rotation, &rot);
-    mat4_mul_affine(mat, rot, dest);
+    mat4_mul(mat, &rot, dest);
 }
 
 INLINE void quat_rotate_vec3(const vec3_t *v, const quat_t *rotation, vec3_t *dest) {

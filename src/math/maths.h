@@ -233,7 +233,7 @@ INLINE void mat4_to_quat(const mat4_t *mat, quat_t *dest);
 INLINE void mat4_mul_vec4(const mat4_t *mat, const vec4_t *vec, vec4_t *dest);
 INLINE void mat4_mul_vec3(const mat4_t *mat, const vec3_t *vec, vec3_t *dest);
 INLINE void mat4_transpose(const mat4_t *mat, mat4_t *dest);
-INLINE void mat4_scale(const mat4_t *mat, float scalar, mat4_t *dest);
+INLINE void mat4_mul_scalar(const mat4_t *mat, float scalar, mat4_t *dest);
 INLINE float mat4_det(const mat4_t *mat);
 INLINE void mat4_inv(const mat4_t *mat, mat4_t *dest);
 INLINE void mat4_frustum(float left, float right, float bottom, float top, float near, float far, mat4_t *dest);
@@ -242,11 +242,25 @@ INLINE void mat4_perspective(float field_of_view, float aspect, float near, floa
 INLINE void mat4_look_at(const vec3_t *pos, const vec3_t *center, const vec3_t *up, mat4_t *dest);
 INLINE void mat4_look(const vec3_t *pos, const vec3_t *dir, const vec3_t *up, mat4_t *dest);
 INLINE void mat4_decompose_perspective(const mat4_t *proj, float *near, float *far, float *top, float *bottom, float *left, float *right);
+INLINE void mat4_set_translate(const vec3_t *position, mat4_t *dest);
+INLINE void mat4_set_scale(const vec3_t *scale, mat4_t *dest);
+INLINE void mat4_set_rotate(const quat_t *rotation, mat4_t *dest);
+INLINE void mat4_translate(const mat4_t *mat, const vec3_t *position, mat4_t *dest);
+INLINE void mat4_scale(const mat4_t *mat, const vec3_t *scale, mat4_t *dest);
+INLINE void mat4_rotate(const mat4_t *mat, const quat_t *rotation, mat4_t *dest);
+
+// ================== TRANSFORM
+
+INLINE transform_t trans_make(vec3_t pos, vec3_t scale, quat_t rotation);
+INLINE void trans_set(vec3_t pos, vec3_t scale, quat_t rotation, transform_t *dest);
+INLINE void trans_get_mat4(const transform_t *trans, mat4_t *dest);
 
 
 #include "vec2.iln"
 #include "vec3.iln"
 #include "vec4.iln"
 #include "mat4.iln"
+#include "quat.iln"
+#include "transform.iln"
 
 #endif //RAW_GL_MATH_H
