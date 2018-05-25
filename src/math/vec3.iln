@@ -4,6 +4,12 @@
 
 #include "maths.h"
 
+INLINE vec3_t vec3_make(float x, float y, float z) {
+    vec3_t dest;
+    vec3_set(x, y, z, &dest);
+    return dest;
+}
+
 INLINE void vec3_set(float x, float y, float z, vec3_t *dest) {
     dest->x = x;
     dest->y = y;

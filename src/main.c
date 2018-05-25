@@ -3,7 +3,6 @@
  */
 
 #include <stdio.h>
-#include <cglm/types.h>
 #include "GL/glew.h"
 #include "GL/GL.h"
 #include "GLFW/glfw3.h"
@@ -59,43 +58,43 @@ int main() {
     model_t quad = create_quad();
     mesh_t quad_mesh = create_mesh(quad);
     
-    mat4 MVP, view, proj, model;
-    vec3 dir, center, up;
+    mat4_t MVP, view, proj, model;
+    vec3_t dir, center, up;
     
-    mat4_identity(MVP);
-    glm_mat4_identity(view);
-    glm_mat4_identity(proj);
-    glm_mat4_identity(model);
+    mat4_identity(&MVP);
+    mat4_identity(&view);
+    mat4_identity(&proj);
+    mat4_identity(&model);
     
-    make_vec3(0, 0, -1, dir);
-    make_vec3(0, 0, 10, center);
-    make_vec3(0, 1, 0, up);
+    vec3_set(0, 0, -1, &dir);
+    vec3_set(0, 0, 10, &center);
+    vec3_set(0, 1, 0, &up);
     
-    glm_lookat(center, dir, up, &view);
-    glm_perspective(glm_rad(45), 16 / 9.f, .001, 10000, &proj);
+    mat4_look(&center, &dir, &up, &view);
+    mat4_perspective(RAD(45), 16 / 9.f, .001, 10000, &proj);
     
-    //glm_mat4_mul(&view, &proj, &MVP);
+    //mat4_mul(&view, &proj, &MVP);
     
     print_model(quad);
 
     glUseProgram(shader.handle);
     CHECK_GL_ERROR();
 
-        printf("x: %f y: %f z: %f w: %f\n", 
-               MVP.data[0].x, MVP.data[0].y, MVP.data[0].z, MVP.data[0].w
-        );
+    printf("x: %f y: %f z: %f w: %f\n", 
+           MVP.data[0].x, MVP.data[0].y, MVP.data[0].z, MVP.data[0].w
+    );
 
-        printf("x: %f y: %f z: %f w: %f\n",
-               MVP.data[1].x, MVP.data[1].y, MVP.data[1].z, MVP.data[1].w
-        );
+    printf("x: %f y: %f z: %f w: %f\n",
+           MVP.data[1].x, MVP.data[1].y, MVP.data[1].z, MVP.data[1].w
+    );
 
-        printf("x: %f y: %f z: %f w: %f\n",
-               MVP.data[2].x, MVP.data[2].y, MVP.data[2].z, MVP.data[2].w
-        );
+    printf("x: %f y: %f z: %f w: %f\n",
+           MVP.data[2].x, MVP.data[2].y, MVP.data[2].z, MVP.data[2].w
+    );
 
-        printf("x: %f y: %f z: %f w: %f\n",
-               MVP.data[3].x, MVP.data[3].y, MVP.data[3].z, MVP.data[3].w
-        );
+    printf("x: %f y: %f z: %f w: %f\n",
+           MVP.data[3].x, MVP.data[3].y, MVP.data[3].z, MVP.data[3].w
+    );
 
     int loc = glGetUniformLocation(shader.handle, "MVP");
     glUniformMatrix4fv(loc, 1, GL_FALSE, MVP.data->data);

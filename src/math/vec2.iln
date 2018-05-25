@@ -4,6 +4,12 @@
 
 #include "maths.h"
 
+INLINE vec2_t vec2_make(float x, float y) {
+    vec2_t dest;
+    vec2_set(x, y, &dest);
+    return dest;
+}
+
 INLINE void vec2_set(float x, float y, vec2_t *dest) {
     dest->x = x;
     dest->y = y;

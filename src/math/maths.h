@@ -50,6 +50,7 @@ typedef struct vec4 {
 } vec4_t;
 
 typedef vec4_t quat_t; 
+typedef vec4_t color_t;
 
 typedef struct mat4 {
     union {
@@ -69,7 +70,34 @@ typedef struct mat4 {
     };
 } mat4_t;
 
+typedef struct transform {
+    vec3_t position;
+    quat_t rotation;
+    vec3_t scale;
+} transform_t;
+
+// ============== FLOAT
+
+#define RAD(deg) ((deg) * PI / 180.0f)
+#define DEG(rag) ((rad) * 180.0f / PI)
+
 // ============== VEC 2
+
+INLINE vec2_t vec2_make(float x, float y);
+
+#define VEC2_MAKE_ONE() vec2_make(1, 1)
+#define VEC2_MAKE_ZERO() vec2_make(0, 0)
+#define VEC2_MAKE_UP() vec2_make(0, 1)
+#define VEC2_MAKE_DOWN() vec2_make(0, -1)
+#define VEC2_MAKE_RIGH() vec2_make(1, 0)
+#define VEC2_MAKE_LEFT() vec2_make(-1, 0)
+
+#define VEC2_SET_ONE(vec) vec2_set(1, 1, vec)
+#define VEC2_SET_ZERO(vec) vec2_set(0, 0, vec)
+#define VEC2_SET_UP(vec) vec2_set(0, 1, vec)
+#define VEC2_SET_DOWN(vec) vec2_set(0, -1, vec)
+#define VEC2_SET_RIGH(vec) vec2_set(1, 0, vec)
+#define VEC2_SET_LEFT(vec) vec2_set(-1, 0, vec)
 
 INLINE void vec2_set(float x, float y, vec2_t *dest);
 INLINE void vec2_cpy(const vec2_t *src, vec2_t *dest);
@@ -89,6 +117,26 @@ INLINE void vec2_min(const vec2_t *a, const vec2_t *b, vec2_t *dest);
 INLINE float vec2_dot(const vec2_t *a, const vec2_t *b);
 
 // ================ VEC 3
+
+INLINE vec3_t vec3_make(float x, float y, float z);
+
+#define VEC3_MAKE_ONE() vec3_make(1, 1, 1)
+#define VEC3_MAKE_ZERO() vec3_make(0, 0, 0)
+#define VEC3_MAKE_UP() vec3_make(0, 1, 0)
+#define VEC3_MAKE_DOWN() vec3_make(0, -1, 0)
+#define VEC3_MAKE_FORWARD() vec3_make(0, 0, -1)
+#define VEC3_MAKE_BACKWARD() vec3_make(0, 0, 1)
+#define VEC3_MAKE_RIGHT() vec3_make(1, 0, 0)
+#define VEC3_MAKE_LEFT() vec3_make(-1, 0, 0)
+
+#define VEC3_SET_ONE(vec) vec3_set(1, 1, 1, vec)
+#define VEC3_SET_ZERO(vec) vec3_set(0, 0, 0, vec)
+#define VEC3_SET_UP(vec) vec3_set(0, 1, 0, vec)
+#define VEC3_SET_DOWN(vec) vec3_set(0, -1, 0, vec)
+#define VEC3_SET_FORWARD(vec) vec3_set(0, 0, -1, vec)
+#define VEC3_SET_BACKWARD(vec) vec3_set(0, 0, 1, vec)
+#define VEC3_SET_RIGHT(vec) vec3_set(1, 0, 0, vec)
+#define VEC3_SET_LEFT(vec) vec3_set(-1, 0, 0, vec)
 
 INLINE void vec3_set(float x, float y, float z, vec3_t *dest);
 INLINE void vec3_cpy(const vec3_t *src, vec3_t *dest);
@@ -115,6 +163,7 @@ INLINE void vec3_lerp(const vec3_t *a, const vec3_t *b, float t, vec3_t *dest);
 
 // ================ VEC 4
 
+INLINE vec4_t vec4_make(float x, float y, float z, float w);
 INLINE void vec4_set(float x, float y, float z, float w, vec4_t *dest);
 INLINE void vec4_cpy(const vec4_t *src, vec4_t *dest);
 INLINE void vec4_add(const vec4_t *a, const vec4_t *b, vec4_t *dest);
@@ -136,6 +185,8 @@ INLINE void vec4_lerp(const vec4_t *a, const vec4_t *b, float t, vec4_t *dest);
 
 // ================ QUAT
 
+#define QUAT_MAKE_IDENTITY() vec4_make(0, 0, 0, 1)
+INLINE void quat_identity(quat_t *dest);
 INLINE void quat_angle_axis(const vec3_t *axis, float angle, quat_t *dest);
 INLINE void quat_conjugate(const quat_t *a, quat_t *dest);
 INLINE void quat_multiply(const quat_t *a, const quat_t *b, quat_t *dest);
@@ -150,10 +201,34 @@ INLINE void quat_look_rotation(const vec3_t *dir, const vec3_t *forward, const v
 INLINE void quat_look_from_to(const vec3_t *from, const vec3_t *to, const vec3_t *forward, const vec3_t *up, quat_t *dest);
 INLINE void quat_normalize(const quat_t *a, quat_t *dest);
 
+// ================= COLOR
+
+#define COLOR_MAKE_WHITE() vec4_make(1, 1, 1, 1)
+#define COLOR_MAKE_BLACK() vec4_make(0, 0, 0, 1)
+#define COLOR_MAKE_RED() vec4_make(1, 0, 0, 1)
+#define COLOR_MAKE_GREEN() vec4_make(1, 0, 0, 1)
+#define COLOR_MAKE_BLUE() vec4_make(1, 0, 0, 1)
+#define COLOR_MAKE_YELLOW() vec4_make(1, 1, 0, 1)
+#define COLOR_MAKE_MAGENTA() vec4_make(1, 0, 1, 1)
+#define COLOR_MAKE_CYAN() vec4_make(0, 1, 1, 1)
+
+#define COLOR_SET_WHITE(vec) vec4_set(1, 1, 1, 1, vec)
+#define COLOR_SET_BLACK(vec) vec4_set(0, 0, 0, 1, vec)
+#define COLOR_SET_RED(vec) vec4_set(1, 0, 0, 1, vec)
+#define COLOR_SET_GREEN(vec) vec4_set(0, 1, 0, 1, vec)
+#define COLOR_SET_BLUE(vec) vec4_set(0, 0, 1, 1, vec)
+#define COLOR_SET_YELLOW(vec) vec4_set(1, 1, 0, 1, vec)
+#define COLOR_SET_MAGENTA(vec) vec4_set(1, 0, 1, 1, vec)
+#define COLOR_SET_CYAN(vec) vec4_set(0, 1, 1, 1, vec)
+
 // ================= MAT4
 
+INLINE mat4_t mat4_make_identity();
+INLINE void mat4_identity(mat4_t *dest);
+INLINE mat4_t mat4_make(vec4_t x, vec4_t y, vec4_t z, vec4_t w);
+INLINE void mat4_set(vec4_t x, vec4_t y, vec4_t z, vec4_t w, mat4_t *dest);
 INLINE void mat4_cpy(const mat4_t *mat, mat4_t *dest);
-INLINE void mat4_mul(const mat4_t *mat, mat4_t *dest);
+INLINE void mat4_mul(const mat4_t *a, const mat4_t *b, mat4_t *dest);
 INLINE void mat4_to_quat(const mat4_t *mat, quat_t *dest);
 INLINE void mat4_mul_vec4(const mat4_t *mat, const vec4_t *vec, vec4_t *dest);
 INLINE void mat4_mul_vec3(const mat4_t *mat, const vec3_t *vec, vec3_t *dest);
@@ -167,5 +242,11 @@ INLINE void mat4_perspective(float field_of_view, float aspect, float near, floa
 INLINE void mat4_look_at(const vec3_t *pos, const vec3_t *center, const vec3_t *up, mat4_t *dest);
 INLINE void mat4_look(const vec3_t *pos, const vec3_t *dir, const vec3_t *up, mat4_t *dest);
 INLINE void mat4_decompose_perspective(const mat4_t *proj, float *near, float *far, float *top, float *bottom, float *left, float *right);
+
+
+#include "vec2.iln"
+#include "vec3.iln"
+#include "vec4.iln"
+#include "mat4.iln"
 
 #endif //RAW_GL_MATH_H

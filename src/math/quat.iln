@@ -4,6 +4,10 @@
 
 #include "maths.h"
 
+INLINE void quat_identity(quat_t *dest) {
+    vec4_set(0, 0, 0, 1, dest);
+}
+
 INLINE void quat_angle_axis(const vec3_t *axis, float angle, quat_t *dest) {
     vec3_t k;
     float a, c, s;
