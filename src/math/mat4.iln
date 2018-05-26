@@ -34,25 +34,10 @@ INLINE void mat4_set(vec4_t x, vec4_t y, vec4_t z, vec4_t w, mat4_t *dest) {
 }
 
 INLINE void mat4_cpy(const mat4_t *mat, mat4_t *dest){
-    dest->data[0].data[0] = mat->data[0].data[0];
-    dest->data[0].data[1] = mat->data[0].data[1];
-    dest->data[0].data[2] = mat->data[0].data[2];
-    dest->data[0].data[3] = mat->data[0].data[3];
-
-    dest->data[1].data[0] = mat->data[1].data[0];
-    dest->data[1].data[1] = mat->data[1].data[1];
-    dest->data[1].data[2] = mat->data[1].data[2];
-    dest->data[1].data[3] = mat->data[1].data[3];
-
-    dest->data[2].data[0] = mat->data[2].data[0];
-    dest->data[2].data[1] = mat->data[2].data[1];
-    dest->data[2].data[2] = mat->data[2].data[2];
-    dest->data[2].data[3] = mat->data[2].data[3];
-
-    dest->data[3].data[0] = mat->data[3].data[0];
-    dest->data[3].data[1] = mat->data[3].data[1];
-    dest->data[3].data[2] = mat->data[3].data[2];
-    dest->data[3].data[3] = mat->data[3].data[3];
+    vec4_cpy(&mat->data[0], &dest->data[0]);
+    vec4_cpy(&mat->data[1], &dest->data[1]);
+    vec4_cpy(&mat->data[2], &dest->data[2]);
+    vec4_cpy(&mat->data[3], &dest->data[3]);
 }
 
 INLINE void mat4_mul(const mat4_t *a, const mat4_t *b, mat4_t *dest) {
@@ -439,18 +424,18 @@ INLINE void mat4_set_rotate(const quat_t *rotation, mat4_t *dest) {
 
 INLINE void mat4_translate(const mat4_t *mat, const vec3_t *position, mat4_t *dest) {
     mat4_t helper;
-    mat4_identity(&helper);
+    mat4_cpy(mat, &helper);
     
     vec4_t v1, v2, v3;
 
-    vec4_scale(&mat->x, position->x, &v1);
-    vec4_scale(&mat->y, position->y, &v2);
-    vec4_scale(&mat->z, position->z, &v3);
+    vec4_scale(&helper.x, position->x, &v1);
+    vec4_scale(&helper.y, position->y, &v2);
+    vec4_scale(&helper.z, position->z, &v3);
 
-    vec4_add(&v1, &mat->z, &helper.z);
-    vec4_add(&v2, &mat->z, &helper.z);
-    vec4_add(&v3, &mat->z, &helper.z);
-
+    vec4_add(&v1, &helper.w, &helper.w);
+    vec4_add(&v2, &helper.w, &helper.w);
+    vec4_add(&v3, &helper.w, &helper.w);
+    
     mat4_cpy(&helper, dest);
 }
 
@@ -459,7 +444,7 @@ INLINE void mat4_scale(const mat4_t *mat, const vec3_t *scale, mat4_t *dest) {
     vec4_scale(&mat->y, scale->y, &dest->y);
     vec4_scale(&mat->z, scale->z, &dest->z);
     
-    vec4_cpy(&mat->w, &dest->w);    
+    vec4_cpy(&mat->w, &dest->w);
 }
 
 INLINE void mat4_rotate(const mat4_t *mat, const quat_t *rotation, mat4_t *dest) {

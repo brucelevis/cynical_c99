@@ -10,11 +10,13 @@
 #include "file.h"
 #include "graphics.h"
 #include "math/maths.h"
+#include "math/test.h"
 
 #define FILE_BUFFER_SIZE 2048
 byte FILE_BUFFER[FILE_BUFFER_SIZE];
 
 int main() {
+    
     glfwInit();
 
     GLFWwindow *window = glfwCreateWindow(1024, 768, "Hello world!", NULL, NULL);
@@ -68,28 +70,26 @@ int main() {
     
     quat_t rot;
     vec3_t axis = VEC3_MAKE_UP();
-    quat_angle_axis(&axis, RAD(45), &rot);
+    quat_angle_axis(&axis, RAD(30), &rot);
     
-    transform_t trans = trans_make(vec3_make(0, 0, -10), VEC3_MAKE_ONE(), rot);
+    transform_t trans = trans_make(vec3_make(0, 0, -10), vec3_make(.5, 1, 1), rot);
     trans_get_mat4(&trans, &model);
     
     vec3_set(0, 0, -1, &dir);
-    vec3_set(0, 0, 0, &pos);
+    vec3_set(0, 0, 1, &pos);
     vec3_set(0, 1, 0, &up);
     
     mat4_look(&pos, &dir, &up, &view);
     mat4_perspective(RAD(45), 16 / 9.f, .01f, 10000.f, &proj);
 
     mat4_mul(&proj, &view, &view_proj);
-    mat4_mul(&model, &view_proj, &MVP);
+    mat4_mul(&view_proj, &model, &MVP);
     
     print_model(quad);
 
     glUseProgram(shader.handle);
-    CHECK_GL_ERROR();
-
     int loc = glGetUniformLocation(shader.handle, "MVP");
-    glUniformMatrix4fv(loc, 1, GL_FALSE, MVP.data->data);
+    glUniformMatrix4fv(loc, 1, GL_FALSE, &MVP);
     CHECK_GL_ERROR();
 
     while (!glfwWindowShouldClose(window)) {
@@ -102,6 +102,7 @@ int main() {
         glClearColor(0, 0, 0, 255);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        //assert(shader.handle);
         draw_mesh(quad_mesh);
 
         glfwSwapBuffers(window);
