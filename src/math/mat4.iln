@@ -443,13 +443,13 @@ INLINE void mat4_translate(const mat4_t *mat, const vec3_t *position, mat4_t *de
     
     vec4_t v1, v2, v3;
 
-    vec4_scale(&helper.x, position->x, &v1);
-    vec4_scale(&helper.y, position->y, &v2);
-    vec4_scale(&helper.z, position->z, &v3);
+    vec4_scale(&mat->x, position->x, &v1);
+    vec4_scale(&mat->y, position->y, &v2);
+    vec4_scale(&mat->z, position->z, &v3);
 
-    vec4_add(&v1, &helper.z, &helper.z);
-    vec4_add(&v2, &helper.z, &helper.z);
-    vec4_add(&v3, &helper.z, &helper.z);
+    vec4_add(&v1, &mat->z, &helper.z);
+    vec4_add(&v2, &mat->z, &helper.z);
+    vec4_add(&v3, &mat->z, &helper.z);
 
     mat4_cpy(&helper, dest);
 }

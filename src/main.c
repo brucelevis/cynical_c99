@@ -59,7 +59,7 @@ int main() {
     mesh_t quad_mesh = create_mesh(quad);
     
     mat4_t MVP, view, proj, view_proj, model;
-    vec3_t dir, center, up;
+    vec3_t dir, pos, up;
     
     mat4_identity(&MVP);
     mat4_identity(&view);
@@ -67,18 +67,18 @@ int main() {
     mat4_identity(&model);
     
     quat_t rot;
-    vec3_t axis = VEC3_MAKE_FORWARD();
-    quat_angle_axis(&axis, RAD(60), &rot);
+    vec3_t axis = VEC3_MAKE_UP();
+    quat_angle_axis(&axis, RAD(45), &rot);
     
-    transform_t trans = trans_make(vec3_make(1, 1, 0), VEC3_MAKE_ONE(), rot);
+    transform_t trans = trans_make(vec3_make(0, 0, -10), VEC3_MAKE_ONE(), rot);
     trans_get_mat4(&trans, &model);
     
-    vec3_set(0, 0, -10000, &dir);
-    vec3_set(0, 0, 10, &center);
+    vec3_set(0, 0, -1, &dir);
+    vec3_set(0, 0, 0, &pos);
     vec3_set(0, 1, 0, &up);
     
-    mat4_look(&center, &dir, &up, &view);
-    mat4_perspective(RAD(60), 16 / 9.f, .001f, 10000.f, &proj);
+    mat4_look(&pos, &dir, &up, &view);
+    mat4_perspective(RAD(45), 16 / 9.f, .01f, 10000.f, &proj);
 
     mat4_mul(&proj, &view, &view_proj);
     mat4_mul(&model, &view_proj, &MVP);
@@ -87,22 +87,6 @@ int main() {
 
     glUseProgram(shader.handle);
     CHECK_GL_ERROR();
-
-    printf("x: %f y: %f z: %f w: %f\n", 
-           MVP.data[0].x, MVP.data[0].y, MVP.data[0].z, MVP.data[0].w
-    );
-
-    printf("x: %f y: %f z: %f w: %f\n",
-           MVP.data[1].x, MVP.data[1].y, MVP.data[1].z, MVP.data[1].w
-    );
-
-    printf("x: %f y: %f z: %f w: %f\n",
-           MVP.data[2].x, MVP.data[2].y, MVP.data[2].z, MVP.data[2].w
-    );
-
-    printf("x: %f y: %f z: %f w: %f\n",
-           MVP.data[3].x, MVP.data[3].y, MVP.data[3].z, MVP.data[3].w
-    );
 
     int loc = glGetUniformLocation(shader.handle, "MVP");
     glUniformMatrix4fv(loc, 1, GL_FALSE, MVP.data->data);
