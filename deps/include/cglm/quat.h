@@ -426,9 +426,15 @@ glm_quat_mat4(versor q, mat4 dest) {
   z = q[2];
   w = q[3];
 
-  xx = s * x * x;   xy = s * x * y;   wx = s * w * x;
-  yy = s * y * y;   yz = s * y * z;   wy = s * w * y;
-  zz = s * z * z;   xz = s * x * z;   wz = s * w * z;
+  xx = s * x * x;   
+  xy = s * x * y;   
+  wx = s * w * x;
+  yy = s * y * y;   
+  yz = s * y * z;   
+  wy = s * w * y;
+  zz = s * z * z;   
+  xz = s * x * z;   
+  wz = s * w * z;
 
   dest[0][0] = 1.0f - yy - zz;
   dest[1][1] = 1.0f - xx - zz;
