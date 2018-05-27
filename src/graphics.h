@@ -9,6 +9,8 @@
 #include "common.h"
 #include "math/maths.h"
 #include <mem.h>
+#include "stb_image.h"
+#include "file.h"
 
 #define VERT_POS_NAME "position"
 #define VERT_UV_NAME "uv"
@@ -52,6 +54,39 @@ typedef struct shader {
     uint handle;
 } shader_t;
 
+/*
+typedef enum uniform_type {
+    FLOAT = 1,
+    VEC2 = 2,
+    VEC3 = 3,
+    VEC4 = 4,
+    COLOR = VEC4,
+    MAT4 = 5,
+    TEXTURE = 6
+} uniform_type_t;
+
+typedef struct uniform {
+    int location;
+    char *name;
+    uniform_type_t type;
+} uniform_t;
+
+typedef struct material {
+    uniform_t *uniforms;
+    uint uniforms_len;
+    shader_t shader;
+} material_t;
+*/
+
+typedef struct image {
+    vec2_t size;
+    byte *data;
+} image_t;
+
+typedef struct texture {
+    uint handle;
+} texture_t;
+
 shader_t create_shader(const char *vertex, const char *fragment);
 void destroy_shader(shader_t shader);
 
@@ -61,6 +96,12 @@ void destroy_model(model_t model);
 mesh_t create_mesh(model_t model);
 void destroy_mesh(mesh_t mesh);
 void draw_mesh(mesh_t mesh);
+
+bool load_image(const char *image_file, image_t *dest);
+void destroy_image(const image_t *image);
+
+texture_t create_texture(const image_t *image);
+void destroy_texture(const texture_t *texture);
 
 #ifdef DEV
 

@@ -3,6 +3,13 @@
 //
 
 #include <malloc.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+
+#include "stb_image.h"
+
+#undef STB_IMAGE_IMPLEMENTATION
+
 #include "graphics.h"
 
 shader_t create_shader(const char *vertex, const char *fragment) {
@@ -58,7 +65,7 @@ model_t create_quad() {
     vec3_set(-1, -1, 0, &positions[0]);
     VEC2_SET_ZERO(&uvs[0]);
     COLOR_SET_RED(&colors[0]);
-    
+
     vec3_set(1, -1, 0, &positions[1]);
     VEC2_SET_RIGH(&uvs[1]);
     COLOR_SET_GREEN(&colors[1]);
@@ -238,4 +245,75 @@ void draw_mesh(mesh_t mesh) {
     glDisableVertexAttribArray(VERT_UV_INDEX);
     glDisableVertexAttribArray(VERT_POS_INDEX);
     glBindVertexArray(0);
+}
+
+bool load_image(const char *image_file, image_t *dest) {
+    
+    // TODO(temdisponivel): Create a buffer in order to prevent allocations
+    uint len;
+    byte *file_data = read_file_data_alloc(image_file, &len);
+
+    if (!file_data) {
+        return false;
+    }
+
+    int width, height, channels;
+
+    stbi_set_flip_vertically_on_load(true);
+    byte *image_data = stbi_load_from_memory(file_data, len, &width, &height, &channels, 4);
+    free_file_data(file_data);
+
+    if (image_data == null) {
+        return false;
+    }
+
+    image_t img;
+    img.data = image_data;
+    img.size = vec2_make(width, height);
+    *dest = img;
+    return true;
+}
+
+void destroy_image(const image_t *image) {
+    stbi_image_free(image->data);
+}
+
+texture_t create_texture(const image_t *image) {
+    uint handle;
+    glGenTextures(1, &handle);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, handle);
+
+    glTexImage2D(
+            GL_TEXTURE_2D,
+            0, // Mip map level
+            GL_RGBA,
+            (uint) image->size.x,
+            (uint) image->size.y,
+            0, // border
+            GL_RGBA,
+            GL_UNSIGNED_BYTE,
+            image->data
+    );
+    CHECK_GL_ERROR();
+
+    // TODO: parameterize this
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    CHECK_GL_ERROR();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    CHECK_GL_ERROR();
+
+    texture_t texture;
+    texture.handle = handle;
+    return texture;
+}
+
+void destroy_texture(const texture_t *texture) {
+    glDeleteTextures(1, &texture->handle);
 }

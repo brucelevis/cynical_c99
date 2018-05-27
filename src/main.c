@@ -31,7 +31,7 @@ int main() {
 
     char *vert_shader = FILE_BUFFER;
     uint len;
-    file_status_t result = read_file_data(
+    file_status_t result = read_file_string(
             "data/shaders/default_vert.glsl",
             vert_shader,
             FILE_BUFFER_SIZE,
@@ -44,7 +44,7 @@ int main() {
     }
 
     char *frag_shader = FILE_BUFFER + len;
-    result = read_file_data(
+    result = read_file_string(
             "data/shaders/default_frag.glsl",
             frag_shader,
             FILE_BUFFER_SIZE,
@@ -70,7 +70,7 @@ int main() {
     
     quat_t rot;
     vec3_t axis = VEC3_MAKE_UP();
-    quat_angle_axis(&axis, RAD(30), &rot);
+    quat_angle_axis(&axis, RAD(0), &rot);
     
     transform_t trans = trans_make(vec3_make(0, 0, -10), vec3_make(.5, 1, 1), rot);
     trans_get_mat4(&trans, &model);
@@ -85,13 +85,22 @@ int main() {
     mat4_mul(&proj, &view, &view_proj);
     mat4_mul(&view_proj, &model, &MVP);
     
-    print_model(quad);
-
     glUseProgram(shader.handle);
     int loc = glGetUniformLocation(shader.handle, "MVP");
     glUniformMatrix4fv(loc, 1, GL_FALSE, &MVP);
     CHECK_GL_ERROR();
+    
+    image_t img;
+    if (!load_image("data/textures/witness.jpg", &img)) {
+        return -100;
+    }
 
+    texture_t tex = create_texture(&img);
+
+    int tex_loc = glGetUniformLocation(shader.handle, "main_texture");
+    glUniform1i(tex_loc, 0);
+    CHECK_GL_ERROR();
+    
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
@@ -101,16 +110,23 @@ int main() {
 
         glClearColor(0, 0, 0, 255);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, tex.handle);
 
         //assert(shader.handle);
         draw_mesh(quad_mesh);
-
+        
+        glBindTexture(GL_TEXTURE_2D, 0);
+        
         glfwSwapBuffers(window);
     }
 
     destroy_shader(shader);
     destroy_model(quad);
     destroy_mesh(quad_mesh);
+    destroy_image(&img);
+    destroy_texture(&tex);
 
     CHECK_GL_ERROR();
 
