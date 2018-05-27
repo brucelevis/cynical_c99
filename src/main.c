@@ -72,7 +72,7 @@ int main() {
     vec3_t axis = VEC3_MAKE_UP();
     quat_angle_axis(&axis, RAD(0), &rot);
     
-    transform_t trans = trans_make(vec3_make(0, 0, -10), vec3_make(.5, 1, 1), rot);
+    transform_t trans = trans_make(vec3_make(0, 0, -10), vec3_make(1, 1, 1), rot);
     trans_get_mat4(&trans, &model);
     
     vec3_set(0, 0, -1, &dir);
@@ -107,6 +107,10 @@ int main() {
     float_uniform_definition_t float_uniforms[1];
     float_uniforms[0].uniform_name = "float_value";
     float_uniforms[0].default_value = 5;
+
+    mat4_uniform_definition_t mat4_uniforms[1];
+    mat4_uniforms[0].uniform_name = "MVP";
+    mat4_uniforms[0].default_value = MVP;
     
     material_definition_t definition;
     definition.vertex_shader_file = "data/shaders/default_vert.glsl";
@@ -117,6 +121,9 @@ int main() {
     
     definition.floats_len = 1;
     definition.floats = (float_uniform_definition_t *) float_uniforms;
+
+    definition.mat4s_len = 1;
+    definition.mat4s = (mat4_uniform_definition_t *) mat4_uniforms;
     
     material_t material = create_material(&definition);
     
@@ -133,10 +140,6 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         use_material(&material);
-
-        int loc = glGetUniformLocation(shader.handle, "MVP");
-        glUniformMatrix4fv(loc, 1, GL_FALSE, &MVP);
-        CHECK_GL_ERROR();
         
         //assert(shader.handle);
         draw_mesh(quad_mesh);

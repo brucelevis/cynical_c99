@@ -83,6 +83,11 @@ typedef struct float_uniform {
     float value;
 } float_uniform_t;
 
+typedef struct mat4_uniform {
+    uniform_info_t info;
+    mat4_t value;
+} mat4_uniform_t;
+
 typedef struct texture_uniform {
     uniform_info_t info;
     texture_t texture;
@@ -97,12 +102,20 @@ typedef struct material {
 
     float_uniform_t *float_uniforms;
     uint float_uniforms_len;
+
+    mat4_uniform_t *mat4_uniforms;
+    uint mat4_uniforms_len;
 } material_t;
 
 typedef struct float_uniform_definition {
     char *uniform_name;
     float default_value;
 } float_uniform_definition_t;
+
+typedef struct mat4_uniform_definition {
+    char *uniform_name;
+    mat4_t default_value;
+} mat4_uniform_definition_t;
 
 typedef struct texture_uniform_definition {
     char *uniform_name;
@@ -118,6 +131,9 @@ typedef struct material_definition {
     
     float_uniform_definition_t *floats;
     uint floats_len;
+
+    mat4_uniform_definition_t *mat4s;
+    uint mat4s_len;
 } material_definition_t;
 
 shader_t create_shader(const char *vertex, const char *fragment);

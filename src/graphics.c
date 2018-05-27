@@ -340,9 +340,14 @@ material_t create_material(const material_definition_t *definition) {
     
     mat.float_uniforms = malloc(sizeof(float_uniform_t) * definition->floats_len);
     mat.float_uniforms_len = definition->floats_len;
+
+    mat.mat4_uniforms = malloc(sizeof(mat4_uniform_t) * definition->mat4s_len);
+    mat.mat4_uniforms_len = definition->mat4s_len;
     
     mat.texture_uniforms = malloc(sizeof(texture_uniform_t) * definition->textures_len);
     mat.texture_uniforms_len = definition->textures_len;
+    
+    // ============= FLOAT
     
     for (int i = 0; i < definition->floats_len; ++i) {
         float_uniform_definition_t float_def = definition->floats[i];
@@ -356,10 +361,26 @@ material_t create_material(const material_definition_t *definition) {
         ASSERT(float_uni.info.location > 0);
 
         mat.float_uniforms[i] = float_uni;
-
-        CHECK_GL_ERROR();
     }
 
+    // ============= MAT 4
+    
+    for (int i = 0; i < definition->mat4s_len; ++i) {
+        mat4_uniform_definition_t mat4_def = definition->mat4s[i];
+
+        mat4_uniform_t mat4_uni;
+        mat4_uni.info.name_hash = hash_string(mat4_def.uniform_name);
+        mat4_uni.info.location = glGetUniformLocation(shader.handle, mat4_def.uniform_name);
+
+        mat4_uni.value = mat4_def.default_value;
+
+        ASSERT(mat4_uni.info.location > 0);
+
+        mat.mat4_uniforms[i] = mat4_uni;
+    }
+
+    // ============= TEXTURE
+    
     for (int i = 0; i < definition->textures_len; ++i) {
         texture_uniform_definition_t tex_def = definition->textures[i];
         
@@ -388,8 +409,6 @@ material_t create_material(const material_definition_t *definition) {
         tex_uni.texture = tex;
         
         mat.texture_uniforms[i] = tex_uni;
-
-        CHECK_GL_ERROR();
     }
 
     glUseProgram(0);
@@ -406,6 +425,7 @@ void destroy_material(const material_t *material) {
     }
     free(material->texture_uniforms);    
     free(material->float_uniforms);
+    free(material->mat4_uniforms);
 }
 
 void use_material(const material_t *material) {
@@ -417,6 +437,16 @@ void use_material(const material_t *material) {
         
         if (uniform.info.location >= 0) {
             glUniform1f(uniform.info.location, uniform.value);
+        }
+    }
+    
+    CHECK_GL_ERROR();
+
+    for (int i = 0; i < material->mat4_uniforms_len; ++i) {
+        mat4_uniform_t uniform = material->mat4_uniforms[i];
+
+        if (uniform.info.location >= 0) {
+            glUniformMatrix4fv(uniform.info.location, 1, GL_FALSE, &uniform.value);
         }
     }
 
@@ -431,7 +461,7 @@ void use_material(const material_t *material) {
             glUniform1i(uniform.info.location, uniform.texture_unit - TEXTURE_UNIT_0);
         }
     }
-    
+
     CHECK_GL_ERROR();
     
     // TODO(temdisponivel): Should I create a function that will unbind all these uniforms?!
