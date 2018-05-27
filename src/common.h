@@ -25,7 +25,9 @@ typedef unsigned char ushort;
 
 
 #define TEMP_STR_BUFFER_LEN 1024
-#define CREATE_TEMP_STR_BUFFER() byte TEMP_BUFFER[TEMP_STR_BUFFER_LEN]
+#define CREATE_TEMP_STR_BUFFER() char TEMP_BUFFER[TEMP_STR_BUFFER_LEN]
+
+#ifdef DEV
 
 #define PRINT_LINE_FILE(file) {\
     fprintf(file, "\n AT: %s:%i \n", __FILE__, __LINE__);\
@@ -43,5 +45,25 @@ typedef unsigned char ushort;
     fprintf(stderr, error);\
     PRINT_LINE_ERROR();\
 }\
+
+#define ASSERT(expression) {\
+    if (!(expression)) {\
+        ERROR("Assert failed!")\
+    }\
+}\
+
+#else
+
+#define PRINT_LINE_FILE(file) 
+
+#define PRINT_LINE_ERROR() 
+
+#define PRINT_LINE() 
+
+#define ERROR(error) 
+
+#define ASSERT(expression) 
+
+#endif
 
 #endif //RAW_GL_COMMON_H

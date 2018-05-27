@@ -253,6 +253,12 @@ bool load_image(const char *image_file, image_t *dest) {
     uint len;
     byte *file_data = read_file_data_alloc(image_file, &len);
 
+    #if DEV
+    if (!file_data) {
+        file_data = read_file_data_alloc(DEFAULT_IMAGE_FILE_PATH, &len);
+    }
+    #endif
+
     if (!file_data) {
         return false;
     }
@@ -282,7 +288,6 @@ texture_t create_texture(const image_t *image) {
     uint handle;
     glGenTextures(1, &handle);
 
-    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, handle);
 
     glTexImage2D(
@@ -316,4 +321,118 @@ texture_t create_texture(const image_t *image) {
 
 void destroy_texture(const texture_t *texture) {
     glDeleteTextures(1, &texture->handle);
+}
+
+material_t create_material(const material_definition_t *definition) {
+    CREATE_TEMP_STR_BUFFER();
+    
+    uint vertex_len, frag_len;
+    read_file_string(definition->vertex_shader_file, TEMP_BUFFER, TEMP_STR_BUFFER_LEN, &vertex_len);
+    read_file_string(definition->fragment_shader_file, TEMP_BUFFER + vertex_len, TEMP_STR_BUFFER_LEN, &frag_len);
+        
+    shader_t shader = create_shader(
+            &TEMP_BUFFER[0],
+            &TEMP_BUFFER[vertex_len]
+    );
+    
+    material_t mat;
+    mat.shader = shader;
+    
+    mat.float_uniforms = malloc(sizeof(float_uniform_t) * definition->floats_len);
+    mat.float_uniforms_len = definition->floats_len;
+    
+    mat.texture_uniforms = malloc(sizeof(texture_uniform_t) * definition->textures_len);
+    mat.texture_uniforms_len = definition->textures_len;
+    
+    for (int i = 0; i < definition->floats_len; ++i) {
+        float_uniform_definition_t float_def = definition->floats[i];
+
+        float_uniform_t float_uni;
+        float_uni.info.name_hash = hash_string(float_def.uniform_name);
+        float_uni.info.location = glGetUniformLocation(shader.handle, float_def.uniform_name);
+        
+        float_uni.value = float_def.default_value;
+      
+        ASSERT(float_uni.info.location > 0);
+
+        mat.float_uniforms[i] = float_uni;
+
+        CHECK_GL_ERROR();
+    }
+
+    for (int i = 0; i < definition->textures_len; ++i) {
+        texture_uniform_definition_t tex_def = definition->textures[i];
+        
+        texture_uniform_t tex_uni;
+        tex_uni.info.name_hash = hash_string(tex_def.uniform_name);
+        tex_uni.info.location = glGetUniformLocation(shader.handle, tex_def.uniform_name);
+        
+        ASSERT(tex_uni.info.location);
+        
+        tex_uni.texture_unit = TEXTURE_UNIT_0 + i;
+        
+        char *file_path;
+        if (strlen(tex_def.image_file_name)) {
+            file_path = tex_def.image_file_name;
+        } else {
+            file_path = DEFAULT_IMAGE_FILE_PATH;
+        }
+
+        image_t img;
+        
+        bool result = load_image(file_path, &img);
+        
+        ASSERT(result);
+        
+        texture_t tex = create_texture(&img);
+        tex_uni.texture = tex;
+        
+        mat.texture_uniforms[i] = tex_uni;
+
+        CHECK_GL_ERROR();
+    }
+
+    glUseProgram(0);
+
+    return mat;
+}
+
+void destroy_material(const material_t *material) {
+    destroy_shader(material->shader);
+
+    for (int i = 0; i < material->texture_uniforms_len; ++i) {
+        texture_uniform_t texture_uni = material->texture_uniforms[i];
+        destroy_texture(&texture_uni.texture);
+    }
+    free(material->texture_uniforms);    
+    free(material->float_uniforms);
+}
+
+void use_material(const material_t *material) {
+    glUseProgram(material->shader.handle);
+    CHECK_GL_ERROR();
+
+    for (int i = 0; i < material->float_uniforms_len; ++i) {
+        float_uniform_t uniform = material->float_uniforms[i];
+        
+        if (uniform.info.location >= 0) {
+            glUniform1f(uniform.info.location, uniform.value);
+        }
+    }
+
+    CHECK_GL_ERROR();
+
+    for (int i = 0; i < material->texture_uniforms_len; ++i) {
+        texture_uniform_t uniform = material->texture_uniforms[i];
+
+        if (uniform.info.location >= 0) {
+            glActiveTexture(uniform.texture_unit);
+            glBindTexture(GL_TEXTURE_2D, uniform.texture.handle);
+            glUniform1i(uniform.info.location, uniform.texture_unit - TEXTURE_UNIT_0);
+        }
+    }
+    
+    CHECK_GL_ERROR();
+    
+    // TODO(temdisponivel): Should I create a function that will unbind all these uniforms?!
 }

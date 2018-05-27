@@ -31,6 +31,8 @@
 #define UV_BYTE_OFFSET(vertice_count) (POS_DIMENTION * (vertice_count) * sizeof(float))
 #define COLOR_BYTE_OFFSET(vertice_count) ((POS_DIMENTION + UV_DIMENTION) * (vertice_count) * sizeof(float))
 
+#define DEFAULT_IMAGE_FILE_PATH "data/textures/default.png"
+
 typedef struct model {
     float *full_vertices_data;
     vec3_t *positions_ptr_offset;
@@ -54,38 +56,69 @@ typedef struct shader {
     uint handle;
 } shader_t;
 
-/*
-typedef enum uniform_type {
-    FLOAT = 1,
-    VEC2 = 2,
-    VEC3 = 3,
-    VEC4 = 4,
-    COLOR = VEC4,
-    MAT4 = 5,
-    TEXTURE = 6
-} uniform_type_t;
-
-typedef struct uniform {
-    int location;
-    char *name;
-    uniform_type_t type;
-} uniform_t;
-
-typedef struct material {
-    uniform_t *uniforms;
-    uint uniforms_len;
-    shader_t shader;
-} material_t;
-*/
-
 typedef struct image {
     vec2_t size;
     byte *data;
 } image_t;
 
+typedef enum texture_unit {
+    TEXTURE_UNIT_0 = GL_TEXTURE0,
+    TEXTURE_UNIT_1 = GL_TEXTURE1,
+    TEXTURE_UNIT_2 = GL_TEXTURE2,
+    TEXTURE_UNIT_3 = GL_TEXTURE3,
+    TEXTURE_UNIT_4 = GL_TEXTURE4,
+} texture_unit_t;
+
 typedef struct texture {
     uint handle;
 } texture_t;
+
+typedef struct uniform_info {
+    int location;
+    int name_hash;
+} uniform_info_t;
+
+typedef struct float_uniform {
+    uniform_info_t info;
+    float value;
+} float_uniform_t;
+
+typedef struct texture_uniform {
+    uniform_info_t info;
+    texture_t texture;
+    texture_unit_t texture_unit;
+} texture_uniform_t;
+
+typedef struct material {
+    shader_t shader;
+    
+    texture_uniform_t *texture_uniforms;
+    uint texture_uniforms_len;
+
+    float_uniform_t *float_uniforms;
+    uint float_uniforms_len;
+} material_t;
+
+typedef struct float_uniform_definition {
+    char *uniform_name;
+    float default_value;
+} float_uniform_definition_t;
+
+typedef struct texture_uniform_definition {
+    char *uniform_name;
+    char *image_file_name;
+} texture_uniform_definition_t; 
+
+typedef struct material_definition {
+    char *vertex_shader_file;
+    char *fragment_shader_file;
+    
+    texture_uniform_definition_t *textures;
+    uint textures_len;
+    
+    float_uniform_definition_t *floats;
+    uint floats_len;
+} material_definition_t;
 
 shader_t create_shader(const char *vertex, const char *fragment);
 void destroy_shader(shader_t shader);
@@ -103,11 +136,14 @@ void destroy_image(const image_t *image);
 texture_t create_texture(const image_t *image);
 void destroy_texture(const texture_t *texture);
 
+material_t create_material(const material_definition_t *definition);
+void destroy_material(const material_t *material);
+
+void use_material(const material_t *material);
+
 #ifdef DEV
 
 void print_model(model_t model);
-
-#endif
 
 #define CHECK_SHADER_COMPILATION(shader) {\
     int compiled;\
@@ -139,5 +175,16 @@ void print_model(model_t model);
         ERROR(TEMP_BUFFER);\
     }\
 }\
+
+
+#else
+
+#define CHECK_SHADER_COMPILATION(shader) 
+
+#define CHECK_PROGRAM_LINKAGE(program)  
+
+#define CHECK_GL_ERROR() 
+
+#endif
 
 #endif //RAW_GL_GRAPHICS_H

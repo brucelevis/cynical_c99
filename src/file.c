@@ -94,6 +94,8 @@ byte *read_file_data_alloc(const char *file_path, _OUT_ uint *file_length) {
     
     fclose(file);
 
+    *file_length = (uint) len;
+
     return buffer;
 }
 

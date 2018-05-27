@@ -97,8 +97,29 @@ int main() {
 
     texture_t tex = create_texture(&img);
 
-    int tex_loc = glGetUniformLocation(shader.handle, "main_texture");
-    glUniform1i(tex_loc, 0);
+    int main_texture_loc = glGetUniformLocation(shader.handle, "main_texture");
+    int bump_map_loc = glGetUniformLocation(shader.handle, "bump_map_texture");
+    
+    texture_uniform_definition_t tex_definitions[1];
+    tex_definitions[0].image_file_name = "data/textures/witness.jpg";
+    tex_definitions[0].uniform_name = "main_texture";
+    
+    float_uniform_definition_t float_uniforms[1];
+    float_uniforms[0].uniform_name = "float_value";
+    float_uniforms[0].default_value = 5;
+    
+    material_definition_t definition;
+    definition.vertex_shader_file = "data/shaders/default_vert.glsl";
+    definition.fragment_shader_file = "data/shaders/default_frag.glsl";
+    
+    definition.textures_len = 1;
+    definition.textures = (texture_uniform_definition_t*) tex_definitions;
+    
+    definition.floats_len = 1;
+    definition.floats = (float_uniform_definition_t *) float_uniforms;
+    
+    material_t material = create_material(&definition);
+    
     CHECK_GL_ERROR();
     
     while (!glfwWindowShouldClose(window)) {
@@ -111,13 +132,16 @@ int main() {
         glClearColor(0, 0, 0, 255);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, tex.handle);
+        use_material(&material);
 
+        int loc = glGetUniformLocation(shader.handle, "MVP");
+        glUniformMatrix4fv(loc, 1, GL_FALSE, &MVP);
+        CHECK_GL_ERROR();
+        
         //assert(shader.handle);
         draw_mesh(quad_mesh);
         
-        glBindTexture(GL_TEXTURE_2D, 0);
+        //glBindTexture(GL_TEXTURE_2D, 0);
         
         glfwSwapBuffers(window);
     }
@@ -127,6 +151,7 @@ int main() {
     destroy_mesh(quad_mesh);
     destroy_image(&img);
     destroy_texture(&tex);
+    destroy_material(&material);
 
     CHECK_GL_ERROR();
 

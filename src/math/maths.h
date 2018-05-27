@@ -76,6 +76,19 @@ typedef struct transform {
     vec3_t scale;
 } transform_t;
 
+// ============== STRING
+
+INLINE long hash_string(const char *name) {
+    char current;
+    unsigned long hash = 5381;
+
+    int index = 0;
+    do {
+        current = name[index++];
+        hash = ((hash << 5) + hash) + current; /* hash * 33 + c */
+    } while (current != '\0');
+}
+
 // ============== FLOAT
 
 #define RAD(deg) ((deg) * PI / 180.0f)
