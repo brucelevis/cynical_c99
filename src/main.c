@@ -18,13 +18,17 @@
 byte FILE_BUFFER[FILE_BUFFER_SIZE];
 
 material_definition_t parse_material_def(const char *file_path);
+void parse_full_shader(const char *file_name);
 
 int main() {
+    
+    parse_full_shader("data/shaders/full_shader.glsl");
+    return 1;
         
     glfwInit();
 
     GLFWwindow *window = glfwCreateWindow(1024, 768, "Hello world!", NULL, NULL);
-
+    
     if (!window) {
         return -1;
     }
@@ -301,4 +305,52 @@ material_definition_t parse_material_def(const char *file_path) {
     fclose(file);
 
     return definition;
+}
+
+void parse_full_shader(const char *file_name) {
+    FILE *file = fopen(file_name, "rb");
+    
+    if (!file) {
+        return;
+    }
+    
+    CREATE_TEMP_STR_BUFFER();
+    char fragment_buffer_arr[1024];
+    char *fragment_buffer = (char *) fragment_buffer_arr;
+
+    char vertex_buffer_arr[1024];
+    char *vertex_buffer = (char *) vertex_buffer_arr;
+    
+    while (!feof(file)) {
+        fscanf(file, "%s", TEMP_BUFFER);
+        if (strcmp(TEMP_BUFFER, "#start_vertex") == 0) {
+            while (true) {
+                fscanf(file, "%s[^\n]", TEMP_BUFFER);
+                if (strcmp(TEMP_BUFFER, "#end_vertex") != 0) {
+                    strcpy(vertex_buffer, TEMP_BUFFER);
+                    vertex_buffer += strlen(TEMP_BUFFER);
+                    *vertex_buffer = ' ';
+                    vertex_buffer++;
+                } else {
+                    break;
+                }
+            }
+        } else if (strcmp(TEMP_BUFFER, "#start_fragment") == 0) {
+            
+            while (true) {
+                fscanf(file, "%s[^\n]", TEMP_BUFFER);
+                if (strcmp(TEMP_BUFFER, "#end_fragment") != 0) {
+                    strcpy(fragment_buffer, TEMP_BUFFER);
+                    fragment_buffer += strlen(TEMP_BUFFER);
+                    *fragment_buffer = ' ';
+                    fragment_buffer++;
+                } else {
+                    break;
+                }
+            }
+        }
+    }
+    
+    printf("\n%s\n", vertex_buffer_arr);
+    printf("\n%s\n", fragment_buffer_arr);
 }
