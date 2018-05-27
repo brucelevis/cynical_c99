@@ -9,6 +9,5 @@
 #include <malloc.h>
 
 long hash_string(const char *string);
-char *string_copy(const char *string);
 
 #endif //RAW_GL_STRING_H

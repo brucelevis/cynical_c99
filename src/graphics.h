@@ -31,6 +31,10 @@
 #define UV_BYTE_OFFSET(vertice_count) (POS_DIMENTION * (vertice_count) * sizeof(float))
 #define COLOR_BYTE_OFFSET(vertice_count) ((POS_DIMENTION + UV_DIMENTION) * (vertice_count) * sizeof(float))
 
+#define MAX_TEXTURES 10
+#define MAX_FLOATS 5
+#define MAX_MAT4S 5
+
 #define DEFAULT_IMAGE_FILE_PATH "data/textures/default.png"
 
 typedef struct model {
@@ -97,42 +101,41 @@ typedef struct texture_uniform {
 typedef struct material {
     shader_t shader;
     
-    texture_uniform_t *texture_uniforms;
+    texture_uniform_t texture_uniforms[MAX_TEXTURES];
     uint texture_uniforms_len;
 
-    float_uniform_t *float_uniforms;
+    float_uniform_t float_uniforms[MAX_FLOATS];
     uint float_uniforms_len;
 
-    mat4_uniform_t *mat4_uniforms;
+    mat4_uniform_t mat4_uniforms[MAX_MAT4S];
     uint mat4_uniforms_len;
 } material_t;
 
 typedef struct float_uniform_definition {
-    char *uniform_name;
+    char uniform_name[DEFAULT_IDENTIFIER_NAME_LEN];
     float default_value;
 } float_uniform_definition_t;
 
 typedef struct mat4_uniform_definition {
-    char *uniform_name;
+    char uniform_name[DEFAULT_IDENTIFIER_NAME_LEN];
     mat4_t default_value;
 } mat4_uniform_definition_t;
 
 typedef struct texture_uniform_definition {
-    char *uniform_name;
-    char *image_file_name;
+    char uniform_name[DEFAULT_IDENTIFIER_NAME_LEN];
+    char image_file_name[DEFAULT_FILE_NAME_LEN];
 } texture_uniform_definition_t; 
 
 typedef struct material_definition {
-    char *vertex_shader_file;
-    char *fragment_shader_file;
+    char shader_file[DEFAULT_FILE_NAME_LEN];
     
-    texture_uniform_definition_t *textures;
+    texture_uniform_definition_t textures[MAX_TEXTURES];
     uint textures_len;
     
-    float_uniform_definition_t *floats;
+    float_uniform_definition_t floats[MAX_FLOATS];
     uint floats_len;
 
-    mat4_uniform_definition_t *mat4s;
+    mat4_uniform_definition_t mat4s[MAX_MAT4S];
     uint mat4s_len;
 } material_definition_t;
 

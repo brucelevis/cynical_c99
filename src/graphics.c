@@ -11,6 +11,7 @@
 #undef STB_IMAGE_IMPLEMENTATION
 
 #include "graphics.h"
+#include "resources.h"
 
 shader_t create_shader(const char *vertex, const char *fragment) {
     uint program = glCreateProgram();
@@ -324,43 +325,29 @@ void destroy_texture(const texture_t *texture) {
 }
 
 material_t create_material(const material_definition_t *definition) {
-    CREATE_TEMP_STR_BUFFER();
+    CREATE_TEMP_NAMED_STR_BUFFER(vertex_buffer);
+    CREATE_TEMP_NAMED_STR_BUFFER(fragment_buffer);
     
-    uint vertex_len, frag_len;
-    file_status_t vert_status = read_file_string(
-            definition->vertex_shader_file, 
-            TEMP_BUFFER, 
-            TEMP_STR_BUFFER_LEN, 
-            &vertex_len
-    );
+    bool read_shader = read_shader_file(definition->shader_file, vertex_buffer, fragment_buffer);
     
-    ASSERT(vert_status == FILE_OK);
-    
-    file_status_t frag_status = read_file_string(
-            definition->fragment_shader_file, 
-            TEMP_BUFFER + vertex_len, 
-            TEMP_STR_BUFFER_LEN, 
-            &frag_len
-    );
-    
-    ASSERT(frag_status == FILE_OK);
+    ASSERT(read_shader);
         
     shader_t shader = create_shader(
-            &TEMP_BUFFER[0],
-            &TEMP_BUFFER[vertex_len]
+            vertex_buffer,
+            fragment_buffer
     );
     
     material_t mat;
     mat.shader = shader;
     
-    mat.float_uniforms = malloc(sizeof(float_uniform_t) * definition->floats_len);
     mat.float_uniforms_len = definition->floats_len;
-
-    mat.mat4_uniforms = malloc(sizeof(mat4_uniform_t) * definition->mat4s_len);
-    mat.mat4_uniforms_len = definition->mat4s_len;
+    ASSERT(mat.float_uniforms_len < MAX_FLOATS);
     
-    mat.texture_uniforms = malloc(sizeof(texture_uniform_t) * definition->textures_len);
+    mat.mat4_uniforms_len = definition->mat4s_len;
+    ASSERT(mat.mat4_uniforms_len < MAX_MAT4S);
+    
     mat.texture_uniforms_len = definition->textures_len;
+    ASSERT(mat.texture_uniforms_len < MAX_TEXTURES);
     
     // ============= FLOAT
     
@@ -438,9 +425,6 @@ void destroy_material(const material_t *material) {
         texture_uniform_t texture_uni = material->texture_uniforms[i];
         destroy_texture(&texture_uni.texture);
     }
-    free(material->texture_uniforms);    
-    free(material->float_uniforms);
-    free(material->mat4_uniforms);
 }
 
 void use_material(const material_t *material) {

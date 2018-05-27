@@ -23,6 +23,8 @@ typedef unsigned char ushort;
 #  define INLINE static inline __attribute((always_inline))
 #endif
 
+#define DEFAULT_FILE_NAME_LEN 256
+#define DEFAULT_IDENTIFIER_NAME_LEN 32
 
 #define TEMP_STR_BUFFER_LEN 1024
 #define CREATE_TEMP_STR_BUFFER() CREATE_TEMP_NAMED_STR_BUFFER(TEMP_BUFFER) 

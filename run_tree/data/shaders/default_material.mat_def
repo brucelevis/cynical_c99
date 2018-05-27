@@ -1,4 +1,4 @@
-data/shaders/default_vert.glsl data/shaders/default_frag.glsl
+data/shaders/full_shader.glsl
 
 floats 1
 offset 2
