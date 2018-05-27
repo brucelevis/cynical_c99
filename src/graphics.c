@@ -327,8 +327,23 @@ material_t create_material(const material_definition_t *definition) {
     CREATE_TEMP_STR_BUFFER();
     
     uint vertex_len, frag_len;
-    read_file_string(definition->vertex_shader_file, TEMP_BUFFER, TEMP_STR_BUFFER_LEN, &vertex_len);
-    read_file_string(definition->fragment_shader_file, TEMP_BUFFER + vertex_len, TEMP_STR_BUFFER_LEN, &frag_len);
+    file_status_t vert_status = read_file_string(
+            definition->vertex_shader_file, 
+            TEMP_BUFFER, 
+            TEMP_STR_BUFFER_LEN, 
+            &vertex_len
+    );
+    
+    ASSERT(vert_status == FILE_OK);
+    
+    file_status_t frag_status = read_file_string(
+            definition->fragment_shader_file, 
+            TEMP_BUFFER + vertex_len, 
+            TEMP_STR_BUFFER_LEN, 
+            &frag_len
+    );
+    
+    ASSERT(frag_status == FILE_OK);
         
     shader_t shader = create_shader(
             &TEMP_BUFFER[0],
@@ -358,7 +373,7 @@ material_t create_material(const material_definition_t *definition) {
         
         float_uni.value = float_def.default_value;
       
-        ASSERT(float_uni.info.location > 0);
+        ASSERT(float_uni.info.location >= 0);
 
         mat.float_uniforms[i] = float_uni;
     }
@@ -374,7 +389,7 @@ material_t create_material(const material_definition_t *definition) {
 
         mat4_uni.value = mat4_def.default_value;
 
-        ASSERT(mat4_uni.info.location > 0);
+        ASSERT(mat4_uni.info.location >= 0);
 
         mat.mat4_uniforms[i] = mat4_uni;
     }
@@ -388,7 +403,7 @@ material_t create_material(const material_definition_t *definition) {
         tex_uni.info.name_hash = hash_string(tex_def.uniform_name);
         tex_uni.info.location = glGetUniformLocation(shader.handle, tex_def.uniform_name);
         
-        ASSERT(tex_uni.info.location);
+        ASSERT(tex_uni.info.location >= 0);
         
         tex_uni.texture_unit = TEXTURE_UNIT_0 + i;
         
@@ -409,9 +424,9 @@ material_t create_material(const material_definition_t *definition) {
         tex_uni.texture = tex;
         
         mat.texture_uniforms[i] = tex_uni;
+        
+        destroy_image(&img);
     }
-
-    glUseProgram(0);
 
     return mat;
 }

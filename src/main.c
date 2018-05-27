@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <malloc.h>
 #include "GL/glew.h"
 #include "GL/GL.h"
 #include "GLFW/glfw3.h"
@@ -11,12 +12,15 @@
 #include "graphics.h"
 #include "math/maths.h"
 #include "math/test.h"
+#include "string_helper.h"
 
 #define FILE_BUFFER_SIZE 2048
 byte FILE_BUFFER[FILE_BUFFER_SIZE];
 
+material_definition_t parse_material_def(const char *file_path);
+
 int main() {
-    
+        
     glfwInit();
 
     GLFWwindow *window = glfwCreateWindow(1024, 768, "Hello world!", NULL, NULL);
@@ -99,10 +103,13 @@ int main() {
 
     int main_texture_loc = glGetUniformLocation(shader.handle, "main_texture");
     int bump_map_loc = glGetUniformLocation(shader.handle, "bump_map_texture");
-    
-    texture_uniform_definition_t tex_definitions[1];
+    /*
+    texture_uniform_definition_t tex_definitions[2];
     tex_definitions[0].image_file_name = "data/textures/witness.jpg";
     tex_definitions[0].uniform_name = "main_texture";
+
+    tex_definitions[1].image_file_name = "data/textures/default.png";
+    tex_definitions[1].uniform_name = "bump_map_texture";
     
     float_uniform_definition_t float_uniforms[1];
     float_uniforms[0].uniform_name = "float_value";
@@ -116,7 +123,7 @@ int main() {
     definition.vertex_shader_file = "data/shaders/default_vert.glsl";
     definition.fragment_shader_file = "data/shaders/default_frag.glsl";
     
-    definition.textures_len = 1;
+    definition.textures_len = 2;
     definition.textures = (texture_uniform_definition_t*) tex_definitions;
     
     definition.floats_len = 1;
@@ -124,8 +131,12 @@ int main() {
 
     definition.mat4s_len = 1;
     definition.mat4s = (mat4_uniform_definition_t *) mat4_uniforms;
-    
+    */
+
+    material_definition_t definition = parse_material_def("data/shaders/default_material.mat_def");
     material_t material = create_material(&definition);
+    
+    material.mat4_uniforms[0].value = MVP;
     
     CHECK_GL_ERROR();
     
@@ -162,4 +173,132 @@ int main() {
     glfwTerminate();
 
     return 0;
+}
+
+material_definition_t parse_material_def(const char *file_path) {
+    FILE *file = fopen(file_path, "rb");
+    
+    if (!file) {
+        material_definition_t m;
+        return m;
+    }
+    
+    char vertex_file_buffer[128];
+    char fragment_file_buffer[128];
+    
+    char header_buffer[128];
+    int current_uniform_count;
+    
+    char uniform_name_buffer[64];
+    char uniform_value_buffer[512];
+    
+    texture_uniform_definition_t *textures = null;
+    int textures_len = 0;
+    
+    float_uniform_definition_t *floats = null;
+    int floats_len = 0;
+
+    mat4_uniform_definition_t *mat4s = null;
+    int mat4s_len = 0;
+        
+    const int seek_shader_files = 0;
+    const int seek_header = 1;
+    const int read_textures = 2;
+    const int read_floats = 3;
+    const int read_mat4 = 4;
+    int state = seek_shader_files;
+    
+    while (!feof(file)) {
+        if (state == seek_shader_files) {
+            fscanf(file, "%s %s\n", vertex_file_buffer, fragment_file_buffer);
+            state = seek_header;
+        } else if (state == seek_header) {
+            // Prevent from reading the header again when it did not reach end of file
+            header_buffer[0] = '\0';
+            
+            fscanf(file, "%s %i", header_buffer, &current_uniform_count);
+            if (strcmp(header_buffer, "textures") == 0) {
+                state = read_textures;
+            } else if (strcmp(header_buffer, "floats") == 0) {
+                state = read_floats;
+            } else if (strcmp(header_buffer, "mat4s") == 0) {
+                state = read_mat4;
+            }
+        } else if (state == read_textures) {
+            
+            textures_len = current_uniform_count;
+            textures = malloc(sizeof(texture_uniform_definition_t) * textures_len);
+            for (int i = 0; i < textures_len; ++i) {
+                fscanf(file, "%s %s", uniform_name_buffer, uniform_value_buffer);
+                textures[i].uniform_name = string_copy(uniform_name_buffer);
+                textures[i].image_file_name = string_copy(uniform_value_buffer);
+            }
+            
+            state = seek_header;
+            
+        } else if (state == read_floats) {
+            
+            floats_len = current_uniform_count;
+            floats = malloc(sizeof(float_uniform_definition_t) * floats_len);
+            for (int i = 0; i < floats_len; ++i) {
+                float default_value;
+                fscanf(file, "%s %f", uniform_name_buffer, &default_value);
+                floats[i].uniform_name = string_copy(uniform_name_buffer);
+                floats[i].default_value = default_value;
+            }
+            
+            state = seek_header;
+            
+        } else if (state == read_mat4) {
+            
+            mat4s_len = current_uniform_count;
+            mat4s = malloc(sizeof(mat4_uniform_definition_t) * mat4s_len);
+            for (int i = 0; i < mat4s_len; ++i) {
+                mat4_t default_value;
+                fscanf(
+                        file, 
+                        "%s %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f", 
+                        uniform_name_buffer, 
+                        &default_value.x.x,
+                        &default_value.x.y,
+                        &default_value.x.z,
+                        &default_value.x.w,
+                        &default_value.y.x,
+                        &default_value.y.y,
+                        &default_value.y.z,
+                        &default_value.y.w,
+                        &default_value.z.x,
+                        &default_value.z.y,
+                        &default_value.z.z,
+                        &default_value.z.w,
+                        &default_value.w.x,
+                        &default_value.w.y,
+                        &default_value.w.z,
+                        &default_value.w.w
+                );
+                
+                mat4s[i].uniform_name = string_copy(uniform_name_buffer);
+                mat4s[i].default_value = default_value;
+            }
+            
+            state = seek_header;
+        }
+    }
+    
+    material_definition_t definition;
+    definition.floats_len = (uint) floats_len;
+    definition.floats = floats;
+    
+    definition.mat4s_len = (uint) mat4s_len;
+    definition.mat4s = mat4s;
+
+    definition.textures_len = (uint) textures_len;
+    definition.textures = textures;
+    
+    definition.vertex_shader_file = string_copy(vertex_file_buffer);
+    definition.fragment_shader_file = string_copy(fragment_file_buffer);
+    
+    fclose(file);
+
+    return definition;
 }
