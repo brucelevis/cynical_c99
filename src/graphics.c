@@ -15,65 +15,63 @@
 #include "hot_reloader.h"
 #include "file.h"
 
-shader_t reload_shader(uint handle, const char *shader_file) {
+void reload_shader_sources(uint handle, const char *shader_file) {
+    stop_watch_shader_file(handle);
+    
     CREATE_TEMP_NAMED_STR_BUFFER(vertex_buffer);
     CLEAR_TEMP_NAMED_STR_BUFFER(vertex_buffer);
-    
+
     CREATE_TEMP_NAMED_STR_BUFFER(fragment_buffer);
     CLEAR_TEMP_NAMED_STR_BUFFER(fragment_buffer);
 
-    bool read_shader = read_shader_file(shader_file, vertex_buffer, fragment_buffer);
+
+#if DEV
+
+    char both_include_file_path[DEFAULT_FILE_NAME_LEN];
+    memset(both_include_file_path, 0, DEFAULT_FILE_NAME_LEN * sizeof(char));
+
+    char vert_include_file_path[DEFAULT_FILE_NAME_LEN];
+    memset(vert_include_file_path, 0, DEFAULT_FILE_NAME_LEN * sizeof(char));
+
+    char frag_include_file_path[DEFAULT_FILE_NAME_LEN];
+    memset(frag_include_file_path, 0, DEFAULT_FILE_NAME_LEN * sizeof(char));
+
+#endif
+
+    bool read_shader = read_shader_file(
+            shader_file, 
+            vertex_buffer, 
+            fragment_buffer,
+            both_include_file_path,
+            vert_include_file_path,
+            frag_include_file_path
+    );
 
     ASSERT(read_shader);
+
+    watch_shader_file(
+            handle,
+            shader_file,
+            both_include_file_path,
+            vert_include_file_path,
+            frag_include_file_path
+    );
 
     update_shader_program(handle, vertex_buffer, fragment_buffer);
 }
 
 shader_t create_shader_from_file(const char *shader_file) {
-    CREATE_TEMP_NAMED_STR_BUFFER(vertex_buffer);
-    CLEAR_TEMP_NAMED_STR_BUFFER(vertex_buffer);
-    
-    CREATE_TEMP_NAMED_STR_BUFFER(fragment_buffer);
-    CLEAR_TEMP_NAMED_STR_BUFFER(fragment_buffer);
 
-    bool read_shader = read_shader_file(shader_file, vertex_buffer, fragment_buffer);
-
-    ASSERT(read_shader);
-
-    shader_t shader = create_shader_from_source(
-            vertex_buffer,
-            fragment_buffer
-    );
-    
-    watch_shader_file(shader.handle, shader_file);
-
-    return shader;
-}
-
-shader_t create_shader_from_source(const char *vertex, const char *fragment) {
     uint program = glCreateProgram();
 
-    update_shader_program(program, vertex, fragment);
-    
+    reload_shader_sources(program, shader_file);
+
     shader_t shader;
     shader.handle = program;
     return shader;
 }
 
 void update_shader_program(uint program, const char *vertex, const char *fragment) {
-    uint vert_handle = glCreateShader(GL_VERTEX_SHADER);
-    uint frag_handle = glCreateShader(GL_FRAGMENT_SHADER);
-
-    glShaderSource(vert_handle, 1, &vertex, null);
-    glCompileShader(vert_handle);
-
-    CHECK_SHADER_COMPILATION(vert_handle);
-
-    glShaderSource(frag_handle, 1, &fragment, null);
-    glCompileShader(frag_handle);
-
-    CHECK_SHADER_COMPILATION(frag_handle);
-
     {
         // TODO(temdisponivel): Should we cache this shader IDs in order to detach them later
         // instead of asking for the program for its shaders?!
@@ -88,6 +86,19 @@ void update_shader_program(uint program, const char *vertex, const char *fragmen
         }
     }
     
+    uint vert_handle = glCreateShader(GL_VERTEX_SHADER);
+    uint frag_handle = glCreateShader(GL_FRAGMENT_SHADER);
+
+    glShaderSource(vert_handle, 1, &vertex, null);
+    glCompileShader(vert_handle);
+
+    CHECK_SHADER_COMPILATION(vert_handle);
+
+    glShaderSource(frag_handle, 1, &fragment, null);
+    glCompileShader(frag_handle);
+
+    CHECK_SHADER_COMPILATION(frag_handle);
+
     glAttachShader(program, vert_handle);
     glAttachShader(program, frag_handle);
 
@@ -306,16 +317,16 @@ void draw_mesh(mesh_t mesh) {
 }
 
 bool load_image_from_file(const char *image_file, image_t *dest) {
-    
+
     // TODO(temdisponivel): Create a buffer in order to prevent allocations
     uint len;
     byte *file_data = read_file_data_alloc(image_file, &len);
 
-    #if DEV
+#if DEV
     if (!file_data) {
         file_data = read_file_data_alloc(DEFAULT_IMAGE_FILE_PATH, &len);
     }
-    #endif
+#endif
 
     if (!file_data) {
         return false;
@@ -348,7 +359,7 @@ texture_t create_texture(const image_t *image) {
     glGenTextures(1, &handle);
 
     update_texture_data(handle, image);
-    
+
     watch_texture_file(handle, image->file_path);
 
     texture_t texture;
@@ -386,70 +397,60 @@ void update_texture_data(uint handle, const image_t *image) {
 
 void destroy_texture(const texture_t *texture) {
     glDeleteTextures(1, &texture->handle);
-    stop_watch_shader_file(texture->handle);
+    stop_watch_texture_file(texture->handle);
 }
 
 material_t create_material(const material_definition_t *definition) {
-    
+
     shader_t shader = create_shader_from_file(definition->shader_file);
-    
+
     material_t mat;
     mat.shader = shader;
-    
+
     mat.float_uniforms_len = definition->floats_len;
     ASSERT(mat.float_uniforms_len < MAX_FLOATS);
-    
+
     mat.mat4_uniforms_len = definition->mat4s_len;
     ASSERT(mat.mat4_uniforms_len < MAX_MAT4S);
-    
+
     mat.texture_uniforms_len = definition->textures_len;
     ASSERT(mat.texture_uniforms_len < MAX_TEXTURES);
-    
+
     // ============= FLOAT
-    
+
     for (int i = 0; i < definition->floats_len; ++i) {
         float_uniform_definition_t float_def = definition->floats[i];
 
         float_uniform_t float_uni;
-        float_uni.info.name_hash = hash_string(float_def.uniform_name);
-        float_uni.info.location = glGetUniformLocation(shader.handle, float_def.uniform_name);
-        
+        strcpy(float_uni.info.name, float_def.uniform_name);
+
         float_uni.value = float_def.default_value;
-      
-        ASSERT(float_uni.info.location >= 0);
 
         mat.float_uniforms[i] = float_uni;
     }
 
     // ============= MAT 4
-    
+
     for (int i = 0; i < definition->mat4s_len; ++i) {
         mat4_uniform_definition_t mat4_def = definition->mat4s[i];
 
         mat4_uniform_t mat4_uni;
-        mat4_uni.info.name_hash = hash_string(mat4_def.uniform_name);
-        mat4_uni.info.location = glGetUniformLocation(shader.handle, mat4_def.uniform_name);
-
+        strcpy(mat4_uni.info.name, mat4_def.uniform_name);
         mat4_uni.value = mat4_def.default_value;
-
-        ASSERT(mat4_uni.info.location >= 0);
 
         mat.mat4_uniforms[i] = mat4_uni;
     }
 
     // ============= TEXTURE
-    
+
     for (int i = 0; i < definition->textures_len; ++i) {
         texture_uniform_definition_t tex_def = definition->textures[i];
-        
+
         texture_uniform_t tex_uni;
-        tex_uni.info.name_hash = hash_string(tex_def.uniform_name);
-        tex_uni.info.location = glGetUniformLocation(shader.handle, tex_def.uniform_name);
-        
-        ASSERT(tex_uni.info.location >= 0);
-        
+        strcpy(tex_uni.info.name, tex_def.uniform_name);
+
         tex_uni.texture_unit = TEXTURE_UNIT_0 + i;
-        
+
         char *file_path;
         if (strlen(tex_def.image_file_name)) {
             file_path = tex_def.image_file_name;
@@ -458,16 +459,16 @@ material_t create_material(const material_definition_t *definition) {
         }
 
         image_t img;
-        
+
         bool result = load_image_from_file(file_path, &img);
-        
+
         ASSERT(result);
-        
+
         texture_t tex = create_texture(&img);
         tex_uni.texture = tex;
-        
+
         mat.texture_uniforms[i] = tex_uni;
-        
+
         destroy_image(&img);
     }
 
@@ -489,19 +490,19 @@ void use_material(const material_t *material) {
 
     for (int i = 0; i < material->float_uniforms_len; ++i) {
         float_uniform_t uniform = material->float_uniforms[i];
-        
-        if (uniform.info.location >= 0) {
-            glUniform1f(uniform.info.location, uniform.value);
+        int loc = glGetUniformLocation(material->shader.handle, uniform.info.name);
+        if (loc >= 0) {
+            glUniform1f(loc, uniform.value);
         }
     }
-    
+
     CHECK_GL_ERROR();
 
     for (int i = 0; i < material->mat4_uniforms_len; ++i) {
         mat4_uniform_t uniform = material->mat4_uniforms[i];
-
-        if (uniform.info.location >= 0) {
-            glUniformMatrix4fv(uniform.info.location, 1, GL_FALSE, &uniform.value);
+        int loc = glGetUniformLocation(material->shader.handle, uniform.info.name);
+        if (loc >= 0) {
+            glUniformMatrix4fv(loc, 1, GL_FALSE, &uniform.value);
         }
     }
 
@@ -509,15 +510,15 @@ void use_material(const material_t *material) {
 
     for (int i = 0; i < material->texture_uniforms_len; ++i) {
         texture_uniform_t uniform = material->texture_uniforms[i];
-
-        if (uniform.info.location >= 0) {
+        int loc = glGetUniformLocation(material->shader.handle, uniform.info.name);
+        if (loc >= 0) {
             glActiveTexture(uniform.texture_unit);
             glBindTexture(GL_TEXTURE_2D, uniform.texture.handle);
-            glUniform1i(uniform.info.location, uniform.texture_unit - TEXTURE_UNIT_0);
+            glUniform1i(loc, uniform.texture_unit - TEXTURE_UNIT_0);
         }
     }
 
     CHECK_GL_ERROR();
-    
+
     // TODO(temdisponivel): Should I create a function that will unbind all these uniforms?!
 }

@@ -77,8 +77,9 @@ typedef struct texture {
 } texture_t;
 
 typedef struct uniform_info {
-    int location;
-    int name_hash;
+    // TODO(temdisponivel): Cache the locations - make sure it works with hot reloading
+    // it must recache location of the uniform after rebuild the shader
+    char name[DEFAULT_NAME_LEN];
 } uniform_info_t;
 
 typedef struct float_uniform {
@@ -138,9 +139,8 @@ typedef struct material_definition {
     uint mat4s_len;
 } material_definition_t;
 
-shader_t reload_shader(uint handle, const char *shader_file);
+void reload_shader_sources(uint handle, const char *shader_file);
 shader_t create_shader_from_file(const char *shader_file);
-shader_t create_shader_from_source(const char *vertex, const char *fragment);
 void update_shader_program(uint program, const char *vertex, const char *fragment);
 void destroy_shader(shader_t shader);
 

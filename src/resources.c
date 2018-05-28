@@ -5,7 +5,21 @@
 #include "resources.h"
 #include "file.h"
 
-bool read_shader_file(const char *file_path, char *vertex_buffer, char *fragment_buffer) {
+
+
+bool read_shader_file(
+        const char *file_path,
+        char *vertex_buffer,
+        char *fragment_buffer
+
+#if DEV
+        , 
+        char *both_include_file_path,
+        char *vert_include_file_path,
+        char *frag_include_file_path
+#endif
+) {
+    
     char *start_vertex_buffer = vertex_buffer;
     char *start_frag_buffer = fragment_buffer;
     
@@ -43,12 +57,15 @@ bool read_shader_file(const char *file_path, char *vertex_buffer, char *fragment
                 
                 bool vertex = false;
                 bool fragment = false;
-                if (strcmp(include_file_type, "vertex") == 0) {
+                if (strcmp(include_file_type, "both") == 0) {
+                    strcpy(both_include_file_path, include_file_path);
+                    vertex = true;
+                    fragment = true;
+                } else if (strcmp(include_file_type, "vertex") == 0) {
+                    strcpy(vert_include_file_path, include_file_path);
                     vertex = true;
                 } else if (strcmp(include_file_type, "fragment") == 0) {
-                    fragment = true;
-                } else if (strcmp(include_file_type, "both") == 0) {
-                    vertex = true;
+                    strcpy(frag_include_file_path, include_file_path);
                     fragment = true;
                 } else {
                     ASSERT(false);
