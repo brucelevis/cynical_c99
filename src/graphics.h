@@ -50,6 +50,8 @@ typedef struct mesh {
     uint vbo;
     uint vio;
     uint elements_len;
+
+    transform_t transformation;
 } mesh_t;
 
 typedef struct shader {
@@ -151,6 +153,8 @@ void draw_mesh(mesh_t mesh);
 
 bool load_image_from_file(const char *image_file, image_t *dest);
 void destroy_image(const image_t *image);
+
+vec2_t calc_plane_size_for_img(const image_t *image);
 
 texture_t create_texture(const image_t *image);
 void update_texture_data(uint handle, const image_t *image);

@@ -82,15 +82,15 @@ int main() {
     watch_config_file(CONFIG_FILE_PATH);
     
     while (!glfwWindowShouldClose(window)) {
-        
-        if (engine_config.dirty) {
-            update_engine_based_on_config();
-            engine_config.dirty = false;
-        }
 
 #if DEV
         update_hot_reloader();
 #endif
+
+        if (engine_config.dirty) {
+            update_engine_based_on_config();
+            engine_config.dirty = false;
+        }
         
         glfwPollEvents();
 
