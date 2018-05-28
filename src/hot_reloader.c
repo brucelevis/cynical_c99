@@ -41,6 +41,20 @@ void watch_texture_file(uint handle, const char *file) {
     data.texture_caches[data.texture_caches_len++] = cache;
 }
 
+void stop_watch_texture_file(uint handle) {
+    for (int i = 0; i < data.texture_caches_len; ++i) {
+        gl_object_cache_t shader = data.texture_caches[i];
+        if (shader.handle == handle) {
+            printf("remove shader watch\n");
+
+            // TODO(temdisponivel): Create a macro for this
+            for (int j = i; j < data.texture_caches_len - 1; ++j) {
+                data.texture_caches[j] = data.texture_caches[j + 1];
+            }
+        }
+    }
+}
+
 bool has_changed(const gl_object_cache_t *cache) {
     struct stat s;
     stat(cache->file_path, &s);
@@ -55,7 +69,17 @@ void update_hot_reloader() {
         if (has_changed(&cache)) {
             time(&data.shader_caches[i].last_seen_modification);
             reload_shader(cache.handle, cache.file_path);
-            printf("Reloading file: '%s'!", cache.file_path);
+        }
+    }
+
+    for (int i = 0; i < data.texture_caches_len; ++i) {
+        gl_object_cache_t cache = data.texture_caches[i];
+        if (has_changed(&cache)) {
+            time(&data.texture_caches[i].last_seen_modification);
+            image_t img;
+            bool loaded = load_image_from_file(cache.file_path, &img);
+            ASSERT(!loaded);
+            update_texture_data(cache.handle, &img);
         }
     }
 }

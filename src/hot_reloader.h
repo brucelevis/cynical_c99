@@ -29,6 +29,7 @@ void watch_shader_file(uint handle, const char *file);
 void stop_watch_shader_file(uint handle);
 
 void watch_texture_file(uint handle, const char *file);
+void stop_watch_texture_file(uint handle);
 
 void update_hot_reloader();
 

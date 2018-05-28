@@ -57,6 +57,7 @@ typedef struct shader {
 } shader_t;
 
 typedef struct image {
+    char file_path[DEFAULT_FILE_NAME_LEN];
     vec2_t size;
     byte *data;
 } image_t;
@@ -148,10 +149,11 @@ mesh_t create_mesh(model_t model);
 void destroy_mesh(mesh_t mesh);
 void draw_mesh(mesh_t mesh);
 
-bool load_image(const char *image_file, image_t *dest);
+bool load_image_from_file(const char *image_file, image_t *dest);
 void destroy_image(const image_t *image);
 
 texture_t create_texture(const image_t *image);
+void update_texture_data(uint handle, const image_t *image);
 void destroy_texture(const texture_t *texture);
 
 material_t create_material(const material_definition_t *definition);

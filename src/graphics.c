@@ -305,7 +305,7 @@ void draw_mesh(mesh_t mesh) {
     glBindVertexArray(0);
 }
 
-bool load_image(const char *image_file, image_t *dest) {
+bool load_image_from_file(const char *image_file, image_t *dest) {
     
     // TODO(temdisponivel): Create a buffer in order to prevent allocations
     uint len;
@@ -332,6 +332,7 @@ bool load_image(const char *image_file, image_t *dest) {
     }
 
     image_t img;
+    strcpy(img.file_path, image_file);
     img.data = image_data;
     img.size = vec2_make(width, height);
     *dest = img;
@@ -346,6 +347,16 @@ texture_t create_texture(const image_t *image) {
     uint handle;
     glGenTextures(1, &handle);
 
+    update_texture_data(handle, image);
+    
+    watch_texture_file(handle, image->file_path);
+
+    texture_t texture;
+    texture.handle = handle;
+    return texture;
+}
+
+void update_texture_data(uint handle, const image_t *image) {
     glBindTexture(GL_TEXTURE_2D, handle);
 
     glTexImage2D(
@@ -371,14 +382,11 @@ texture_t create_texture(const image_t *image) {
     glBindTexture(GL_TEXTURE_2D, 0);
 
     CHECK_GL_ERROR();
-
-    texture_t texture;
-    texture.handle = handle;
-    return texture;
 }
 
 void destroy_texture(const texture_t *texture) {
     glDeleteTextures(1, &texture->handle);
+    stop_watch_shader_file(texture->handle);
 }
 
 material_t create_material(const material_definition_t *definition) {
@@ -451,7 +459,7 @@ material_t create_material(const material_definition_t *definition) {
 
         image_t img;
         
-        bool result = load_image(file_path, &img);
+        bool result = load_image_from_file(file_path, &img);
         
         ASSERT(result);
         
