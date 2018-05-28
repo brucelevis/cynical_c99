@@ -3,7 +3,6 @@
 //
 
 #include "resources.h"
-#include "string_helper.h"
 
 bool read_shader_file(const char *file_path, char *vertex_buffer, char *fragment_buffer) {
     FILE *file = fopen(file_path, "rb");
@@ -11,7 +10,7 @@ bool read_shader_file(const char *file_path, char *vertex_buffer, char *fragment
     if (!file) {
         return false;
     }
-
+    
     CREATE_TEMP_STR_BUFFER();
 
     while (!feof(file)) {
@@ -20,7 +19,7 @@ bool read_shader_file(const char *file_path, char *vertex_buffer, char *fragment
         if (strcmp(TEMP_BUFFER, "#start_vertex") == 0) {
             fseek(file, 0, SEEK_CUR);
             int file_start = ftell(file);
-            int file_end;
+            int file_end = file_start;
             
             while (true) {
                 fscanf(file, "%s", TEMP_BUFFER);
@@ -39,7 +38,7 @@ bool read_shader_file(const char *file_path, char *vertex_buffer, char *fragment
         } else if (strcmp(TEMP_BUFFER, "#start_fragment") == 0) {
             fseek(file, 0, SEEK_CUR);
             int file_start = ftell(file);
-            int file_end;
+            int file_end = file_start;
 
             while (true) {
                 fscanf(file, "%s", TEMP_BUFFER);
@@ -58,11 +57,12 @@ bool read_shader_file(const char *file_path, char *vertex_buffer, char *fragment
         }
     }
 
-#if DEV && 0
+#if DEV
     printf("Vertex shader: \n '%s' \n", vertex_buffer);
     printf("Fragment shader: \n '%s' \n", fragment_buffer);
 #endif
 
+    fclose(file);
     return true;
 }
 

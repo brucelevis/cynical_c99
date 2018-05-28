@@ -23,12 +23,17 @@ typedef unsigned char ushort;
 #  define INLINE static inline __attribute((always_inline))
 #endif
 
+#define DATA_FOLDER "data/"
+#define SHADER_FOLDER DATA_FOLDER"shaders/"
+#define TEXTURE_FOLDER DATA_FOLDER"textures/"
+
 #define DEFAULT_FILE_NAME_LEN 256
 #define DEFAULT_IDENTIFIER_NAME_LEN 32
 
 #define TEMP_STR_BUFFER_LEN 1024
 #define CREATE_TEMP_STR_BUFFER() CREATE_TEMP_NAMED_STR_BUFFER(TEMP_BUFFER) 
 #define CREATE_TEMP_NAMED_STR_BUFFER(name) char name[TEMP_STR_BUFFER_LEN]
+#define CLEAR_TEMP_NAMED_STR_BUFFER(name) memset(name, 0, TEMP_STR_BUFFER_LEN * sizeof(char))
 
 #ifdef DEV
 

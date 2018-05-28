@@ -294,56 +294,56 @@ INLINE void mat4_inv(const mat4_t *mat, mat4_t *dest){
     mat4_mul_scalar(dest, det, dest);
 }
 
-INLINE void mat4_frustum(float left, float right, float bottom, float top, float near, float far, mat4_t *dest){
+INLINE void mat4_frustum(float left, float right, float bottom, float top, float near_plane, float far_plane, mat4_t *dest){
     float rl, tb, fn, nv;
     
     memset(dest, 0, sizeof(mat4_t));
 
     rl = 1.0f / (right  - left);
     tb = 1.0f / (top    - bottom);
-    fn =-1.0f / (far - near);
-    nv = 2.0f * near;
+    fn =-1.0f / (far_plane - near_plane);
+    nv = 2.0f * near_plane;
 
     dest->x.x = nv * rl;
     dest->y.y = nv * tb;
     dest->z.x = (right  + left)    * rl;
     dest->z.y = (top    + bottom)  * tb;
-    dest->z.z = (far + near) * fn;
+    dest->z.z = (far_plane + near_plane) * fn;
     dest->z.w =-1.0f;
-    dest->w.z = far * nv * fn;
+    dest->w.z = far_plane * nv * fn;
 }
 
-INLINE void mat4_ortho(float left, float right, float bottom, float top, float near, float far, mat4_t *dest){
+INLINE void mat4_ortho(float left, float right, float bottom, float top, float near_plane, float far_plane, mat4_t *dest){
     float rl, tb, fn;
     
     memset(dest, 0, sizeof(mat4_t));
     
     rl = 1.0f / (right  - left);
     tb = 1.0f / (top    - bottom);
-    fn =-1.0f / (far - near);
+    fn =-1.0f / (far_plane - near_plane);
 
     dest->x.x = 2.0f * rl;
     dest->y.y = 2.0f * tb;
     dest->z.z = 2.0f * fn;
     dest->w.x =-(right  + left)    * rl;
     dest->w.y =-(top    + bottom)  * tb;
-    dest->w.z = (far + near) * fn;
+    dest->w.z = (far_plane + near_plane) * fn;
     dest->w.w = 1.0f;
 }
 
-INLINE void mat4_perspective(float field_of_view, float aspect, float near, float far, mat4_t *dest){
+INLINE void mat4_perspective(float field_of_view, float aspect, float near_plane, float far_plane, mat4_t *dest){
     float f, fn;
 
     memset(dest, 0, sizeof(mat4_t));
 
     f  = 1.0f / tanf(field_of_view * 0.5f);
-    fn = 1.0f / (near - far);
+    fn = 1.0f / (near_plane - far_plane);
 
     dest->x.x = f / aspect;
     dest->y.y = f;
-    dest->z.z = (near + far) * fn;
+    dest->z.z = (near_plane + far_plane) * fn;
     dest->z.w =-1.0f;
-    dest->w.z = 2.0f * near * far * fn;
+    dest->w.z = 2.0f * near_plane * far_plane * fn;
 }
 
 INLINE void mat4_look_at(const vec3_t *pos, const vec3_t *center, const vec3_t *up, mat4_t *dest){
@@ -379,7 +379,7 @@ INLINE void mat4_look(const vec3_t *pos, const vec3_t *dir, const vec3_t *up, ma
     mat4_look_at(pos, &target, up, dest);
 }
 
-INLINE void mat4_decompose_perspective(const mat4_t *proj, float *near, float *far, float *top, float *bottom, float *left, float *right){
+INLINE void mat4_decompose_perspective(const mat4_t *proj, float *near_plane, float *far_plane, float *top, float *bottom, float *left, float *right){
     float m00, m11, m20, m21, m22, m32, n, f;
     float n_m11, n_m00;
 
@@ -396,8 +396,8 @@ INLINE void mat4_decompose_perspective(const mat4_t *proj, float *near, float *f
     n_m11 = n / m11;
     n_m00 = n / m00;
 
-    *near = n;
-    *far  = f;
+    *near_plane = n;
+    *far_plane  = f;
     *bottom  = n_m11 * (m21 - 1.0f);
     *top     = n_m11 * (m21 + 1.0f);
     *left    = n_m00 * (m20 - 1.0f);

@@ -11,6 +11,10 @@
 #include "math/test.h"
 #include "resources.h"
 
+#if DEV
+#include "hot_reloader.h"
+#endif
+
 #define FILE_BUFFER_SIZE 2048
 byte FILE_BUFFER[FILE_BUFFER_SIZE];
 
@@ -65,6 +69,11 @@ int main() {
     CHECK_GL_ERROR();
     
     while (!glfwWindowShouldClose(window)) {
+
+#if DEV
+        update_hot_reloader();
+#endif
+        
         glfwPollEvents();
 
         int width, height;

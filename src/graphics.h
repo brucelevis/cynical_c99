@@ -6,11 +6,7 @@
 #define RAW_GL_GRAPHICS_H
 
 #include "GL/glew.h"
-#include "common.h"
 #include "math/maths.h"
-#include <mem.h>
-#include "stb_image.h"
-#include "file.h"
 
 #define VERT_POS_NAME "position"
 #define VERT_UV_NAME "uv"
@@ -139,7 +135,10 @@ typedef struct material_definition {
     uint mat4s_len;
 } material_definition_t;
 
-shader_t create_shader(const char *vertex, const char *fragment);
+shader_t reload_shader(uint handle, const char *shader_file);
+shader_t create_shader_from_file(const char *shader_file);
+shader_t create_shader_from_source(const char *vertex, const char *fragment);
+void update_shader_program(uint program, const char *vertex, const char *fragment);
 void destroy_shader(shader_t shader);
 
 model_t create_quad();

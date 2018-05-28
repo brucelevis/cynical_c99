@@ -12,9 +12,55 @@
 
 #include "graphics.h"
 #include "resources.h"
+#include "hot_reloader.h"
+#include "file.h"
 
-shader_t create_shader(const char *vertex, const char *fragment) {
+shader_t reload_shader(uint handle, const char *shader_file) {
+    CREATE_TEMP_NAMED_STR_BUFFER(vertex_buffer);
+    CLEAR_TEMP_NAMED_STR_BUFFER(vertex_buffer);
+    
+    CREATE_TEMP_NAMED_STR_BUFFER(fragment_buffer);
+    CLEAR_TEMP_NAMED_STR_BUFFER(fragment_buffer);
+
+    bool read_shader = read_shader_file(shader_file, vertex_buffer, fragment_buffer);
+
+    ASSERT(read_shader);
+
+    update_shader_program(handle, vertex_buffer, fragment_buffer);
+}
+
+shader_t create_shader_from_file(const char *shader_file) {
+    CREATE_TEMP_NAMED_STR_BUFFER(vertex_buffer);
+    CLEAR_TEMP_NAMED_STR_BUFFER(vertex_buffer);
+    
+    CREATE_TEMP_NAMED_STR_BUFFER(fragment_buffer);
+    CLEAR_TEMP_NAMED_STR_BUFFER(fragment_buffer);
+
+    bool read_shader = read_shader_file(shader_file, vertex_buffer, fragment_buffer);
+
+    ASSERT(read_shader);
+
+    shader_t shader = create_shader_from_source(
+            vertex_buffer,
+            fragment_buffer
+    );
+    
+    watch_shader_file(shader.handle, shader_file);
+
+    return shader;
+}
+
+shader_t create_shader_from_source(const char *vertex, const char *fragment) {
     uint program = glCreateProgram();
+
+    update_shader_program(program, vertex, fragment);
+    
+    shader_t shader;
+    shader.handle = program;
+    return shader;
+}
+
+void update_shader_program(uint program, const char *vertex, const char *fragment) {
     uint vert_handle = glCreateShader(GL_VERTEX_SHADER);
     uint frag_handle = glCreateShader(GL_FRAGMENT_SHADER);
 
@@ -28,6 +74,20 @@ shader_t create_shader(const char *vertex, const char *fragment) {
 
     CHECK_SHADER_COMPILATION(frag_handle);
 
+    {
+        // TODO(temdisponivel): Should we cache this shader IDs in order to detach them later
+        // instead of asking for the program for its shaders?!
+
+        uint shaders[2];
+        int count;
+        glGetAttachedShaders(program, 2, &count, shaders);
+
+        if (count > 0) {
+            glDetachShader(program, shaders[0]);
+            glDetachShader(program, shaders[1]);
+        }
+    }
+    
     glAttachShader(program, vert_handle);
     glAttachShader(program, frag_handle);
 
@@ -43,13 +103,10 @@ shader_t create_shader(const char *vertex, const char *fragment) {
     glDeleteShader(frag_handle);
 
     CHECK_GL_ERROR();
-
-    shader_t shader;
-    shader.handle = program;
-    return shader;
 }
 
 void destroy_shader(shader_t shader) {
+    stop_watch_shader_file(shader.handle);
     glDeleteProgram(shader.handle);
 }
 
@@ -325,17 +382,8 @@ void destroy_texture(const texture_t *texture) {
 }
 
 material_t create_material(const material_definition_t *definition) {
-    CREATE_TEMP_NAMED_STR_BUFFER(vertex_buffer);
-    CREATE_TEMP_NAMED_STR_BUFFER(fragment_buffer);
     
-    bool read_shader = read_shader_file(definition->shader_file, vertex_buffer, fragment_buffer);
-    
-    ASSERT(read_shader);
-        
-    shader_t shader = create_shader(
-            vertex_buffer,
-            fragment_buffer
-    );
+    shader_t shader = create_shader_from_file(definition->shader_file);
     
     material_t mat;
     mat.shader = shader;
