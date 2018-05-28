@@ -6,6 +6,8 @@
 #include <sys/stat.h>
 #include "hot_reloader.h"
 #include "graphics.h"
+#include "engine.h"
+#include "resources.h"
 
 static hot_reloader_data data = {};
 
@@ -55,18 +57,18 @@ void stop_watch_texture_file(uint handle) {
     }
 }
 
-bool has_changed(const gl_object_cache_t *cache) {
+bool has_changed(const char *file_path, time_t last_modification) {
     struct stat s;
-    stat(cache->file_path, &s);
+    stat(file_path, &s);
     time_t last_modified = s.st_mtime;
-    double diff = difftime(last_modified, cache->last_seen_modification);
+    double diff = difftime(last_modified, last_modification);
     return diff > 0;
 }
 
 void update_hot_reloader() {
     for (int i = 0; i < data.shader_caches_len; ++i) {
         gl_object_cache_t cache = data.shader_caches[i];
-        if (has_changed(&cache)) {
+        if (has_changed(cache.file_path, cache.last_seen_modification)) {
             time(&data.shader_caches[i].last_seen_modification);
             reload_shader(cache.handle, cache.file_path);
         }
@@ -74,7 +76,7 @@ void update_hot_reloader() {
 
     for (int i = 0; i < data.texture_caches_len; ++i) {
         gl_object_cache_t cache = data.texture_caches[i];
-        if (has_changed(&cache)) {
+        if (has_changed(cache.file_path, cache.last_seen_modification)) {
             time(&data.texture_caches[i].last_seen_modification);
             image_t img;
             bool loaded = load_image_from_file(cache.file_path, &img);
@@ -82,4 +84,21 @@ void update_hot_reloader() {
             update_texture_data(cache.handle, &img);
         }
     }
+    
+    if (data.config_file_watching) {
+        if (has_changed(data.config_file_path, data.config_file_last_seen_modification)) {
+            time(&data.config_file_last_seen_modification);
+            update_config(data.config_file_path, &engine_config);
+        }
+    }
+}
+
+void watch_config_file(const char *file_path) {
+    strcpy(data.config_file_path, file_path);
+    data.config_file_watching = true;
+}
+
+void stop_watch_config_file(const char *file_path) {
+    memset(data.config_file_path, 0, sizeof(data.config_file_path));
+    data.config_file_watching = false;
 }

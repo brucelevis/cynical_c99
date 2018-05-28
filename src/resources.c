@@ -76,7 +76,7 @@ bool read_material_definition_file(const char *file_path, material_definition_t 
     char header_buffer[128];
     int current_uniform_count;
 
-    char uniform_name_buffer[DEFAULT_IDENTIFIER_NAME_LEN];
+    char uniform_name_buffer[DEFAULT_NAME_LEN];
     char uniform_value_buffer[512];
 
     const int seek_shader_files = 0;
@@ -122,6 +122,7 @@ bool read_material_definition_file(const char *file_path, material_definition_t 
                 float default_value;
                 fscanf(file, "%s %f", uniform_name_buffer, &default_value);
                 
+                
                 strcpy(definition->floats[i].uniform_name, uniform_name_buffer);
                 definition->floats[i].default_value = default_value;
             }
@@ -166,4 +167,46 @@ bool read_material_definition_file(const char *file_path, material_definition_t 
     fclose(file);
     
     return true;
+}
+
+bool read_config_file(const char *file_path, config_t *config) {
+    return update_config(file_path, config);
+}
+
+bool update_config(const char *file_path, config_t *config) {
+    FILE *file = fopen(file_path, "rb");
+
+    if (!file) {
+        return false;
+    }
+
+    char header_buffer[128];
+
+    const int seek_config_type = 0;
+    const int read_resolution = 1;
+    const int read_window_title = 2;
+    int state = seek_config_type;
+
+    while (!feof(file)) {
+        if (state == seek_config_type) {
+            fscanf(file, "%s", header_buffer);
+            if (strcmp(header_buffer, "#resolution") == 0) {
+                state = read_resolution;
+            } else if (strcmp(header_buffer, "#window-title") == 0) {
+                state = read_window_title;
+            }
+        } else {
+            if (state == read_resolution) {
+                fscanf(file, "%f %f", &config->resolution.x, &config->resolution.y);
+                state = seek_config_type;
+            } else if (state == read_window_title) {
+                fscanf(file, "%s", config->window_title);
+                state = seek_config_type;
+            }
+        }
+    }
+
+    config->dirty = true;
+
+    fclose(file);
 }

@@ -109,17 +109,17 @@ typedef struct material {
 } material_t;
 
 typedef struct float_uniform_definition {
-    char uniform_name[DEFAULT_IDENTIFIER_NAME_LEN];
+    char uniform_name[DEFAULT_NAME_LEN];
     float default_value;
 } float_uniform_definition_t;
 
 typedef struct mat4_uniform_definition {
-    char uniform_name[DEFAULT_IDENTIFIER_NAME_LEN];
+    char uniform_name[DEFAULT_NAME_LEN];
     mat4_t default_value;
 } mat4_uniform_definition_t;
 
 typedef struct texture_uniform_definition {
-    char uniform_name[DEFAULT_IDENTIFIER_NAME_LEN];
+    char uniform_name[DEFAULT_NAME_LEN];
     char image_file_name[DEFAULT_FILE_NAME_LEN];
 } texture_uniform_definition_t; 
 

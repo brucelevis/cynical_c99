@@ -1,3 +1,5 @@
+#name full_shader
+
 #start_vertex
 
 #version 150

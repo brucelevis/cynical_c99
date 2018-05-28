@@ -14,7 +14,6 @@ typedef int bool;
 typedef unsigned char byte;
 typedef unsigned char ushort;
 #define null NULL
-#define _OUT_
 
 #if defined(_MSC_VER)
 #  define INLINE __forceinline
@@ -28,7 +27,7 @@ typedef unsigned char ushort;
 #define TEXTURE_FOLDER DATA_FOLDER"textures/"
 
 #define DEFAULT_FILE_NAME_LEN 256
-#define DEFAULT_IDENTIFIER_NAME_LEN 32
+#define DEFAULT_NAME_LEN 32
 
 #define TEMP_STR_BUFFER_LEN 1024
 #define CREATE_TEMP_STR_BUFFER() CREATE_TEMP_NAMED_STR_BUFFER(TEMP_BUFFER) 

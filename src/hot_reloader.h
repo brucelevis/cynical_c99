@@ -23,6 +23,10 @@ typedef struct hot_realoder_data {
     
     gl_object_cache_t texture_caches[MAX_TEXTURE_CACHE];
     uint texture_caches_len;
+    
+    char config_file_path[DEFAULT_FILE_NAME_LEN];
+    bool config_file_watching;
+    time_t config_file_last_seen_modification;
 } hot_reloader_data;
 
 void watch_shader_file(uint handle, const char *file);
@@ -30,6 +34,9 @@ void stop_watch_shader_file(uint handle);
 
 void watch_texture_file(uint handle, const char *file);
 void stop_watch_texture_file(uint handle);
+
+void watch_config_file(const char *file_path);
+void stop_watch_config_file(const char *file_path);
 
 void update_hot_reloader();
 

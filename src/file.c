@@ -31,7 +31,7 @@ bool read_file(FILE *file, uint file_len, byte *buffer, uint buffer_size) {
     }
 }
 
-file_status_t read_file_data(const char *file_path, byte *buffer, uint buffer_size, _OUT_ uint *file_length) {
+file_status_t read_file_data(const char *file_path, byte *buffer, uint buffer_size, uint *file_length) {
     FILE *file = open_file(file_path, (int *) file_length);
     
     file_status_t result = FILE_OK;
@@ -50,7 +50,7 @@ file_status_t read_file_data(const char *file_path, byte *buffer, uint buffer_si
     return result;
 }
 
-file_status_t read_file_string(const char *file_path, char *buffer, uint buffer_size, _OUT_ uint *file_length) {
+file_status_t read_file_string(const char *file_path, char *buffer, uint buffer_size,  uint *file_length) {
     file_status_t result = read_file_data(file_path, (byte *) buffer, buffer_size, file_length);
     if (result == FILE_OK) {
         buffer[*file_length] = '\0';
@@ -60,7 +60,7 @@ file_status_t read_file_string(const char *file_path, char *buffer, uint buffer_
     return result;
 }
 
-char *read_file_string_alloc(const char *file_path, _OUT_ uint *file_length) {
+char *read_file_string_alloc(const char *file_path,  uint *file_length) {
     FILE *file = open_file(file_path, (int *) file_length);
     if (!file) {
         return null;
@@ -82,7 +82,7 @@ void free_file_string(char *file_data) {
     free(file_data);
 }
 
-byte *read_file_data_alloc(const char *file_path, _OUT_ uint *file_length) {
+byte *read_file_data_alloc(const char *file_path,  uint *file_length) {
     int len;
     FILE *file = open_file(file_path, &len);
     if (!file) {

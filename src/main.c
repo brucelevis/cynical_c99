@@ -10,18 +10,28 @@
 #include "graphics.h"
 #include "math/test.h"
 #include "resources.h"
+#include "engine.h"
+
+#define CONFIG_FILE_PATH "data/config.data"
 
 #if DEV
 #include "hot_reloader.h"
 #endif
 
-#define FILE_BUFFER_SIZE 2048
-byte FILE_BUFFER[FILE_BUFFER_SIZE];
+// TODO(temdisponivel): Move engine related stuff into engine.c
+config_t engine_config = {};
+
+GLFWwindow *window;
+
+void update_engine_based_on_config() {
+    glfwSetWindowSize(window, (int) engine_config.resolution.x, (int) engine_config.resolution.y);
+    glfwSetWindowTitle(window, engine_config.window_title);
+}
 
 int main() {
     glfwInit();
 
-    GLFWwindow *window = glfwCreateWindow(1024, 768, "Hello world!", NULL, NULL);
+    window = glfwCreateWindow(1024, 768, "Hello world!", NULL, NULL);
     
     if (!window) {
         return -1;
@@ -68,7 +78,15 @@ int main() {
     
     CHECK_GL_ERROR();
     
+    read_config_file(CONFIG_FILE_PATH, &engine_config);
+    watch_config_file(CONFIG_FILE_PATH);
+    
     while (!glfwWindowShouldClose(window)) {
+        
+        if (engine_config.dirty) {
+            update_engine_based_on_config();
+            engine_config.dirty = false;
+        }
 
 #if DEV
         update_hot_reloader();
