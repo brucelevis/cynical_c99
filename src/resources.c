@@ -3,8 +3,12 @@
 //
 
 #include "resources.h"
+#include "file.h"
 
 bool read_shader_file(const char *file_path, char *vertex_buffer, char *fragment_buffer) {
+    char *start_vertex_buffer = vertex_buffer;
+    char *start_frag_buffer = fragment_buffer;
+    
     FILE *file = fopen(file_path, "rb");
 
     if (!file) {
@@ -16,7 +20,51 @@ bool read_shader_file(const char *file_path, char *vertex_buffer, char *fragment
     while (!feof(file)) {
         fscanf(file, "%s", TEMP_BUFFER);
 
-        if (strcmp(TEMP_BUFFER, "#start_vertex") == 0) {
+        if (strcmp(TEMP_BUFFER, "#include") == 0) {
+            char include_file_path[DEFAULT_FILE_NAME_LEN];
+            char include_file_type[DEFAULT_NAME_LEN];
+            fscanf(file, "%s %s", include_file_type, include_file_path);
+            
+            CREATE_TEMP_NAMED_STR_BUFFER(include_buffer);
+            CLEAR_TEMP_NAMED_STR_BUFFER(include_buffer);
+            
+            if (strlen(include_file_path) > 0) {
+                uint file_len;
+                bool read = read_file_string(
+                        include_file_path,
+                        include_buffer,
+                        TEMP_STR_BUFFER_LEN,
+                        &file_len
+                );
+
+                ASSERT(read);
+
+                uint include_buffer_len = strlen(include_buffer);
+                
+                bool vertex = false;
+                bool fragment = false;
+                if (strcmp(include_file_type, "vertex") == 0) {
+                    vertex = true;
+                } else if (strcmp(include_file_type, "fragment") == 0) {
+                    fragment = true;
+                } else if (strcmp(include_file_type, "both") == 0) {
+                    vertex = true;
+                    fragment = true;
+                } else {
+                    ASSERT(false);
+                }
+                
+                if (vertex) {
+                    strcpy(vertex_buffer, include_buffer);
+                    vertex_buffer += include_buffer_len;
+                }
+                
+                if (fragment) {
+                    strcpy(fragment_buffer, include_buffer);
+                    fragment_buffer += include_buffer_len;
+                }
+            }
+        } else if (strcmp(TEMP_BUFFER, "#start_vertex") == 0) {
             fseek(file, 0, SEEK_CUR);
             int file_start = ftell(file);
             int file_end = file_start;
@@ -58,8 +106,8 @@ bool read_shader_file(const char *file_path, char *vertex_buffer, char *fragment
     }
 
 #if DEV
-    printf("Vertex shader: \n '%s' \n", vertex_buffer);
-    printf("Fragment shader: \n '%s' \n", fragment_buffer);
+    printf("Vertex shader: \n '%s' \n", start_vertex_buffer);
+    printf("Fragment shader: \n '%s' \n", start_frag_buffer);
 #endif
 
     fclose(file);

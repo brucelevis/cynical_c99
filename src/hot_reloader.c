@@ -80,7 +80,7 @@ void update_hot_reloader() {
             time(&data.texture_caches[i].last_seen_modification);
             image_t img;
             bool loaded = load_image_from_file(cache.file_path, &img);
-            ASSERT(!loaded);
+            ASSERT(loaded);
             update_texture_data(cache.handle, &img);
         }
     }
