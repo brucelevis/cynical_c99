@@ -1,11 +1,9 @@
-data/shaders/full_shader.glsl
+shader data/shaders/full_shader.glsl
 
-floats 1
-offset 2
+texture main_texture data/textures/witness.jpg
+texture bump_map_texture data/textures/default.png
+texture yellow_texture data/textures/yellow.png
 
-textures 2
-main_texture data/textures/witness.jpg
-bump_map_texture data/textures/default.png
+float offset 2
 
-mat4s 1
-MVP 1.5 5.8 12 52 .3 .8 44 .85 .96 66 45 21 .46 56 5 12
+mat4 MVP 1.5 5.8 12 52 .3 .8 44 .85 .96 66 45 21 .46 56 5 12

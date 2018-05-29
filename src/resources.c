@@ -137,95 +137,75 @@ bool read_material_definition_file(const char *file_path, material_definition_t 
     if (!file) {
         return false;
     }
-
-    char header_buffer[128];
-    int current_uniform_count;
-
-    char uniform_name_buffer[DEFAULT_NAME_LEN];
-    char uniform_value_buffer[512];
-
-    const int seek_shader_files = 0;
-    const int seek_header = 1;
-    const int read_textures = 2;
-    const int read_floats = 3;
-    const int read_mat4 = 4;
-    int state = seek_shader_files;
-
+    
+    char helper_buffer[128];
+    
     while (!feof(file)) {
-        if (state == seek_shader_files) {
-            fscanf(file, "%s\n", definition->shader_file);
-            state = seek_header;
-        } else if (state == seek_header) {
-            // Prevent from reading the header again when it did not reach end of file
-            header_buffer[0] = '\0';
-
-            fscanf(file, "%s %i", header_buffer, &current_uniform_count);
-            if (strcmp(header_buffer, "textures") == 0) {
-                state = read_textures;
-            } else if (strcmp(header_buffer, "floats") == 0) {
-                state = read_floats;
-            } else if (strcmp(header_buffer, "mat4s") == 0) {
-                state = read_mat4;
-            }
-        } else if (state == read_textures) {
-
-            definition->textures_len = (uint) current_uniform_count;
-            for (int i = 0; i < current_uniform_count; ++i) {
-                fscanf(file, "%s %s", uniform_name_buffer, uniform_value_buffer);
-                
-                strcpy(definition->textures[i].uniform_name, uniform_name_buffer);
-                strcpy(definition->textures[i].image_file_name, uniform_value_buffer);
-            }
-
-            state = seek_header;
-
-        } else if (state == read_floats) {
-
-            definition->floats_len = (uint) current_uniform_count;
+        fscanf(file, "%s", helper_buffer);
+        if (strcmp(helper_buffer, "shader") == 0) {
+           fscanf(file, "%s", definition->shader_file);
+        } else if (strcmp(helper_buffer, "texture") == 0) {
+            char name_buffer[128];
+            fscanf(file, "%s %s", name_buffer, helper_buffer);
             
-            for (int i = 0; i < current_uniform_count; ++i) {
-                float default_value;
-                fscanf(file, "%s %f", uniform_name_buffer, &default_value);
-                
-                
-                strcpy(definition->floats[i].uniform_name, uniform_name_buffer);
-                definition->floats[i].default_value = default_value;
-            }
-
-            state = seek_header;
-
-        } else if (state == read_mat4) {
+            ASSERT(strlen(name_buffer));
+            ASSERT(strlen(helper_buffer));
             
-            definition->mat4s_len = (uint) current_uniform_count;
-            for (int i = 0; i < current_uniform_count; ++i) {
-                mat4_t default_value;
-                fscanf(
-                        file,
-                        "%s %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
-                        uniform_name_buffer,
-                        &default_value.x.x,
-                        &default_value.x.y,
-                        &default_value.x.z,
-                        &default_value.x.w,
-                        &default_value.y.x,
-                        &default_value.y.y,
-                        &default_value.y.z,
-                        &default_value.y.w,
-                        &default_value.z.x,
-                        &default_value.z.y,
-                        &default_value.z.z,
-                        &default_value.z.w,
-                        &default_value.w.x,
-                        &default_value.w.y,
-                        &default_value.w.z,
-                        &default_value.w.w
-                );
+            texture_uniform_definition_t def;
+            strcpy(def.uniform_name, name_buffer);
+            strcpy(def.image_file_name, helper_buffer);
+            
+            ASSERT(definition->textures_len < MAX_TEXTURES);
+            
+            definition->textures[definition->textures_len++] = def;            
+        } else if (strcmp(helper_buffer, "float") == 0) {
+            
+            float value;
+            fscanf(file, "%s %f", helper_buffer, &value);
 
-                strcpy(definition->mat4s[i].uniform_name, uniform_name_buffer);
-                definition->mat4s[i].default_value = default_value;
-            }
+            ASSERT(strlen(helper_buffer));
 
-            state = seek_header;
+            float_uniform_definition_t def;
+            strcpy(def.uniform_name, helper_buffer);
+            def.default_value = value;
+
+            ASSERT(definition->floats_len < MAX_FLOATS);
+
+            definition->floats[definition->floats_len++] = def;
+        } else if (strcmp(helper_buffer, "mat4") == 0) {
+
+            mat4_t value;
+            fscanf(
+                    file,
+                    "%s %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f",
+                    helper_buffer,
+                    &value.x.x,
+                    &value.x.y,
+                    &value.x.z,
+                    &value.x.w,
+                    &value.y.x,
+                    &value.y.y,
+                    &value.y.z,
+                    &value.y.w,
+                    &value.z.x,
+                    &value.z.y,
+                    &value.z.z,
+                    &value.z.w,
+                    &value.w.x,
+                    &value.w.y,
+                    &value.w.z,
+                    &value.w.w
+            );
+
+            ASSERT(strlen(helper_buffer));
+
+            mat4_uniform_definition_t def;
+            strcpy(def.uniform_name, helper_buffer);
+            def.default_value = value;
+
+            ASSERT(definition->mat4s_len < MAX_MAT4S);
+            
+            definition->mat4s[definition->mat4s_len++] = def;
         }
     }
 

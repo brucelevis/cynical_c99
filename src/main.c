@@ -69,7 +69,7 @@ int main() {
     mat4_mul(&proj, &view, &view_proj);
     mat4_mul(&view_proj, &model, &MVP);
     
-    material_definition_t definition;
+    material_definition_t definition = {};
     read_material_definition_file("data/shaders/default_material.mat_def", &definition);
     
     material_t material = create_material(&definition);
