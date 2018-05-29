@@ -421,8 +421,20 @@ void create_material_from_file(const char *file_path, material_t *dest) {
     watch_material_definition_file(dest, file_path);
 }
 
+// TODO(temdisponivel): Make sure to not call this function from create_material_from_file
 void reload_material(const char *file_path, material_t *dest) {
-    // DESTROY EVERYTHING HERE
+    // TODO(temdisponivel): FIX ME
+    // TODO(temdisponivel): FIX ME
+    // TODO(temdisponivel): FIX ME
+    
+    /*
+    destroy_shader(dest->shader);
+
+    for (int i = 0; i < dest->texture_uniforms_len; ++i) {
+        destroy_texture(&dest->texture_uniforms[i].texture);
+    }
+     */
+    
     material_definition_t definition = {};
     
     bool read = read_material_definition_file(file_path, &definition);
