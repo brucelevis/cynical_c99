@@ -15,6 +15,8 @@
 #include "hot_reloader.h"
 #include "file.h"
 
+// TODO(temdisponivel): Make so that create shader doesn't call this function
+// or that we don't have to stop a shader that was not being watched
 void reload_shader_sources(uint handle, const char *shader_file) {
     stop_watch_shader_file(handle);
     
@@ -354,7 +356,15 @@ void destroy_image(const image_t *image) {
     stbi_image_free(image->data);
 }
 
-texture_t create_texture(const image_t *image) {
+void create_texture_from_file(const char *file_path, texture_t *dest) {
+    image_t img;
+    bool loaded = load_image_from_file(file_path, &img);
+    ASSERT(loaded);
+    create_texture(&img, dest);
+    destroy_image(&img);
+}
+
+void create_texture(const image_t *image, texture_t *dest) {
     uint handle;
     glGenTextures(1, &handle);
 
@@ -362,9 +372,15 @@ texture_t create_texture(const image_t *image) {
 
     watch_texture_file(handle, image->file_path);
 
-    texture_t texture;
-    texture.handle = handle;
-    return texture;
+    dest->handle = handle;
+}
+
+void reload_texture(uint handle, const char *file_path) {
+    image_t img;
+    bool loaded = load_image_from_file(file_path, &img);
+    ASSERT(loaded);
+    update_texture_data(handle, &img);
+    destroy_image(&img);
 }
 
 void update_texture_data(uint handle, const image_t *image) {
@@ -400,21 +416,34 @@ void destroy_texture(const texture_t *texture) {
     stop_watch_texture_file(texture->handle);
 }
 
-material_t create_material(const material_definition_t *definition) {
+void create_material_from_file(const char *file_path, material_t *dest) {
+    reload_material(file_path, dest);
+    watch_material_definition_file(dest, file_path);
+}
+
+void reload_material(const char *file_path, material_t *dest) {
+    // DESTROY EVERYTHING HERE
+    material_definition_t definition = {};
+    
+    bool read = read_material_definition_file(file_path, &definition);
+    ASSERT(read);
+    create_material(&definition, dest);
+}
+
+void create_material(const material_definition_t *definition, material_t *dest) {
 
     shader_t shader = create_shader_from_file(definition->shader_file);
 
-    material_t mat;
-    mat.shader = shader;
+    dest->shader = shader;
 
-    mat.float_uniforms_len = definition->floats_len;
-    ASSERT(mat.float_uniforms_len < MAX_FLOATS);
+    dest->float_uniforms_len = definition->floats_len;
+    ASSERT(dest->float_uniforms_len < MAX_FLOATS);
 
-    mat.mat4_uniforms_len = definition->mat4s_len;
-    ASSERT(mat.mat4_uniforms_len < MAX_MAT4S);
+    dest->mat4_uniforms_len = definition->mat4s_len;
+    ASSERT(dest->mat4_uniforms_len < MAX_MAT4S);
 
-    mat.texture_uniforms_len = definition->textures_len;
-    ASSERT(mat.texture_uniforms_len < MAX_TEXTURES);
+    dest->texture_uniforms_len = definition->textures_len;
+    ASSERT(dest->texture_uniforms_len < MAX_TEXTURES);
 
     // ============= FLOAT
 
@@ -426,7 +455,7 @@ material_t create_material(const material_definition_t *definition) {
 
         float_uni.value = float_def.default_value;
 
-        mat.float_uniforms[i] = float_uni;
+        dest->float_uniforms[i] = float_uni;
     }
 
     // ============= MAT 4
@@ -438,7 +467,7 @@ material_t create_material(const material_definition_t *definition) {
         strcpy(mat4_uni.info.name, mat4_def.uniform_name);
         mat4_uni.value = mat4_def.default_value;
 
-        mat.mat4_uniforms[i] = mat4_uni;
+        dest->mat4_uniforms[i] = mat4_uni;
     }
 
     // ============= TEXTURE
@@ -458,21 +487,10 @@ material_t create_material(const material_definition_t *definition) {
             file_path = DEFAULT_IMAGE_FILE_PATH;
         }
 
-        image_t img;
+        create_texture_from_file(file_path, &tex_uni.texture);
 
-        bool result = load_image_from_file(file_path, &img);
-
-        ASSERT(result);
-
-        texture_t tex = create_texture(&img);
-        tex_uni.texture = tex;
-
-        mat.texture_uniforms[i] = tex_uni;
-
-        destroy_image(&img);
+        dest->texture_uniforms[i] = tex_uni;
     }
-
-    return mat;
 }
 
 void destroy_material(const material_t *material) {
@@ -482,6 +500,8 @@ void destroy_material(const material_t *material) {
         texture_uniform_t texture_uni = material->texture_uniforms[i];
         destroy_texture(&texture_uni.texture);
     }
+    
+    stop_watch_material_definition_file(material);
 }
 
 void use_material(const material_t *material) {

@@ -99,6 +99,10 @@ typedef struct texture_uniform {
 } texture_uniform_t;
 
 typedef struct material {
+    // NOTE(temdisponivel): The ~future~ resource manager will have an ID for every resource
+    // so this id here will become unecessary - and even wrong
+    uint id;  
+    
     shader_t shader;
     
     texture_uniform_t texture_uniforms[MAX_TEXTURES];
@@ -154,13 +158,15 @@ void draw_mesh(mesh_t mesh);
 bool load_image_from_file(const char *image_file, image_t *dest);
 void destroy_image(const image_t *image);
 
-vec2_t calc_plane_size_for_img(const image_t *image);
-
-texture_t create_texture(const image_t *image);
+void create_texture_from_file(const char *file_path, texture_t *dest);
+void create_texture(const image_t *image, texture_t *dest);
+void reload_texture(uint handle, const char *file_path);
 void update_texture_data(uint handle, const image_t *image);
 void destroy_texture(const texture_t *texture);
 
-material_t create_material(const material_definition_t *definition);
+void create_material_from_file(const char *file_path, material_t *dest);
+void reload_material(const char *file_path, material_t *dest);
+void create_material(const material_definition_t *definition, material_t *dest);
 void destroy_material(const material_t *material);
 
 void use_material(const material_t *material);

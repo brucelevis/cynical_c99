@@ -68,13 +68,9 @@ int main() {
 
     mat4_mul(&proj, &view, &view_proj);
     mat4_mul(&view_proj, &model, &MVP);
-    
-    material_definition_t definition = {};
-    read_material_definition_file("data/shaders/default_material.mat_def", &definition);
-    
-    material_t material = create_material(&definition);
-    
-    material.mat4_uniforms[0].value = MVP;
+        
+    material_t material;
+    create_material_from_file("data/shaders/default_material.mat_def", &material);
     
     CHECK_GL_ERROR();
     
@@ -100,6 +96,8 @@ int main() {
 
         glClearColor(0, 0, 0, 255);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        material.mat4_uniforms[0].value = MVP;
         
         use_material(&material);
         

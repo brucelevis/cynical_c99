@@ -32,10 +32,6 @@ void watch_shader_file(uint handle,
 }
 
 void stop_watch_shader_file(uint handle) {
-    if (data.shader_caches_len == 0) {
-        return;
-    }
-    
     bool found = false;
     for (int i = 0; i < data.shader_caches_len; ++i) {
         shader_object_cache_t shader = data.shader_caches[i];
@@ -65,10 +61,6 @@ void watch_texture_file(uint handle, const char *file) {
 }
 
 void stop_watch_texture_file(uint handle) {
-    if (data.shader_caches_len == 0) {
-        return;
-    }
-    
     bool found = false;
     for (int i = 0; i < data.texture_caches_len; ++i) {
         gl_object_cache_t shader = data.texture_caches[i];
@@ -109,7 +101,7 @@ void update_hot_reloader() {
         something_changed |= has_changed(cache.fragment_include_file_path, cache.last_seen_modification);
 
         if (something_changed) {
-            time(&cache.last_seen_modification);
+            time(&data.shader_caches[i].last_seen_modification);
             reload_shader_sources(cache.handle, cache.file_path);
             
             // Only update only at a time
@@ -120,14 +112,22 @@ void update_hot_reloader() {
     for (int i = 0; i < data.texture_caches_len; ++i) {
         gl_object_cache_t cache = data.texture_caches[i];
         if (has_changed(cache.file_path, cache.last_seen_modification)) {
-            time(&cache.last_seen_modification);
+            time(&data.texture_caches[i].last_seen_modification);
             
-            image_t img;
-            bool loaded = load_image_from_file(cache.file_path, &img);
-            ASSERT(loaded);
-            
-            update_texture_data(cache.handle, &img);
+            reload_texture(cache.handle, cache.file_path);
 
+            // Only update only at a time
+            break;
+        }
+    }
+
+    for (int i = 0; i < data.material_definition_caches_len; ++i) {
+        material_definition_cache_t cache = data.material_definition_caches[i];
+        if (has_changed(cache.file_path, cache.last_seen_modification)) {
+            time(&data.material_definition_caches[i].last_seen_modification);
+
+            reload_material(cache.file_path,  (material_t *) cache.material);
+            
             // Only update only at a time
             break;
         }
@@ -150,4 +150,35 @@ void watch_config_file(const char *file_path) {
 void stop_watch_config_file(const char *file_path) {
     memset(data.config_file_path, 0, sizeof(data.config_file_path));
     data.config_file_watching = false;
+}
+
+void watch_material_definition_file(const material_t *material, const char *file_path) {
+    material_definition_cache_t cache;
+    strcpy(cache.file_path, file_path);
+    time(&cache.last_seen_modification);
+    cache.material = material;
+    
+    
+    ASSERT(data.material_definition_caches_len < MAX_MATERIAL_DEFINITION_CACHE);
+    
+    data.material_definition_caches[data.material_definition_caches_len++] = cache;
+}
+
+void stop_watch_material_definition_file(const material_t *material) {
+    bool found = false;
+    for (int i = 0; i < data.material_definition_caches_len; ++i) {
+        material_definition_cache_t cache = data.material_definition_caches[i];
+        if (cache.material == material) {
+
+            // TODO(temdisponivel): Create a macro for this
+            for (int j = i; j < data.material_definition_caches_len - 1; ++j) {
+                data.material_definition_caches[j] = data.material_definition_caches[j + 1];
+            }
+
+            found = true;
+            data.material_definition_caches_len--;
+        }
+    }
+
+    ASSERT(found);
 }
