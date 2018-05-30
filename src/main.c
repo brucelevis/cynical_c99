@@ -42,7 +42,7 @@ int main() {
     glewInit();
     
     model_t quad = create_quad();
-    mesh_t quad_mesh = create_mesh(quad);
+    mesh_t quad_mesh = create_mesh(&quad);
     
     mat4_t MVP, view, proj, view_proj, model;
     vec3_t dir, pos, up;
@@ -77,6 +77,15 @@ int main() {
     read_config_file(CONFIG_FILE_PATH, &engine_config);
     watch_config_file(CONFIG_FILE_PATH);
     
+    camera_t camera;
+    create_camera_perspective(RAD(45), 16 / 9.f, .01f, 10000.f, &camera);
+
+    camera_t camera_2;
+    create_camera_perspective(RAD(45), 16 / 9.f, .01f, 10000.f, &camera_2);
+    camera_2.clear_depth_only = true;
+    camera_2.clear_color = COLOR_MAKE_RED();
+    //camera_2.transform.position.y += 3;
+    
     while (!glfwWindowShouldClose(window)) {
 
 #if DEV
@@ -94,23 +103,23 @@ int main() {
         glfwGetWindowSize(window, &width, &height);
         glViewport(0, 0, width, height);
 
-        glClearColor(0, 0, 0, 255);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        use_camera(&camera);
 
-        material.mat4_uniforms[0].value = MVP;
-        
-        use_material(&material);
-        
         //assert(shader.handle);
-        draw_mesh(quad_mesh);
+        draw_mesh(&quad_mesh, &material, &trans);
+
+        use_camera(&camera_2);
+
+        //assert(shader.handle);
+        draw_mesh(&quad_mesh, &material, &trans);
         
         //glBindTexture(GL_TEXTURE_2D, 0);
         
         glfwSwapBuffers(window);
     }
 
-    destroy_model(quad);
-    destroy_mesh(quad_mesh);
+    destroy_model(&quad);
+    destroy_mesh(&quad_mesh);
     destroy_material(&material);
 
     CHECK_GL_ERROR();

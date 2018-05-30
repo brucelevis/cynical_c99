@@ -8,6 +8,8 @@
 #include "GL/glew.h"
 #include "math/maths.h"
 
+#define MVP_UNI_NAME "MVP"
+
 #define VERT_POS_NAME "position"
 #define VERT_UV_NAME "uv"
 #define VERT_COLOR_NAME "color"
@@ -50,8 +52,6 @@ typedef struct mesh {
     uint vbo;
     uint vio;
     uint elements_len;
-
-    transform_t transformation;
 } mesh_t;
 
 typedef struct shader {
@@ -80,6 +80,8 @@ typedef struct uniform_info {
     // TODO(temdisponivel): Cache the locations - make sure it works with hot reloading
     // it must recache location of the uniform after rebuild the shader
     char name[DEFAULT_NAME_LEN];
+    
+    int hashed_name;
 } uniform_info_t;
 
 typedef struct float_uniform {
@@ -99,10 +101,6 @@ typedef struct texture_uniform {
 } texture_uniform_t;
 
 typedef struct material {
-    // NOTE(temdisponivel): The ~future~ resource manager will have an ID for every resource
-    // so this id here will become unecessary - and even wrong
-    uint id;  
-    
     shader_t shader;
     
     texture_uniform_t texture_uniforms[MAX_TEXTURES];
@@ -143,6 +141,15 @@ typedef struct material_definition {
     uint mat4s_len;
 } material_definition_t;
 
+typedef struct camera_t {
+    mat4_t projection_matrix;    
+    transform_t transform;
+    
+    bool clear_depth_only;
+    color_t clear_color;
+    int depth;
+} camera_t;
+
 void reload_shader_sources(
         uint handle, 
         const char *shader_file,
@@ -150,16 +157,17 @@ void reload_shader_sources(
         char *vert_include_file_path,
         char *frag_include_file_path
 );
+
 shader_t create_shader_from_file(const char *shader_file);
 void update_shader_program(uint program, const char *vertex, const char *fragment);
 void destroy_shader(shader_t shader);
 
 model_t create_quad();
-void destroy_model(model_t model);
+void destroy_model(const model_t *model);
 
-mesh_t create_mesh(model_t model);
-void destroy_mesh(mesh_t mesh);
-void draw_mesh(mesh_t mesh);
+mesh_t create_mesh(const model_t *model);
+void destroy_mesh(const mesh_t *mesh);
+void draw_mesh(const mesh_t *mesh, const material_t *material, const transform_t *trans);
 
 bool load_image_from_file(const char *image_file, image_t *dest);
 void destroy_image(const image_t *image);
@@ -175,7 +183,18 @@ void reload_material(const char *file_path, material_t *dest);
 void create_material(const material_definition_t *definition, material_t *dest);
 void destroy_material(const material_t *material);
 
+void set_texture_uniform(const material_t *material, const char *uniform_name, texture_t texture);
+void set_float_uniform(const material_t *material, const char *uniform_name, float value);
+void set_mat4_uniform(const material_t *material, const char *uniform_name, const mat4_t *value);
+
 void use_material(const material_t *material);
+
+void create_camera_orthographic(float left, float right, float bottom, float top, float near_plane, float far_plane,
+                                camera_t *dest);
+
+void create_camera_perspective(float fov, float ratio, float near_plane, float far_plane, camera_t *dest);
+
+void use_camera(const camera_t *camera);
 
 #ifdef DEV
 

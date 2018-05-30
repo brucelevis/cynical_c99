@@ -23,3 +23,38 @@ INLINE void trans_get_mat4(const transform_t *trans, mat4_t *dest) {
     mat4_translate(dest, &trans->position, dest);
 }
 
+INLINE void trans_get_forward(const transform_t *trans, vec3_t *dest){
+    vec3_t forward;
+    VEC3_SET_FORWARD(&forward);    
+    quat_rotate_vec3(&forward, &trans->rotation, dest);
+    vec3_normalize(dest, dest);
+}
+
+INLINE void trans_get_up(const transform_t *trans, vec3_t *dest){
+    vec3_t up;
+    VEC3_SET_UP(&up);
+    quat_rotate_vec3(&up, &trans->rotation, dest);
+    vec3_normalize(dest, dest);
+}
+
+INLINE void trans_get_right(const transform_t *trans, vec3_t *dest){
+    vec3_t right;
+    VEC3_SET_RIGHT(&right);
+    quat_rotate_vec3(&right, &trans->rotation, dest);
+    vec3_normalize(&right, &right);
+}
+
+INLINE void trans_get_backward(const transform_t *trans, vec3_t *dest){
+    trans_get_forward(trans, dest);
+    vec3_inv(dest, dest);
+}
+
+INLINE void trans_get_down(const transform_t *trans, vec3_t *dest){
+    trans_get_up(trans, dest);
+    vec3_inv(dest, dest);
+}
+
+INLINE void trans_get_left(const transform_t *trans, vec3_t *dest){
+    trans_get_right(trans, dest);
+    vec3_inv(dest, dest);
+}

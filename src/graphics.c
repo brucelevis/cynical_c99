@@ -15,6 +15,9 @@
 #include "hot_reloader.h"
 #include "file.h"
 
+// TODO(temdisponivel): Make a struct that represents our gl state: our matrices, our current shader and so on
+static mat4_t view_proj = {};
+
 void reload_shader_sources(
         uint handle, 
         const char *shader_file,
@@ -177,10 +180,10 @@ model_t create_quad() {
     return model;
 }
 
-void destroy_model(model_t model) {
-    free(model.full_vertices_data);
-    if (model.indexes) {
-        free(model.indexes);
+void destroy_model(const model_t *model) {
+    free(model->full_vertices_data);
+    if (model->indexes) {
+        free(model->indexes);
     }
 }
 
@@ -204,15 +207,15 @@ void print_model(model_t model) {
 
 #endif
 
-mesh_t create_mesh(model_t model) {
+mesh_t create_mesh(const model_t *model) {
     uint vao;
     uint vbo;
     uint vio = 0;
 
-    const int full_model_size = FULL_MODEL_BYTE_SIZE(model.vertices_count);
+    const int full_model_size = FULL_MODEL_BYTE_SIZE(model->vertices_count);
     const int pos_offset = POS_BYTE_OFFSET(model.vertices_count);
-    const int uv_offset = UV_BYTE_OFFSET(model.vertices_count);
-    const int color_offset = COLOR_BYTE_OFFSET(model.vertices_count);
+    const int uv_offset = UV_BYTE_OFFSET(model->vertices_count);
+    const int color_offset = COLOR_BYTE_OFFSET(model->vertices_count);
 
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -223,7 +226,7 @@ mesh_t create_mesh(model_t model) {
     glBufferData(
             GL_ARRAY_BUFFER,
             full_model_size,
-            model.full_vertices_data,
+            model->full_vertices_data,
             GL_STATIC_DRAW
     );
     CHECK_GL_ERROR();
@@ -258,14 +261,14 @@ mesh_t create_mesh(model_t model) {
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    if (model.indexes_count) {
+    if (model->indexes_count) {
         glGenBuffers(1, &vio);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vio);
 
         glBufferData(
                 GL_ELEMENT_ARRAY_BUFFER,
-                sizeof(uint) * model.indexes_count,
-                model.indexes,
+                sizeof(uint) * model->indexes_count,
+                model->indexes,
                 GL_STATIC_DRAW
         );
 
@@ -280,43 +283,54 @@ mesh_t create_mesh(model_t model) {
     mesh.vio = vio;
 
     if (vio) {
-        mesh.elements_len = model.indexes_count;
+        mesh.elements_len = model->indexes_count;
     } else {
-        mesh.elements_len = model.vertices_count;
+        mesh.elements_len = model->vertices_count;
     }
 
     return mesh;
 }
 
-void destroy_mesh(mesh_t mesh) {
+void destroy_mesh(const mesh_t *mesh) {
 
-    glDeleteBuffers(1, &mesh.vbo);
+    glDeleteBuffers(1, &mesh->vbo);
 
-    if (mesh.vio) {
-        glDeleteBuffers(1, &mesh.vio);
+    if (mesh->vio) {
+        glDeleteBuffers(1, &mesh->vio);
     }
 
-    glDeleteVertexArrays(1, &mesh.vao);
+    glDeleteVertexArrays(1, &mesh->vao);
 
     CHECK_GL_ERROR();
 
     // TODO(temdisponivel): should we set these handles to invalid values?!
 }
 
-void draw_mesh(mesh_t mesh) {
-    glBindVertexArray(mesh.vao);
+void draw_mesh(const mesh_t *mesh, const material_t *material, const transform_t *trans) {
+    mat4_t model;
+    trans_get_mat4(trans, &model);
+    
+    mat4_t MVP;
+    mat4_mul(&view_proj, &model, &MVP);
+    
+    set_mat4_uniform(material, MVP_UNI_NAME, &MVP);        
+    
+    // TODO(temdisponivel): Validate if this material was previously used and do not use it again if not necessary
+    use_material(material);
+    
+    glBindVertexArray(mesh->vao);
     glEnableVertexAttribArray(VERT_POS_INDEX);
     glEnableVertexAttribArray(VERT_UV_INDEX);
     glEnableVertexAttribArray(VERT_COLOR_INDEX);
 
-    if (mesh.vio) {
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.vio);
+    if (mesh->vio) {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->vio);
 
-        glDrawElements(GL_TRIANGLE_FAN, mesh.elements_len, GL_UNSIGNED_INT, null);
+        glDrawElements(GL_TRIANGLE_FAN, mesh->elements_len, GL_UNSIGNED_INT, null);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     } else {
-        glDrawArrays(GL_TRIANGLE_FAN, 0, mesh.elements_len);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, mesh->elements_len);
     }
 
     CHECK_GL_ERROR();
@@ -376,8 +390,6 @@ void create_texture_from_file(const char *file_path, texture_t *dest) {
 void create_texture(const image_t *image, texture_t *dest) {
     uint handle;
     glGenTextures(1, &handle);
-    
-    printf("%i\n", handle);
 
     update_texture_data(handle, image);
 
@@ -450,6 +462,11 @@ void reload_material(const char *file_path, material_t *dest) {
     create_material(&definition, dest);
 }
 
+INLINE void cache_uniform_info(uniform_info_t *info, const char *name) {
+    strcpy(info->name, name);
+    info->hashed_name = hash_string(name);
+}
+
 void create_material(const material_definition_t *definition, material_t *dest) {
 
     shader_t shader = create_shader_from_file(definition->shader_file);
@@ -471,7 +488,7 @@ void create_material(const material_definition_t *definition, material_t *dest) 
         float_uniform_definition_t float_def = definition->floats[i];
 
         float_uniform_t float_uni;
-        strcpy(float_uni.info.name, float_def.uniform_name);
+        cache_uniform_info(&float_uni.info, float_def.uniform_name);
 
         float_uni.value = float_def.default_value;
 
@@ -485,6 +502,8 @@ void create_material(const material_definition_t *definition, material_t *dest) 
 
         mat4_uniform_t mat4_uni;
         strcpy(mat4_uni.info.name, mat4_def.uniform_name);
+        cache_uniform_info(&mat4_uni.info, mat4_def.uniform_name);
+        
         mat4_uni.value = mat4_def.default_value;
 
         dest->mat4_uniforms[i] = mat4_uni;
@@ -497,6 +516,7 @@ void create_material(const material_definition_t *definition, material_t *dest) 
 
         texture_uniform_t tex_uni;
         strcpy(tex_uni.info.name, tex_def.uniform_name);
+        cache_uniform_info(&tex_uni.info, tex_def.uniform_name);
 
         tex_uni.texture_unit = TEXTURE_UNIT_0 + i;
 
@@ -561,4 +581,85 @@ void use_material(const material_t *material) {
     CHECK_GL_ERROR();
 
     // TODO(temdisponivel): Should I create a function that will unbind all these uniforms?!
+}
+
+void set_texture_uniform(const material_t *material, const char *uniform_name, texture_t texture) {
+    
+    bool found = false;
+    int hashed_name = hash_string(uniform_name);
+    for (int i = 0; i < material->texture_uniforms_len; ++i) {
+        texture_uniform_t *uniform = &material->texture_uniforms[i];
+        if (uniform->info.hashed_name == hashed_name) {
+            uniform->texture = texture;
+            found = true;
+        }
+    }
+    
+    ASSERT(found);
+}
+
+void set_float_uniform(const material_t *material, const char *uniform_name, float value) {
+    bool found = false;
+    int hashed_name = hash_string(uniform_name);
+    for (int i = 0; i < material->float_uniforms_len; ++i) {
+        float_uniform_t *uniform = &material->float_uniforms[i];
+        if (uniform->info.hashed_name == hashed_name) {
+            uniform->value = value;
+            found = true;
+        }
+    }
+
+    ASSERT(found);
+}
+
+void set_mat4_uniform(const material_t *material, const char *uniform_name, const mat4_t *value) {
+    bool found = false;
+    int hashed_name = hash_string(uniform_name);
+    for (int i = 0; i < material->mat4_uniforms_len; ++i) {
+        mat4_uniform_t *uniform = &material->mat4_uniforms[i];
+        if (uniform->info.hashed_name == hashed_name) { 
+            mat4_cpy(value, &uniform->value);
+            found = true;
+        }
+    }
+
+    ASSERT(found);
+}
+
+void camera_set_defaults(camera_t *dest) {
+    trans_set(VEC3_MAKE_ZERO(), VEC3_MAKE_ONE(), QUAT_MAKE_IDENTITY(), &dest->transform);
+    dest->depth = -1;
+    dest->clear_color = COLOR_MAKE_CYAN();
+    dest->clear_depth_only = false;
+}
+
+void create_camera_orthographic(float left, float right, float bottom, float top, float near_plane, float far_plane, camera_t *dest) {
+    mat4_ortho(left, right, bottom, top, near_plane, far_plane, &dest->projection_matrix);
+    camera_set_defaults(dest);
+}
+
+void create_camera_perspective(float fov, float ratio, float near_plane, float far_plane, camera_t *dest) {
+    mat4_perspective(fov, ratio, near_plane, far_plane, &dest->projection_matrix);
+    camera_set_defaults(dest);
+}
+
+void use_camera(const camera_t *camera) {
+    uint clear_flags = GL_DEPTH_BUFFER_BIT;
+    if (!camera->clear_depth_only) {
+        clear_flags |= GL_COLOR_BUFFER_BIT;
+    }
+    
+    glClearColor(camera->clear_color.r, camera->clear_color.g, camera->clear_color.b, camera->clear_color.a);
+    glClearDepth(camera->depth);
+    glClear(clear_flags); 
+    
+    vec3_t camera_dir;
+    trans_get_forward(&camera->transform, &camera_dir);
+
+    vec3_t camera_up;
+    trans_get_up(&camera->transform, &camera_up);
+    
+    mat4_t view;
+    mat4_look(&camera->transform.position, &camera_dir, &camera_up, &view);
+    mat4_mul(&camera->projection_matrix, &view, &view_proj);
 }
