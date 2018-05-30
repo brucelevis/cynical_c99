@@ -4,6 +4,6 @@ texture main_texture data/textures/default.png
 texture bump_map_texture data/textures/default.png
 texture yellow_texture data/textures/yellow.png
 
-float offset 5 
+float offset 2
 
 mat4 MVP 1.5 5.8 12 52 .3 .8 44 .85 .96 66 45 21 .46 56 5 12

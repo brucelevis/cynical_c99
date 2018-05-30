@@ -143,7 +143,13 @@ typedef struct material_definition {
     uint mat4s_len;
 } material_definition_t;
 
-void reload_shader_sources(uint handle, const char *shader_file);
+void reload_shader_sources(
+        uint handle, 
+        const char *shader_file,
+        char *both_include_file_path,
+        char *vert_include_file_path,
+        char *frag_include_file_path
+);
 shader_t create_shader_from_file(const char *shader_file);
 void update_shader_program(uint program, const char *vertex, const char *fragment);
 void destroy_shader(shader_t shader);

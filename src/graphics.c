@@ -15,10 +15,13 @@
 #include "hot_reloader.h"
 #include "file.h"
 
-// TODO(temdisponivel): Make so that create shader doesn't call this function
-// or that we don't have to stop a shader that was not being watched
-void reload_shader_sources(uint handle, const char *shader_file) {
-    stop_watch_shader_file(handle);
+void reload_shader_sources(
+        uint handle, 
+        const char *shader_file,
+        char *both_include_file_path,
+        char *vert_include_file_path,
+        char *frag_include_file_path
+) {
     
     CREATE_TEMP_NAMED_STR_BUFFER(vertex_buffer);
     CLEAR_TEMP_NAMED_STR_BUFFER(vertex_buffer);
@@ -26,6 +29,23 @@ void reload_shader_sources(uint handle, const char *shader_file) {
     CREATE_TEMP_NAMED_STR_BUFFER(fragment_buffer);
     CLEAR_TEMP_NAMED_STR_BUFFER(fragment_buffer);
 
+    bool read_shader = read_shader_file(
+            shader_file, 
+            vertex_buffer, 
+            fragment_buffer,
+            both_include_file_path,
+            vert_include_file_path,
+            frag_include_file_path
+    );
+
+    ASSERT(read_shader);   
+
+    update_shader_program(handle, vertex_buffer, fragment_buffer);
+}
+
+shader_t create_shader_from_file(const char *shader_file) {
+
+    uint program = glCreateProgram();
 
 #if DEV
 
@@ -40,33 +60,22 @@ void reload_shader_sources(uint handle, const char *shader_file) {
 
 #endif
 
-    bool read_shader = read_shader_file(
-            shader_file, 
-            vertex_buffer, 
-            fragment_buffer,
-            both_include_file_path,
-            vert_include_file_path,
-            frag_include_file_path
-    );
 
-    ASSERT(read_shader);
-
-    watch_shader_file(
-            handle,
+    reload_shader_sources(
+            program, 
             shader_file,
             both_include_file_path,
             vert_include_file_path,
             frag_include_file_path
     );
 
-    update_shader_program(handle, vertex_buffer, fragment_buffer);
-}
-
-shader_t create_shader_from_file(const char *shader_file) {
-
-    uint program = glCreateProgram();
-
-    reload_shader_sources(program, shader_file);
+    watch_shader_file(
+            program,
+            shader_file,
+            both_include_file_path,
+            vert_include_file_path,
+            frag_include_file_path
+    );
 
     shader_t shader;
     shader.handle = program;

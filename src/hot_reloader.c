@@ -102,7 +102,13 @@ void update_hot_reloader() {
 
         if (something_changed) {
             time(&data.shader_caches[i].last_seen_modification);
-            reload_shader_sources(cache.handle, cache.file_path);
+            reload_shader_sources(
+                    cache.handle, 
+                    cache.file_path,
+                    cache.both_include_file_path,
+                    cache.vertex_include_file_path,
+                    cache.fragment_include_file_path
+            );
             
             // Only update only at a time
             break;
