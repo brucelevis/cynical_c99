@@ -376,6 +376,8 @@ void create_texture_from_file(const char *file_path, texture_t *dest) {
 void create_texture(const image_t *image, texture_t *dest) {
     uint handle;
     glGenTextures(1, &handle);
+    
+    printf("%i\n", handle);
 
     update_texture_data(handle, image);
 
@@ -426,26 +428,23 @@ void destroy_texture(const texture_t *texture) {
 }
 
 void create_material_from_file(const char *file_path, material_t *dest) {
-    reload_material(file_path, dest);
+    material_definition_t definition = {};
+    bool read = read_material_definition_file(file_path, &definition);
+    ASSERT(read);
+    create_material(&definition, dest);
+    
     watch_material_definition_file(dest, file_path);
 }
 
 // TODO(temdisponivel): Make sure to not call this function from create_material_from_file
 void reload_material(const char *file_path, material_t *dest) {
-    // TODO(temdisponivel): FIX ME
-    // TODO(temdisponivel): FIX ME
-    // TODO(temdisponivel): FIX ME
-    
-    /*
     destroy_shader(dest->shader);
 
     for (int i = 0; i < dest->texture_uniforms_len; ++i) {
         destroy_texture(&dest->texture_uniforms[i].texture);
     }
-     */
-    
+
     material_definition_t definition = {};
-    
     bool read = read_material_definition_file(file_path, &definition);
     ASSERT(read);
     create_material(&definition, dest);
