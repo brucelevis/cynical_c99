@@ -5,7 +5,8 @@
 #start_vertex
 
 void main() {
-    default_vert();
+    gl_Position = POS_TO_WORLD();
+    main_texture_uv = uv;
 }
 
 #end_vertex

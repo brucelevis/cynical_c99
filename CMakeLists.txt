@@ -3,6 +3,7 @@ project(raw_gl)
 
 set(CMAKE_C_STANDARD 99)
 
+add_compile_options(-w)
 add_definitions(-DDEV)
 
 include_directories(deps/include;src/)

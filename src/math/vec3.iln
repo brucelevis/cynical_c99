@@ -40,6 +40,12 @@ INLINE void vec3_scale(const vec3_t *a, float scalar, vec3_t *dest) {
     dest->z = a->z * scalar;
 }
 
+INLINE void vec3_scale_vec3(const vec3_t *a, const vec3_t *b, vec3_t *dest) {
+    dest->x = a->x * b->x;
+    dest->y = a->y * b->y;
+    dest->z = a->z * b->z;
+}
+
 INLINE void vec3_divide(const vec3_t *a, float divider, vec3_t *dest) {
     dest->x = a->x / divider;
     dest->y = a->y / divider;

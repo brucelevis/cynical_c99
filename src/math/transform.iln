@@ -4,6 +4,11 @@
 
 #include "maths.h"
 
+// TODO(temdisponivel): make these parameters be const pointers 
+// TODO(temdisponivel): make these parameters be const pointers 
+// TODO(temdisponivel): make these parameters be const pointers 
+// TODO(temdisponivel): make these parameters be const pointers 
+
 INLINE transform_t trans_make(vec3_t pos, vec3_t scale, quat_t rotation) {
     transform_t dest;
     trans_set(pos, scale, rotation, &dest);

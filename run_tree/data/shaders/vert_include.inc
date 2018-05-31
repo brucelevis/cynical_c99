@@ -4,7 +4,10 @@ in vec4 color;
 
 out vec2 main_texture_uv;
 
-void default_vert() {
-    gl_Position = MVP * vec4(position, 1);
-    main_texture_uv = uv;
+vec4 POS_TO_WORLD() {
+    return MVP * vec4(position, 1);
+}
+
+vec4 TO_WORLD(vec3 vec) {
+    return MVP * vec4(vec, 1);
 }

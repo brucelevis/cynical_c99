@@ -18,6 +18,10 @@
 // TODO(temdisponivel): Make a struct that represents our gl state: our matrices, our current shader and so on
 static mat4_t view_proj = {};
 
+// TODO(temdisponivel): Remove me
+extern vec2_t screen_size;
+extern mesh_t quad;
+
 void reload_shader_sources(
         uint handle, 
         const char *shader_file,
@@ -145,19 +149,19 @@ model_t create_quad() {
     vec2_t *uvs = (vec2_t *) (((void *) positions) + UV_BYTE_OFFSET(4));
     vec4_t *colors = (vec4_t *) (((void *) positions) + COLOR_BYTE_OFFSET(4));
 
-    vec3_set(-1, -1, 0, &positions[0]);
+    vec3_set(-.5f, -.5f, 0, &positions[0]);
     VEC2_SET_ZERO(&uvs[0]);
     COLOR_SET_RED(&colors[0]);
 
-    vec3_set(1, -1, 0, &positions[1]);
+    vec3_set(.5f, -.5f, 0, &positions[1]);
     VEC2_SET_RIGH(&uvs[1]);
     COLOR_SET_GREEN(&colors[1]);
 
-    vec3_set(1, 1, 0, &positions[2]);
+    vec3_set(.5f, .5f, 0, &positions[2]);
     VEC2_SET_ONE(&uvs[2]);
     COLOR_SET_BLUE(&colors[2]);
 
-    vec3_set(-1, 1, 0, &positions[3]);
+    vec3_set(-.5f, .5f, 0, &positions[3]);
     VEC2_SET_UP(&uvs[3]);
     COLOR_SET_YELLOW(&colors[3]);
 
@@ -304,6 +308,23 @@ void destroy_mesh(const mesh_t *mesh) {
     CHECK_GL_ERROR();
 
     // TODO(temdisponivel): should we set these handles to invalid values?!
+}
+
+void draw_sprite_renderer(const sprite_renderer_t *renderer, const transform_t *trans) {
+    vec2_t tex_size = renderer->size;
+    float width_multiplier = 1 / screen_size.x;
+    float height_multiplier = 1 / screen_size.y;
+    
+    width_multiplier *= renderer->texel_size;
+    height_multiplier *= renderer->texel_size;
+    
+    vec3_t final_size = vec3_make(width_multiplier * tex_size.x, height_multiplier * tex_size.y, 1);
+    
+    transform_t helper;
+    trans_set(trans->position, trans->scale, trans->rotation, &helper);
+    vec3_scale_vec3(&helper.scale, &final_size, &helper.scale);
+    
+    draw_mesh(&quad, &renderer->material, &helper);
 }
 
 void draw_mesh(const mesh_t *mesh, const material_t *material, const transform_t *trans) {

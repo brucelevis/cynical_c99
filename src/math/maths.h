@@ -142,6 +142,7 @@ INLINE void vec3_set(float x, float y, float z, vec3_t *dest);
 INLINE void vec3_cpy(const vec3_t *src, vec3_t *dest);
 INLINE void vec3_add(const vec3_t *a, const vec3_t *b, vec3_t *dest);
 INLINE void vec3_sub(const vec3_t *a, const vec3_t *b, vec3_t *dest);
+INLINE void vec3_scale_vec3(const vec3_t *a, const vec3_t *b, vec3_t *dest);
 INLINE void vec3_scale(const vec3_t *a, float scalar, vec3_t *dest);
 INLINE void vec3_divide(const vec3_t *a, float divider, vec3_t *dest);
 INLINE void vec3_multiply(const vec3_t *a, const vec3_t *b, vec3_t *dest);

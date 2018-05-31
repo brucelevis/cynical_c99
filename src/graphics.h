@@ -72,6 +72,7 @@ typedef enum texture_unit {
     TEXTURE_UNIT_4 = GL_TEXTURE4,
 } texture_unit_t;
 
+// TODO(temdisponivel): Make textures be referenced by pointers
 typedef struct texture {
     uint handle;
 } texture_t;
@@ -150,6 +151,13 @@ typedef struct camera_t {
     int depth;
 } camera_t;
 
+// TODO(temdisponivel): Make functions to create and initialize sprite renderers
+typedef struct sprite_renderer {
+    vec2_t size;
+    material_t material;
+    float texel_size;
+} sprite_renderer_t;
+
 void reload_shader_sources(
         uint handle, 
         const char *shader_file,
@@ -168,6 +176,8 @@ void destroy_model(const model_t *model);
 mesh_t create_mesh(const model_t *model);
 void destroy_mesh(const mesh_t *mesh);
 void draw_mesh(const mesh_t *mesh, const material_t *material, const transform_t *trans);
+
+void draw_sprite_renderer(const sprite_renderer_t *renderer, const transform_t *trans);
 
 bool load_image_from_file(const char *image_file, image_t *dest);
 void destroy_image(const image_t *image);

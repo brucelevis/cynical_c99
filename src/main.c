@@ -21,6 +21,11 @@
 // TODO(temdisponivel): Move engine related stuff into engine.c
 config_t engine_config = {};
 
+
+// TODO(temdisponivel): Remove me
+vec2_t screen_size;
+mesh_t quad;
+
 GLFWwindow *window;
 
 void update_engine_based_on_config() {
@@ -41,8 +46,9 @@ int main() {
 
     glewInit();
     
-    model_t quad = create_quad();
-    mesh_t quad_mesh = create_mesh(&quad);
+    model_t quad_model = create_quad();
+    quad = create_mesh(&quad_model);
+    mesh_t quad_2 = create_mesh(&quad_model);
     
     mat4_t MVP, view, proj, view_proj, model;
     vec3_t dir, pos, up;
@@ -81,10 +87,15 @@ int main() {
     create_camera_perspective(RAD(45), 16 / 9.f, .01f, 10000.f, &camera);
 
     camera_t camera_2;
-    create_camera_perspective(RAD(45), 16 / 9.f, .01f, 10000.f, &camera_2);
+    create_camera_orthographic(-.5f, .5f, -.5f, .5f, .01f, 10000.f, &camera_2);
     camera_2.clear_depth_only = true;
     camera_2.clear_color = COLOR_MAKE_RED();
     //camera_2.transform.position.y += 3;
+    
+    sprite_renderer_t renderer;
+    renderer.material = material;
+    renderer.size = vec2_make(600, 400);
+    renderer.texel_size = .5f;
     
     while (!glfwWindowShouldClose(window)) {
 
@@ -101,6 +112,10 @@ int main() {
 
         int width, height;
         glfwGetWindowSize(window, &width, &height);
+        
+        screen_size.x = width;
+        screen_size.y = height;
+        
         glViewport(0, 0, width, height);
 
         use_camera(&camera);
@@ -116,20 +131,22 @@ int main() {
         }
 
         //assert(shader.handle);
-        draw_mesh(&quad_mesh, &material, &trans);
+        //draw_mesh(&quad_2, &material, &trans);
+        draw_sprite_renderer(&renderer, &trans);
 
         use_camera(&camera_2);
 
         //assert(shader.handle);
-        draw_mesh(&quad_mesh, &material, &trans);
+        //draw_mesh(&quad_2, &material, &trans);
+        draw_sprite_renderer(&renderer, &trans);
         
         //glBindTexture(GL_TEXTURE_2D, 0);
         
         glfwSwapBuffers(window);
     }
 
-    destroy_model(&quad);
-    destroy_mesh(&quad_mesh);
+    destroy_model(&quad_model);
+    destroy_mesh(&quad);
     destroy_material(&material);
 
     CHECK_GL_ERROR();
