@@ -104,6 +104,16 @@ int main() {
         glViewport(0, 0, width, height);
 
         use_camera(&camera);
+        
+        if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
+            trans.position.x += 1;
+        } else if (glfwGetKey(window, GLFW_KEY_LEFT)) {
+            trans.position.x -= 1;
+        } else if (glfwGetKey(window, GLFW_KEY_UP)) {
+            camera_2.transform.position.y += 1;
+        } else if (glfwGetKey(window, GLFW_KEY_DOWN)) {
+            camera_2.transform.position.y -= 1;
+        }
 
         //assert(shader.handle);
         draw_mesh(&quad_mesh, &material, &trans);
