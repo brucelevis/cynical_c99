@@ -96,10 +96,10 @@ int main() {
     
     sprite_renderer_t renderer;
     renderer.texture.texel_size = 1;
-    renderer.material = material;
+    renderer.material = &material;
     renderer.size = vec2_make(600, 400);
-    renderer.sprite_offset = vec2_make(0, 0);
-    renderer.sprite_size = vec2_make(.5f, .5f);
+    //renderer.sprite_offset = vec2_make(0, 0);
+    //renderer.sprite_size = vec2_make(.5f, .5f);
     
     while (!glfwWindowShouldClose(window)) {
 

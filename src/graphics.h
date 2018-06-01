@@ -32,6 +32,7 @@
 #define MAX_TEXTURES 10
 #define MAX_FLOATS 5
 #define MAX_MAT4S 5
+#define MAX_VEC2S 5
 
 #define DEFAULT_IMAGE_FILE_PATH "data/textures/default.png"
 
@@ -103,6 +104,12 @@ typedef struct texture_uniform {
     texture_unit_t texture_unit;
 } texture_uniform_t;
 
+typedef struct vec2_uniform {
+    uniform_info_t info;
+    vec2_t value;
+} vec2_uniform_t;
+
+// TODO(temdisponivel): Make everyone that used material actually reference it through pointers instead of copies - necessary because of hot reloadign
 typedef struct material {
     shader_t shader;
     
@@ -114,6 +121,9 @@ typedef struct material {
 
     mat4_uniform_t mat4_uniforms[MAX_MAT4S];
     uint mat4_uniforms_len;
+
+    vec2_uniform_t vec2_uniforms[MAX_VEC2S];
+    uint vec2_uniforms_len;
 } material_t;
 
 typedef struct float_uniform_definition {
@@ -131,6 +141,11 @@ typedef struct texture_uniform_definition {
     char image_file_name[DEFAULT_FILE_NAME_LEN];
 } texture_uniform_definition_t; 
 
+typedef struct vec2_uniform_definition {
+    char uniform_name[DEFAULT_NAME_LEN];
+    vec2_t default_value;
+} vec2_uniform_definition_t;
+
 typedef struct material_definition {
     char shader_file[DEFAULT_FILE_NAME_LEN];
     
@@ -142,6 +157,9 @@ typedef struct material_definition {
 
     mat4_uniform_definition_t mat4s[MAX_MAT4S];
     uint mat4s_len;
+
+    vec2_uniform_definition_t vec2s[MAX_VEC2S];
+    uint vec2s_len;
 } material_definition_t;
 
 typedef struct camera_t {
@@ -163,7 +181,7 @@ typedef struct sprite_renderer {
     vec2_t sprite_offset;
     vec2_t sprite_size;
     
-    material_t material;
+    material_t *material;
     vec2_t size;
 } sprite_renderer_t;
 
@@ -205,6 +223,7 @@ void destroy_material(const material_t *material);
 void set_texture_uniform(const material_t *material, const char *uniform_name, texture_t texture);
 void set_float_uniform(const material_t *material, const char *uniform_name, float value);
 void set_mat4_uniform(const material_t *material, const char *uniform_name, const mat4_t *value);
+void set_vec2_uniform(const material_t *material, const char *uniform_name, vec2_t value);
 
 void use_material(const material_t *material);
 

@@ -137,6 +137,11 @@ bool read_material_definition_file(const char *file_path, material_definition_t 
     if (!file) {
         return false;
     }
+
+    definition->textures_len = 0;
+    definition->mat4s_len = 0;
+    definition->floats_len = 0;
+    definition->vec2s_len = 0;
     
     char helper_buffer[128];
     
@@ -206,6 +211,20 @@ bool read_material_definition_file(const char *file_path, material_definition_t 
             ASSERT(definition->mat4s_len < MAX_MAT4S);
             
             definition->mat4s[definition->mat4s_len++] = def;
+        } else if (strcmp(helper_buffer, "vec2") == 0) {
+
+            float x, y;
+            fscanf(file, "%s %f %f", helper_buffer, &x, &y);
+
+            ASSERT(strlen(helper_buffer));
+
+            vec2_uniform_definition_t def;
+            strcpy(def.uniform_name, helper_buffer);
+            def.default_value = vec2_make(x, y);
+
+            ASSERT(definition->vec2s_len < MAX_VEC2S);
+
+            definition->vec2s[definition->vec2s_len++] = def;
         }
     }
 

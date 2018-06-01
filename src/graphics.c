@@ -324,13 +324,7 @@ void draw_sprite_renderer(const sprite_renderer_t *renderer, const transform_t *
     trans_set(&trans->position, &trans->scale, &trans->rotation, &helper);
     vec3_scale_vec3(&helper.scale, &final_size, &helper.scale);
     
-    draw_mesh(&quad, &renderer->material, &helper);
-    
-    int offset_loc = glGetUniformLocation(renderer->material.shader.handle, "relative_sprite_offset");
-    glUniform2fv(offset_loc, 1, &renderer->sprite_offset.data);
-
-    int size_loc = glGetUniformLocation(renderer->material.shader.handle, "relative_sprite_size");
-    glUniform2fv(size_loc, 1, &renderer->sprite_size.data);
+    draw_mesh(&quad, renderer->material, &helper);
 }
 
 void draw_mesh(const mesh_t *mesh, const material_t *material, const transform_t *trans) {
@@ -469,7 +463,7 @@ void destroy_texture(const texture_t *texture) {
 }
 
 void create_material_from_file(const char *file_path, material_t *dest) {
-    material_definition_t definition = {};
+    material_definition_t definition;
     bool read = read_material_definition_file(file_path, &definition);
     ASSERT(read);
     create_material(&definition, dest);
@@ -485,7 +479,7 @@ void reload_material(const char *file_path, material_t *dest) {
         destroy_texture(&dest->texture_uniforms[i].texture);
     }
 
-    material_definition_t definition = {};
+    material_definition_t definition;
     bool read = read_material_definition_file(file_path, &definition);
     ASSERT(read);
     create_material(&definition, dest);
@@ -510,6 +504,9 @@ void create_material(const material_definition_t *definition, material_t *dest) 
 
     dest->texture_uniforms_len = definition->textures_len;
     ASSERT(dest->texture_uniforms_len < MAX_TEXTURES);
+
+    dest->vec2_uniforms_len = definition->vec2s_len;
+    ASSERT(dest->vec2_uniforms_len < MAX_FLOATS);
 
     // ============= FLOAT
 
@@ -560,6 +557,19 @@ void create_material(const material_definition_t *definition, material_t *dest) 
 
         dest->texture_uniforms[i] = tex_uni;
     }
+
+    // ============= VEC2
+
+    for (int i = 0; i < definition->vec2s_len; ++i) {
+        vec2_uniform_definition_t vec2_def = definition->vec2s[i];
+
+        vec2_uniform_t vec2_uni;
+        cache_uniform_info(&vec2_uni.info, vec2_def.uniform_name);
+
+        vec2_uni.value = vec2_def.default_value;
+
+        dest->vec2_uniforms[i] = vec2_uni;
+    }
 }
 
 void destroy_material(const material_t *material) {
@@ -609,6 +619,16 @@ void use_material(const material_t *material) {
 
     CHECK_GL_ERROR();
 
+    for (int i = 0; i < material->vec2_uniforms_len; ++i) {
+        vec2_uniform_t uniform = material->vec2_uniforms[i];
+        int loc = glGetUniformLocation(material->shader.handle, uniform.info.name);
+        if (loc >= 0) {
+            glUniform2fv(loc, 1, &uniform.value.data);
+        }
+    }
+
+    CHECK_GL_ERROR();
+
     // TODO(temdisponivel): Should I create a function that will unbind all these uniforms?!
 }
 
@@ -648,6 +668,20 @@ void set_mat4_uniform(const material_t *material, const char *uniform_name, cons
         mat4_uniform_t *uniform = &material->mat4_uniforms[i];
         if (uniform->info.hashed_name == hashed_name) { 
             mat4_cpy(value, &uniform->value);
+            found = true;
+        }
+    }
+
+    ASSERT(found);
+}
+
+void set_vec2_uniform(const material_t *material, const char *uniform_name, vec2_t value) {
+    bool found = false;
+    int hashed_name = hash_string(uniform_name);
+    for (int i = 0; i < material->vec2_uniforms_len; ++i) {
+        vec2_uniform_t *uniform = &material->vec2_uniforms[i];
+        if (uniform->info.hashed_name == hashed_name) {
+            uniform->value = value;
             found = true;
         }
     }
