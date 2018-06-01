@@ -232,7 +232,7 @@ mesh_t create_mesh(const model_t *model) {
             full_model_size,
             model->full_vertices_data,
             GL_STATIC_DRAW
-    );
+    );  
     CHECK_GL_ERROR();
 
     glVertexAttribPointer(
@@ -315,16 +315,22 @@ void draw_sprite_renderer(const sprite_renderer_t *renderer, const transform_t *
     float width_multiplier = 1 / screen_size.x;
     float height_multiplier = 1 / screen_size.y;
     
-    width_multiplier *= renderer->texel_size;
-    height_multiplier *= renderer->texel_size;
+    width_multiplier *= renderer->texture.texel_size;
+    height_multiplier *= renderer->texture.texel_size;
     
     vec3_t final_size = vec3_make(width_multiplier * tex_size.x, height_multiplier * tex_size.y, 1);
     
     transform_t helper;
-    trans_set(trans->position, trans->scale, trans->rotation, &helper);
+    trans_set(&trans->position, &trans->scale, &trans->rotation, &helper);
     vec3_scale_vec3(&helper.scale, &final_size, &helper.scale);
     
     draw_mesh(&quad, &renderer->material, &helper);
+    
+    int offset_loc = glGetUniformLocation(renderer->material.shader.handle, "relative_sprite_offset");
+    glUniform2fv(offset_loc, 1, &renderer->sprite_offset.data);
+
+    int size_loc = glGetUniformLocation(renderer->material.shader.handle, "relative_sprite_size");
+    glUniform2fv(size_loc, 1, &renderer->sprite_size.data);
 }
 
 void draw_mesh(const mesh_t *mesh, const material_t *material, const transform_t *trans) {
@@ -417,6 +423,8 @@ void create_texture(const image_t *image, texture_t *dest) {
     watch_texture_file(handle, image->file_path);
 
     dest->handle = handle;
+    dest->size = image->size;
+    dest->texel_size = 1;
 }
 
 void reload_texture(uint handle, const char *file_path) {
@@ -648,7 +656,10 @@ void set_mat4_uniform(const material_t *material, const char *uniform_name, cons
 }
 
 void camera_set_defaults(camera_t *dest) {
-    trans_set(VEC3_MAKE_ZERO(), VEC3_MAKE_ONE(), QUAT_MAKE_IDENTITY(), &dest->transform);
+    vec3_t pos = VEC3_MAKE_ZERO();
+    vec3_t scale = VEC3_MAKE_ONE();
+    quat_t rot = QUAT_MAKE_IDENTITY();
+    trans_set(&pos, &scale, &rot, &dest->transform);
     dest->depth = -1;
     dest->clear_color = COLOR_MAKE_CYAN();
     dest->clear_depth_only = false;

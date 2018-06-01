@@ -75,6 +75,8 @@ typedef enum texture_unit {
 // TODO(temdisponivel): Make textures be referenced by pointers
 typedef struct texture {
     uint handle;
+    float texel_size;
+    vec2_t size;
 } texture_t;
 
 typedef struct uniform_info {
@@ -153,9 +155,16 @@ typedef struct camera_t {
 
 // TODO(temdisponivel): Make functions to create and initialize sprite renderers
 typedef struct sprite_renderer {
-    vec2_t size;
+    // NOTE(temdisponivel): Maybe we want to actually store the texture reference and define the texture on the uniform every frame so that if you want to change the texture you'd actually change in the sprite renderer instead of the material
+    //const texture_t *texture;
+    
+    texture_t texture;
+    
+    vec2_t sprite_offset;
+    vec2_t sprite_size;
+    
     material_t material;
-    float texel_size;
+    vec2_t size;
 } sprite_renderer_t;
 
 void reload_shader_sources(
@@ -199,8 +208,7 @@ void set_mat4_uniform(const material_t *material, const char *uniform_name, cons
 
 void use_material(const material_t *material);
 
-void create_camera_orthographic(float left, float right, float bottom, float top, float near_plane, float far_plane,
-                                camera_t *dest);
+void create_camera_orthographic(float left, float right, float bottom, float top, float near_plane, float far_plane, camera_t *dest);
 
 void create_camera_perspective(float fov, float ratio, float near_plane, float far_plane, camera_t *dest);
 

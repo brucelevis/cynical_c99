@@ -58,7 +58,9 @@ void assert(int shader) {
     vec3_t t_axis = VEC3_MAKE_UP();
     quat_angle_axis(&t_axis, RAD(0), &rot);
 
-    transform_t trans = trans_make(vec3_make(0, 0, -2), vec3_make(2, 2, 2), rot);
+    vec3_t trans_pos = vec3_make(0, 0, -2);
+    vec3_t trans_scale = vec3_make(2, 2, 2);
+    transform_t trans = trans_make(&trans_pos, &trans_scale, &rot);
     trans_get_mat4(&trans, &t_model);
 
     vec3_set(0, 0, 100, &t_pos);

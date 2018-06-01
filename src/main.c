@@ -62,7 +62,9 @@ int main() {
     vec3_t axis = VEC3_MAKE_UP();
     quat_angle_axis(&axis, RAD(0), &rot);
     
-    transform_t trans = trans_make(vec3_make(0, 0, -10), vec3_make(1, 1, 1), rot);
+    vec3_t trans_pos = vec3_make(0, 0, -10);
+    vec3_t trans_scale = vec3_make(1, 1, 1);
+    transform_t trans = trans_make(&trans_pos, &trans_scale, &rot);
     trans_get_mat4(&trans, &model);
     
     vec3_set(0, 0, -1, &dir);
@@ -93,9 +95,11 @@ int main() {
     //camera_2.transform.position.y += 3;
     
     sprite_renderer_t renderer;
+    renderer.texture.texel_size = 1;
     renderer.material = material;
     renderer.size = vec2_make(600, 400);
-    renderer.texel_size = .5f;
+    renderer.sprite_offset = vec2_make(0, 0);
+    renderer.sprite_size = vec2_make(.5f, .5f);
     
     while (!glfwWindowShouldClose(window)) {
 

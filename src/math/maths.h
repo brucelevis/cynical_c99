@@ -252,8 +252,8 @@ INLINE void mat4_rotate(const mat4_t *mat, const quat_t *rotation, mat4_t *dest)
 
 // ================== TRANSFORM
 
-INLINE transform_t trans_make(vec3_t pos, vec3_t scale, quat_t rotation);
-INLINE void trans_set(vec3_t pos, vec3_t scale, quat_t rotation, transform_t *dest);
+INLINE transform_t trans_make(const vec3_t *pos, const vec3_t *scale, const quat_t *rotation);
+INLINE void trans_set(const vec3_t *pos, const vec3_t *scale, const quat_t *rotation, transform_t *dest);
 INLINE void trans_get_mat4(const transform_t *trans, mat4_t *dest);
 INLINE void trans_get_forward(const transform_t *trans, vec3_t *dest);
 INLINE void trans_get_up(const transform_t *trans, vec3_t *dest);
