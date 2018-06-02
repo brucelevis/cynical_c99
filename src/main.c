@@ -19,6 +19,7 @@
 #if DEV
 #include "hot_reloader.h"
 #include "memory.h"
+#include "input.h"
 
 #endif
 
@@ -52,7 +53,7 @@ int main() {
 
     glewInit();
     
-    initialize_memories(10240);
+    initialize_memories(10240, 1024);
     
     model_t quad_model = create_quad();
     quad = create_mesh(&quad_model);
@@ -120,7 +121,7 @@ int main() {
             engine_config.dirty = false;
         }
         
-        glfwPollEvents();
+        update_input();
 
         int width, height;
         glfwGetWindowSize(window, &width, &height);
@@ -132,13 +133,13 @@ int main() {
 
         use_camera(&camera);
         
-        if (glfwGetKey(window, GLFW_KEY_RIGHT)) {
+        if (get_key_down(KEY_RIGHT)) {
             trans.position.x += 1;
-        } else if (glfwGetKey(window, GLFW_KEY_LEFT)) {
+        } else if (get_key_down(KEY_LEFT)) {
             trans.position.x -= 1;
-        } else if (glfwGetKey(window, GLFW_KEY_UP)) {
+        } else if (get_key_down(KEY_UP)) {
             camera_2.transform.position.y += 1;
-        } else if (glfwGetKey(window, GLFW_KEY_DOWN)) {
+        } else if (get_key_down(KEY_DOWN)) {
             camera_2.transform.position.y -= 1;
         }
 
