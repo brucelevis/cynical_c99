@@ -18,6 +18,8 @@
 
 #if DEV
 #include "hot_reloader.h"
+#include "memory.h"
+
 #endif
 
 // TODO(temdisponivel): Move engine related stuff into engine.c
@@ -49,6 +51,8 @@ int main() {
     glfwMakeContextCurrent(window);
 
     glewInit();
+    
+    initialize_memories(10240);
     
     model_t quad_model = create_quad();
     quad = create_mesh(&quad_model);
@@ -153,6 +157,8 @@ int main() {
         //glBindTexture(GL_TEXTURE_2D, 0);
         
         glfwSwapBuffers(window);
+        
+        reset_frame_buffer();
     }
 
     destroy_model(&quad_model);

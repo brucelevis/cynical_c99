@@ -51,9 +51,6 @@ typedef struct resources {
     uint images_len;
 } resources_t;
 
-// TODO(temdisponivel): Move this macro to a more accessible file
-
-
 void print_resources();
 
 void free_unused_resources();

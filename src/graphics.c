@@ -31,7 +31,6 @@ void reload_shader_sources(
         char *vert_include_file_path,
         char *frag_include_file_path
 ) {
-    
     CREATE_TEMP_NAMED_STR_BUFFER(vertex_buffer);
     CLEAR_TEMP_NAMED_STR_BUFFER(vertex_buffer);
 
