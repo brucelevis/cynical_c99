@@ -12,7 +12,7 @@ typedef int bool;
 #define true 1
 #define false 0
 typedef unsigned char byte;
-typedef unsigned char ushort;
+typedef unsigned short ushort;
 #define null NULL
 
 #if defined(_MSC_VER)
@@ -33,6 +33,29 @@ typedef unsigned char ushort;
 #define CREATE_TEMP_STR_BUFFER() CREATE_TEMP_NAMED_STR_BUFFER(TEMP_BUFFER) 
 #define CREATE_TEMP_NAMED_STR_BUFFER(name) char name[TEMP_STR_BUFFER_LEN]
 #define CLEAR_TEMP_NAMED_STR_BUFFER(name) memset(name, 0, TEMP_STR_BUFFER_LEN * sizeof(char))
+
+#define array_move_to_left(array, array_len, start_index) {\
+    uint len = (*(array_len));\
+    for (int j = (start_index); j < len; ++j) {\
+        (array)[j] = (array)[j + 1];\
+    }\
+    (*(array_len))--;\
+}\
+
+#define array_add(array, length, count, value_to_add) {\
+    ASSERT((length) > ((*(count)) + 1));\
+    (array)[(*(count))++] = (value_to_add);\
+}\
+
+#define array_remove(array, count, value_to_remove) {\
+    uint len = (*(count));\
+    for (int i = len - 1; i >= 0; --i) {\
+        int element = (array)[i];\
+        if (element == (value_to_remove)) {\
+            array_move_to_left((array), (count), i);\
+        }\
+    }\
+}\
 
 #ifdef DEV
 

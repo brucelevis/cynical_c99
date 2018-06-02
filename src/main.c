@@ -12,6 +12,8 @@
 #include "resources.h"
 #include "engine.h"
 
+#include "_TRASH/test_resource_manager.h"
+
 #define CONFIG_FILE_PATH "data/config.data"
 
 #if DEV
@@ -34,6 +36,8 @@ void update_engine_based_on_config() {
 }
 
 int main() {
+    test();
+    
     glfwInit();
 
     window = glfwCreateWindow(1024, 768, "Hello world!", NULL, NULL);
@@ -77,8 +81,8 @@ int main() {
     mat4_mul(&proj, &view, &view_proj);
     mat4_mul(&view_proj, &model, &MVP);
         
-    material_t material;
-    create_material_from_file("data/shaders/default_material.mat_def", &material);
+    //material_t material;
+    //create_material_from_file("data/shaders/default_material.mat_def", &material);
     
     CHECK_GL_ERROR();
     
@@ -93,13 +97,14 @@ int main() {
     camera_2.clear_depth_only = true;
     camera_2.clear_color = COLOR_MAKE_RED();
     //camera_2.transform.position.y += 3;
+
+    texture_t *texture = get_texture_resource("data/textures/default.png");
     
-    sprite_renderer_t renderer;
-    renderer.texture.texel_size = 1;
-    renderer.material = &material;
-    renderer.size = vec2_make(600, 400);
-    //renderer.sprite_offset = vec2_make(0, 0);
-    //renderer.sprite_size = vec2_make(.5f, .5f);
+    material_t tex_mat;
+    create_material_from_file("data/shaders/texture_renderer_material.mat_def", &tex_mat);
+
+    texture_renderer_t texture_renderer;
+    create_texture_renderer(texture, &tex_mat, &texture_renderer);
     
     while (!glfwWindowShouldClose(window)) {
 
@@ -136,13 +141,15 @@ int main() {
 
         //assert(shader.handle);
         //draw_mesh(&quad_2, &material, &trans);
-        draw_sprite_renderer(&renderer, &trans);
+        //draw_sprite_renderer(&renderer, &trans);
+        draw_texture_renderer(&texture_renderer, &trans);
 
         use_camera(&camera_2);
 
         //assert(shader.handle);
         //draw_mesh(&quad_2, &material, &trans);
-        draw_sprite_renderer(&renderer, &trans);
+        //draw_sprite_renderer(&renderer, &trans);
+        draw_texture_renderer(&texture_renderer, &trans);
         
         //glBindTexture(GL_TEXTURE_2D, 0);
         
@@ -151,7 +158,7 @@ int main() {
 
     destroy_model(&quad_model);
     destroy_mesh(&quad);
-    destroy_material(&material);
+    //destroy_material(&material);
 
     CHECK_GL_ERROR();
 

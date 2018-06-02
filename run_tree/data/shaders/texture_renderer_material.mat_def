@@ -1,0 +1,9 @@
+shader data/shaders/texture_renderer_shader.glsl
+
+texture main_texture data/textures/witness.jpg
+
+vec2 sprite_offset 0 0
+vec2 sprite_size 1 1
+vec2 tint_color 1 1
+
+mat4 MVP 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1

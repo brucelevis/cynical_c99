@@ -1,8 +1,8 @@
 shader data/shaders/full_shader.glsl
 
 texture main_texture data/textures/default.png
-texture bump_map_texture data/textures/witness.jpg
-texture yellow_texture data/textures/default.png
+texture bump_map_texture data/textures/yellow.png
+texture yellow_texture data/textures/witness.jpg
 
 float offset 1
 

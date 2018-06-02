@@ -310,23 +310,6 @@ void destroy_mesh(const mesh_t *mesh) {
     // TODO(temdisponivel): should we set these handles to invalid values?!
 }
 
-void draw_sprite_renderer(const sprite_renderer_t *renderer, const transform_t *trans) {
-    vec2_t tex_size = renderer->size;
-    float width_multiplier = 1 / screen_size.x;
-    float height_multiplier = 1 / screen_size.y;
-    
-    width_multiplier *= renderer->texture.texel_size;
-    height_multiplier *= renderer->texture.texel_size;
-    
-    vec3_t final_size = vec3_make(width_multiplier * tex_size.x, height_multiplier * tex_size.y, 1);
-    
-    transform_t helper;
-    trans_set(&trans->position, &trans->scale, &trans->rotation, &helper);
-    vec3_scale_vec3(&helper.scale, &final_size, &helper.scale);
-    
-    draw_mesh(&quad, renderer->material, &helper);
-}
-
 void draw_mesh(const mesh_t *mesh, const material_t *material, const transform_t *trans) {
     mat4_t model;
     trans_get_mat4(trans, &model);
@@ -371,6 +354,7 @@ bool load_image_from_file(const char *image_file, image_t *dest) {
 #if DEV
     if (!file_data) {
         file_data = read_file_data_alloc(DEFAULT_IMAGE_FILE_PATH, &len);
+        ASSERT(false);
     }
 #endif
 
@@ -612,7 +596,7 @@ void use_material(const material_t *material) {
         int loc = glGetUniformLocation(material->shader.handle, uniform.info.name);
         if (loc >= 0) {
             glActiveTexture(uniform.texture_unit);
-            glBindTexture(GL_TEXTURE_2D, uniform.texture.handle);
+            glBindTexture(GL_TEXTURE_2D, uniform.texture->handle);
             glUniform1i(loc, uniform.texture_unit - TEXTURE_UNIT_0);
         }
     }
@@ -632,7 +616,7 @@ void use_material(const material_t *material) {
     // TODO(temdisponivel): Should I create a function that will unbind all these uniforms?!
 }
 
-void set_texture_uniform(const material_t *material, const char *uniform_name, texture_t texture) {
+void set_texture_uniform(const material_t *material, const char *uniform_name, const texture_t *texture) {
     
     bool found = false;
     int hashed_name = hash_string(uniform_name);
@@ -728,4 +712,38 @@ void use_camera(const camera_t *camera) {
     mat4_t view;
     mat4_look(&camera->transform.position, &camera_dir, &camera_up, &view);
     mat4_mul(&camera->projection_matrix, &view, &view_proj);
+}
+
+void create_texture_renderer(const texture_t *texture, const material_t *material, texture_renderer_t *dest) {
+    dest->texture = texture;
+    dest->material = material;
+    vec2_scale(&texture->size, texture->texel_size, &dest->size);
+    
+    vec2_t pos = VEC2_MAKE_ZERO();
+    vec2_t size = VEC2_MAKE_ONE();
+    dest->texture_area = rect_make(&pos, &size);
+}
+
+void draw_texture_renderer(const texture_renderer_t *renderer, const transform_t *trans) {
+    vec2_t tex_size = renderer->size;
+    float width_multiplier = 1 / screen_size.x;
+    float height_multiplier = 1 / screen_size.y;
+
+    width_multiplier *= renderer->texture->texel_size;
+    height_multiplier *= renderer->texture->texel_size;
+
+    vec3_t final_size = vec3_make(width_multiplier * tex_size.x, height_multiplier * tex_size.y, 1);
+
+    transform_t helper;
+    trans_set(&trans->position, &trans->scale, &trans->rotation, &helper);
+    vec3_scale_vec3(&helper.scale, &final_size, &helper.scale);
+    
+    rect_t area = renderer->texture_area;
+    
+    set_vec2_uniform(renderer->material, SPRITE_OFFSET_UNI_NAME, area.position);
+    set_vec2_uniform(renderer->material, SPRITE_SIZE_UNI_NAME, area.size);
+    
+    set_texture_uniform(renderer->material, MAIN_TEX_UNI_NAME, renderer->texture);
+    
+    draw_mesh(&quad, renderer->material, &helper);   
 }

@@ -2,8 +2,6 @@
 // Created by temdisponivel on 24/05/2018.
 //
 
-#include "maths.h"
-
 INLINE void quat_identity(quat_t *dest) {
     vec4_set(0, 0, 0, 1, dest);
 }

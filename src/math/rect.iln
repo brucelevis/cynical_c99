@@ -1,0 +1,12 @@
+
+INLINE rect_t rect_make(const vec2_t *position, const vec2_t *size) {
+    rect_t dest;
+    rect_set(position, size, &dest);
+    return dest;
+}
+
+INLINE void rect_set(const vec2_t *position, const vec2_t *size, rect_t *rect) {
+    vec2_cpy(position, &rect->position);
+    vec2_cpy(size, &rect->size);
+}
+

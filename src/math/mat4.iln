@@ -2,9 +2,6 @@
 // Created by temdisponivel on 24/05/2018.
 //
 
-#include "maths.h"
-#include "mem.h"
-
 INLINE mat4_t mat4_make_identity() {
     mat4_t dest;
     mat4_identity(&dest);

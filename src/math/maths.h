@@ -76,6 +76,11 @@ typedef struct transform {
     vec3_t scale;
 } transform_t;
 
+typedef struct rect {
+    vec2_t position;
+    vec2_t size;
+} rect_t;
+
 // ============== FLOAT
 
 #define RAD(deg) ((deg) * PI / 180.0f)
@@ -262,6 +267,10 @@ INLINE void trans_get_backward(const transform_t *trans, vec3_t *dest);
 INLINE void trans_get_down(const transform_t *trans, vec3_t *dest);
 INLINE void trans_get_left(const transform_t *trans, vec3_t *dest);
 
+// ======================= RECT
+
+INLINE rect_t rect_make(const vec2_t *position, const vec2_t *size);
+INLINE void rect_set(const vec2_t *position, const vec2_t *size, rect_t *rect);
 
 #include "vec2.iln"
 #include "vec3.iln"
@@ -269,5 +278,6 @@ INLINE void trans_get_left(const transform_t *trans, vec3_t *dest);
 #include "mat4.iln"
 #include "quat.iln"
 #include "transform.iln"
+#include "rect.iln"
 
 #endif //RAW_GL_MATH_H

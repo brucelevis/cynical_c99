@@ -2,8 +2,6 @@
 // Created by temdisponivel on 23/05/2018.
 //
 
-#include "maths.h"
-
 INLINE vec3_t vec3_make(float x, float y, float z) {
     vec3_t dest;
     vec3_set(x, y, z, &dest);

@@ -2,8 +2,6 @@
 // Created by temdisponivel on 24/05/2018.
 //
 
-#include "maths.h"
-
 INLINE vec2_t vec2_make(float x, float y) {
     vec2_t dest;
     vec2_set(x, y, &dest);

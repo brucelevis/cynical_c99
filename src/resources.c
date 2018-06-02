@@ -122,7 +122,7 @@ bool read_shader_file(
         }
     }
 
-#if DEV && 0
+#if DEV
     printf("Vertex shader: \n '%s' \n", start_vertex_buffer);
     printf("Fragment shader: \n '%s' \n", start_frag_buffer);
 #endif

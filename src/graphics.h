@@ -14,6 +14,10 @@
 #define VERT_UV_NAME "uv"
 #define VERT_COLOR_NAME "color"
 
+#define SPRITE_OFFSET_UNI_NAME "sprite_offset"
+#define SPRITE_SIZE_UNI_NAME "sprite_size"
+#define MAIN_TEX_UNI_NAME "main_texture"
+
 #define VERT_POS_INDEX 0
 #define VERT_UV_INDEX 1
 #define VERT_COLOR_INDEX 2
@@ -100,7 +104,7 @@ typedef struct mat4_uniform {
 
 typedef struct texture_uniform {
     uniform_info_t info;
-    texture_t texture;
+    const texture_t *texture;
     texture_unit_t texture_unit;
 } texture_uniform_t;
 
@@ -171,19 +175,12 @@ typedef struct camera_t {
     int depth;
 } camera_t;
 
-// TODO(temdisponivel): Make functions to create and initialize sprite renderers
-typedef struct sprite_renderer {
-    // NOTE(temdisponivel): Maybe we want to actually store the texture reference and define the texture on the uniform every frame so that if you want to change the texture you'd actually change in the sprite renderer instead of the material
-    //const texture_t *texture;
-    
-    texture_t texture;
-    
-    vec2_t sprite_offset;
-    vec2_t sprite_size;
-    
-    material_t *material;
+typedef struct texture_renderer {
+    const texture_t *texture;
+    rect_t texture_area;
     vec2_t size;
-} sprite_renderer_t;
+    const material_t *material;
+} texture_renderer_t;
 
 void reload_shader_sources(
         uint handle, 
@@ -204,8 +201,6 @@ mesh_t create_mesh(const model_t *model);
 void destroy_mesh(const mesh_t *mesh);
 void draw_mesh(const mesh_t *mesh, const material_t *material, const transform_t *trans);
 
-void draw_sprite_renderer(const sprite_renderer_t *renderer, const transform_t *trans);
-
 bool load_image_from_file(const char *image_file, image_t *dest);
 void destroy_image(const image_t *image);
 
@@ -220,7 +215,7 @@ void reload_material(const char *file_path, material_t *dest);
 void create_material(const material_definition_t *definition, material_t *dest);
 void destroy_material(const material_t *material);
 
-void set_texture_uniform(const material_t *material, const char *uniform_name, texture_t texture);
+void set_texture_uniform(const material_t *material, const char *uniform_name, const texture_t *texture);
 void set_float_uniform(const material_t *material, const char *uniform_name, float value);
 void set_mat4_uniform(const material_t *material, const char *uniform_name, const mat4_t *value);
 void set_vec2_uniform(const material_t *material, const char *uniform_name, vec2_t value);
@@ -232,6 +227,9 @@ void create_camera_orthographic(float left, float right, float bottom, float top
 void create_camera_perspective(float fov, float ratio, float near_plane, float far_plane, camera_t *dest);
 
 void use_camera(const camera_t *camera);
+
+void create_texture_renderer(const texture_t *texture, const material_t *material, texture_renderer_t *dest);
+void draw_texture_renderer(const texture_renderer_t *renderer, const transform_t *trans);
 
 #ifdef DEV
 

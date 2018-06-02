@@ -54,7 +54,7 @@ void default_frag() {
     vec4 main_tex = texture(main_texture, main_texture_uv);
     vec4 bump_tex = texture(bump_map_texture, main_texture_uv);
     vec4 yellow_tex = texture(yellow_texture, main_texture_uv);
-    color = bump_tex;//mix(main_tex, bump_tex, 1.f);
+    color = bump_tex;//bump_tex;//mix(main_tex, bump_tex, 1.f);
 }
 
 
