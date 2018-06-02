@@ -100,11 +100,10 @@ int main() {
 
     texture_t *texture = get_texture_resource("data/textures/default.png");
     
-    material_t tex_mat;
-    create_material_from_file("data/shaders/texture_renderer_material.mat_def", &tex_mat);
+    material_t *tex_mat = get_material_resource("data/shaders/texture_renderer_material.mat_def");
 
     texture_renderer_t texture_renderer;
-    create_texture_renderer(texture, &tex_mat, &texture_renderer);
+    create_texture_renderer(texture, tex_mat, &texture_renderer);
     
     while (!glfwWindowShouldClose(window)) {
 

@@ -34,6 +34,7 @@
 #define COLOR_BYTE_OFFSET(vertice_count) ((POS_DIMENTION + UV_DIMENTION) * (vertice_count) * sizeof(float))
 
 #define MAX_TEXTURES 10
+#define MAX_IMAGES MAX_TEXTURES
 #define MAX_FLOATS 5
 #define MAX_MAT4S 5
 #define MAX_VEC2S 5
@@ -115,7 +116,7 @@ typedef struct vec2_uniform {
 
 // TODO(temdisponivel): Make everyone that used material actually reference it through pointers instead of copies - necessary because of hot reloadign
 typedef struct material {
-    shader_t shader;
+    const shader_t *shader;
     
     texture_uniform_t texture_uniforms[MAX_TEXTURES];
     uint texture_uniforms_len;
@@ -190,9 +191,8 @@ void reload_shader_sources(
         char *frag_include_file_path
 );
 
-shader_t create_shader_from_file(const char *shader_file);
 void update_shader_program(uint program, const char *vertex, const char *fragment);
-void destroy_shader(shader_t shader);
+void destroy_shader(const shader_t *shader);
 
 model_t create_quad();
 void destroy_model(const model_t *model);
@@ -201,16 +201,11 @@ mesh_t create_mesh(const model_t *model);
 void destroy_mesh(const mesh_t *mesh);
 void draw_mesh(const mesh_t *mesh, const material_t *material, const transform_t *trans);
 
-bool load_image_from_file(const char *image_file, image_t *dest);
-void destroy_image(const image_t *image);
-
-void create_texture_from_file(const char *file_path, texture_t *dest);
 void create_texture(const image_t *image, texture_t *dest);
 void reload_texture(uint handle, const char *file_path);
 void update_texture_data(uint handle, const image_t *image);
 void destroy_texture(const texture_t *texture);
 
-void create_material_from_file(const char *file_path, material_t *dest);
 void reload_material(const char *file_path, material_t *dest);
 void create_material(const material_definition_t *definition, material_t *dest);
 void destroy_material(const material_t *material);

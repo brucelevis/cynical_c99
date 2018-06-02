@@ -3,6 +3,7 @@
 //
 
 #include <malloc.h>
+#include <mem.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 
@@ -14,6 +15,7 @@
 #include "resources.h"
 #include "hot_reloader.h"
 #include "file.h"
+#include "resource_manager.h"
 
 // TODO(temdisponivel): Make a struct that represents our gl state: our matrices, our current shader and so on
 static mat4_t view_proj = {};
@@ -48,45 +50,6 @@ void reload_shader_sources(
     ASSERT(read_shader);   
 
     update_shader_program(handle, vertex_buffer, fragment_buffer);
-}
-
-shader_t create_shader_from_file(const char *shader_file) {
-
-    uint program = glCreateProgram();
-
-#if DEV
-
-    char both_include_file_path[DEFAULT_FILE_NAME_LEN];
-    memset(both_include_file_path, 0, DEFAULT_FILE_NAME_LEN * sizeof(char));
-
-    char vert_include_file_path[DEFAULT_FILE_NAME_LEN];
-    memset(vert_include_file_path, 0, DEFAULT_FILE_NAME_LEN * sizeof(char));
-
-    char frag_include_file_path[DEFAULT_FILE_NAME_LEN];
-    memset(frag_include_file_path, 0, DEFAULT_FILE_NAME_LEN * sizeof(char));
-
-#endif
-
-
-    reload_shader_sources(
-            program, 
-            shader_file,
-            both_include_file_path,
-            vert_include_file_path,
-            frag_include_file_path
-    );
-
-    watch_shader_file(
-            program,
-            shader_file,
-            both_include_file_path,
-            vert_include_file_path,
-            frag_include_file_path
-    );
-
-    shader_t shader;
-    shader.handle = program;
-    return shader;
 }
 
 void update_shader_program(uint program, const char *vertex, const char *fragment) {
@@ -134,9 +97,9 @@ void update_shader_program(uint program, const char *vertex, const char *fragmen
     CHECK_GL_ERROR();
 }
 
-void destroy_shader(shader_t shader) {
-    stop_watch_shader_file(shader.handle);
-    glDeleteProgram(shader.handle);
+void destroy_shader(const shader_t *shader) {
+    stop_watch_shader_file(shader->handle);
+    glDeleteProgram(shader->handle);
 }
 
 model_t create_quad() {
@@ -345,53 +308,6 @@ void draw_mesh(const mesh_t *mesh, const material_t *material, const transform_t
     glBindVertexArray(0);
 }
 
-bool load_image_from_file(const char *image_file, image_t *dest) {
-
-    // TODO(temdisponivel): Create a buffer in order to prevent allocations
-    uint len;
-    byte *file_data = read_file_data_alloc(image_file, &len);
-
-#if DEV
-    if (!file_data) {
-        file_data = read_file_data_alloc(DEFAULT_IMAGE_FILE_PATH, &len);
-        ASSERT(false);
-    }
-#endif
-
-    if (!file_data) {
-        return false;
-    }
-
-    int width, height, channels;
-
-    stbi_set_flip_vertically_on_load(true);
-    byte *image_data = stbi_load_from_memory(file_data, len, &width, &height, &channels, 4);
-    free_file_data(file_data);
-
-    if (image_data == null) {
-        return false;
-    }
-
-    image_t img;
-    strcpy(img.file_path, image_file);
-    img.data = image_data;
-    img.size = vec2_make(width, height);
-    *dest = img;
-    return true;
-}
-
-void destroy_image(const image_t *image) {
-    stbi_image_free(image->data);
-}
-
-void create_texture_from_file(const char *file_path, texture_t *dest) {
-    image_t img;
-    bool loaded = load_image_from_file(file_path, &img);
-    ASSERT(loaded);
-    create_texture(&img, dest);
-    destroy_image(&img);
-}
-
 void create_texture(const image_t *image, texture_t *dest) {
     uint handle;
     glGenTextures(1, &handle);
@@ -406,11 +322,12 @@ void create_texture(const image_t *image, texture_t *dest) {
 }
 
 void reload_texture(uint handle, const char *file_path) {
-    image_t img;
-    bool loaded = load_image_from_file(file_path, &img);
-    ASSERT(loaded);
-    update_texture_data(handle, &img);
-    destroy_image(&img);
+    // Force the deletion of the loaded image so we can actually load the image from disk again
+    free_unused_resources();
+    
+    image_t *img = get_image_resource(file_path);
+    update_texture_data(handle, img);
+    free_image_resource(img);
 }
 
 void update_texture_data(uint handle, const image_t *image) {
@@ -446,21 +363,12 @@ void destroy_texture(const texture_t *texture) {
     stop_watch_texture_file(texture->handle);
 }
 
-void create_material_from_file(const char *file_path, material_t *dest) {
-    material_definition_t definition;
-    bool read = read_material_definition_file(file_path, &definition);
-    ASSERT(read);
-    create_material(&definition, dest);
-    
-    watch_material_definition_file(dest, file_path);
-}
-
 // TODO(temdisponivel): Make sure to not call this function from create_material_from_file
 void reload_material(const char *file_path, material_t *dest) {
-    destroy_shader(dest->shader);
+    free_shader_resource(dest->shader);
 
     for (int i = 0; i < dest->texture_uniforms_len; ++i) {
-        destroy_texture(&dest->texture_uniforms[i].texture);
+        free_texture_resource(dest->texture_uniforms[i].texture);
     }
 
     material_definition_t definition;
@@ -476,7 +384,7 @@ INLINE void cache_uniform_info(uniform_info_t *info, const char *name) {
 
 void create_material(const material_definition_t *definition, material_t *dest) {
 
-    shader_t shader = create_shader_from_file(definition->shader_file);
+    shader_t *shader = get_shader_resource(definition->shader_file);
 
     dest->shader = shader;
 
@@ -537,7 +445,7 @@ void create_material(const material_definition_t *definition, material_t *dest) 
             file_path = DEFAULT_IMAGE_FILE_PATH;
         }
 
-        create_texture_from_file(file_path, &tex_uni.texture);
+        tex_uni.texture = get_texture_resource(file_path);
 
         dest->texture_uniforms[i] = tex_uni;
     }
@@ -557,23 +465,23 @@ void create_material(const material_definition_t *definition, material_t *dest) 
 }
 
 void destroy_material(const material_t *material) {
-    destroy_shader(material->shader);
+    free_shader_resource(material->shader);
 
     for (int i = 0; i < material->texture_uniforms_len; ++i) {
         texture_uniform_t texture_uni = material->texture_uniforms[i];
-        destroy_texture(&texture_uni.texture);
+        free_texture_resource(texture_uni.texture);
     }
     
     stop_watch_material_definition_file(material);
 }
 
 void use_material(const material_t *material) {
-    glUseProgram(material->shader.handle);
+    glUseProgram(material->shader->handle);
     CHECK_GL_ERROR();
 
     for (int i = 0; i < material->float_uniforms_len; ++i) {
         float_uniform_t uniform = material->float_uniforms[i];
-        int loc = glGetUniformLocation(material->shader.handle, uniform.info.name);
+        int loc = glGetUniformLocation(material->shader->handle, uniform.info.name);
         if (loc >= 0) {
             glUniform1f(loc, uniform.value);
         }
@@ -583,7 +491,7 @@ void use_material(const material_t *material) {
 
     for (int i = 0; i < material->mat4_uniforms_len; ++i) {
         mat4_uniform_t uniform = material->mat4_uniforms[i];
-        int loc = glGetUniformLocation(material->shader.handle, uniform.info.name);
+        int loc = glGetUniformLocation(material->shader->handle, uniform.info.name);
         if (loc >= 0) {
             glUniformMatrix4fv(loc, 1, GL_FALSE, &uniform.value);
         }
@@ -593,7 +501,7 @@ void use_material(const material_t *material) {
 
     for (int i = 0; i < material->texture_uniforms_len; ++i) {
         texture_uniform_t uniform = material->texture_uniforms[i];
-        int loc = glGetUniformLocation(material->shader.handle, uniform.info.name);
+        int loc = glGetUniformLocation(material->shader->handle, uniform.info.name);
         if (loc >= 0) {
             glActiveTexture(uniform.texture_unit);
             glBindTexture(GL_TEXTURE_2D, uniform.texture->handle);
@@ -605,7 +513,7 @@ void use_material(const material_t *material) {
 
     for (int i = 0; i < material->vec2_uniforms_len; ++i) {
         vec2_uniform_t uniform = material->vec2_uniforms[i];
-        int loc = glGetUniformLocation(material->shader.handle, uniform.info.name);
+        int loc = glGetUniformLocation(material->shader->handle, uniform.info.name);
         if (loc >= 0) {
             glUniform2fv(loc, 1, &uniform.value.data);
         }
