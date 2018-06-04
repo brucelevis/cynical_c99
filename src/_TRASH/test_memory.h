@@ -69,6 +69,45 @@ void test_memory() {
         printf("%i:\n", i);
         print_test_struct(test);
     }
+    
+    printf("END\n");
+
+
+    printf("TEMP ALLOCATE\n");
+
+    for (int i = 0; i < cont; ++i) {
+
+        test_struct_t *test = memory_temp_alloc_default(sizeof(test_struct_t));
+        values[i] = test;
+
+        strcpy(test->name, "TEMDISPONIVEL");
+        test->a = 1;
+        test->pointer = test;
+
+        printf("%i:\n", i);
+        print_test_struct(test);
+    }
+
+    printf("TEMP FREE\n");
+
+    reset_temp_memory_default();
+
+    printf("TEMP ALLOCATE\n");
+
+    for (int i = 0; i < cont; ++i) {
+
+        test_struct_t *test = memory_temp_alloc_default(sizeof(test_struct_t));
+        values[cont] = test;
+
+        strcpy(test->name, "TEMDISPONIVEL 2");
+        test->a = 3;
+        test->pointer = test + 1;
+
+        printf("%i:\n", i);
+        print_test_struct(test);
+    }
+
+    printf("END\n");    
 }
 
 #endif

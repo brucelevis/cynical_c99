@@ -22,6 +22,8 @@
 #define ENORMOUS_CHUNK_SIZE 2048
 #define ENORMOUS_MEMORY_POOL_SIZE (ENORMOUS_CHUNK_SIZE * 1024)
 
+#define TEMP_MEMORY_SIZE (1024 * 1024)
+
 // TODO(temdisponivel): Should we actually support dynamic chunk size?!
 // TODO(temdisponivel): Create a temporary memory alloction
 
@@ -57,7 +59,10 @@ memory_pool_t big_memory_pool;
 memory_pool_t gigantic_memory_pool;
 memory_pool_t enormous_memory_pool;
 
+temp_memory_t temporary_memory;
+
 void create_default_memory_pool();
+void create_temp_memory(uint size, temp_memory_t *dest);
 
 void create_memory_pool(uint full_size, uint chunk_size, memory_pool_t *dest);
 
@@ -79,6 +84,10 @@ void memory_free(memory_pool_t *memory, void *data);
 #define enormous_memory_alloc(size) memory_alloc(&enormous_memory_pool, size)
 #define enormous_memory_free(data) memory_free(&enormous_memory_pool, data);
 
-void *memory_temp_alloc(uint size);
+void *memory_temp_alloc(temp_memory_t *memory, uint size);
+void reset_temp_memory(temp_memory_t *memory);
+
+#define memory_temp_alloc_default(size) memory_temp_alloc(&temporary_memory, size)
+#define reset_temp_memory_default() reset_temp_memory(&temporary_memory)
 
 #endif //RAW_GL_MEMORY_H
