@@ -20,7 +20,4 @@ file_status_t read_file_string(const char *file_path, char *buffer, uint buffer_
 byte *read_file_data_alloc(const char *file_path,  uint *file_length);
 void free_file_data(byte *file_data);
 
-char *read_file_string_alloc(const char *file_path,  uint *file_length);
-void free_file_string(char *file_data);
-
 #endif //RAW_GL_FILE_H

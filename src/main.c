@@ -41,6 +41,7 @@ void update_engine_based_on_config() {
 
 int main() {
     test_memory();
+    create_default_memory_pool();
     
     glfwInit();
 

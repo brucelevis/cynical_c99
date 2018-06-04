@@ -2,7 +2,6 @@
 // Created by temdisponivel on 01/06/2018.
 //
 
-#include <malloc.h>
 #include <mem.h>
 #include "resource_manager.h"
 #include "string_helper.h"
@@ -10,6 +9,7 @@
 #include "resources.h"
 #include "stb_image.h"
 #include "file.h"
+#include "memory.h"
 
 static resources_t resources = {};
 
@@ -36,7 +36,7 @@ void free_unused_resources() {
 \
         if (resource.reference_count <= 0) {\
             destroy_##variable_name(resource.variable_name);\
-            free(resources.type[i].variable_name);\
+            enormous_memory_free(resources.type[i].variable_name);\
             resources.type[i].variable_name = null;\
 \            
             array_move_to_left(resources.type, &resources.type##_len, i);\
@@ -50,57 +50,7 @@ void free_unused_resources() {
     free_unused_resource(images, image);
 
 #undef free_resource
-    
-    /*
-    for (int i = resources.textures_len - 1; i >= 0; --i) {
-        texture_resource_t resource = resources.textures[i];
-        
-        if (resource.reference_count <= 0) {
-            destroy_texture(resource.texture);
-            free(resources.textures[i].texture);
-            resources.textures[i].texture = null;
-
-            array_move_to_left(resources.textures, &resources.textures_len, i);
-        }
-    }
-
-    for (int i = resources.shaders_len - 1; i >= 0; --i) {
-        shader_resource_t resource = resources.shaders[i];
-
-        if (resource.reference_count <= 0) {
-            destroy_shader(resource.shader);
-            free(resources.shaders[i].shader);
-            resources.shaders[i].shader = null;
-
-            array_move_to_left(resources.shaders, &resources.shaders_len, i);
-        }
-    }
-
-    for (int i = resources.materials_len - 1; i >= 0; --i) {
-        material_resource_t resource = resources.materials[i];
-
-        if (resource.reference_count <= 0) {
-            destroy_material(resource.material);
-            free(resources.materials[i].material);
-            resources.materials[i].material = null;
-
-            array_move_to_left(resources.materials, &resources.materials_len, i);
-        }
-    }
-
-    for (int i = resources.images_len - 1; i >= 0; --i) {
-        image_resource_t resource = resources.images[i];
-
-        if (resource.reference_count <= 0) {
-            destroy_image(resource.image);
-            free(resources.images[i].image);
-            resources.images[i].image = null;
-
-            array_move_to_left(resources.images, &resources.images_len, i);
-        }
-    }*/
 }
-
 
 void create_texture_from_file(const char *file_path, texture_t *dest) {
     image_t *img = get_image_resource(file_path);
@@ -123,7 +73,7 @@ texture_t *get_texture_resource(const char *texture_path) {
     
     if (texture == null) {
         // TODO(temdisponivel): Remove this after our temp memory/custom allocator
-        texture = (texture_t *) malloc(sizeof(texture_t));
+        texture = (texture_t *) enormous_memory_alloc(sizeof(texture_t));
         create_texture_from_file(texture_path, texture);
 
         texture_resource_t resource;
@@ -199,7 +149,7 @@ shader_t *get_shader_resource(const char *shader_path) {
     }
     
     if (shader == null) {
-        shader = (shader_t *) malloc(sizeof(shader_t));
+        shader = (shader_t *) enormous_memory_alloc(sizeof(shader_t));
         create_shader_from_file(shader_path, shader);
         
         shader_resource_t resource;
@@ -249,7 +199,7 @@ material_t *get_material_resource(const char *material_path) {
     }
 
     if (material == null) {
-        material = (material_t *) malloc(sizeof(material_t));
+        material = (material_t *) enormous_memory_alloc(sizeof(material_t));
         create_material_from_file(material_path, material);
 
         material_resource_t resource;
@@ -324,7 +274,7 @@ image_t *get_image_resource(const char *image_path) {
     }
 
     if (image == null) {
-        image = (image_t *) malloc(sizeof(image_t));
+        image = enormous_memory_alloc(sizeof(image_t));
         create_image_from_file(image_path, image);
 
         image_resource_t resource;

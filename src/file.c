@@ -60,28 +60,6 @@ file_status_t read_file_string(const char *file_path, char *buffer, uint buffer_
     return result;
 }
 
-char *read_file_string_alloc(const char *file_path,  uint *file_length) {
-    FILE *file = open_file(file_path, (int *) file_length);
-    if (!file) {
-        return null;
-    }
-
-    uint buffer_size = *file_length + 1; // Add one for the \0 at the end
-    char *buffer = (char *) calloc((uint) buffer_size , sizeof(char));
-    read_file(file, *file_length, (byte *) buffer, buffer_size);
-
-    buffer[*file_length] = '\0';
-    *file_length = buffer_size;
-
-    fclose(file);
-
-    return buffer;
-}
-
-void free_file_string(char *file_data) {
-    free(file_data);
-}
-
 byte *read_file_data_alloc(const char *file_path,  uint *file_length) {
     int len;
     FILE *file = open_file(file_path, &len);

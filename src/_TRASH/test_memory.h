@@ -30,7 +30,7 @@ void test_memory() {
     
     for (int i = 0; i < cont; ++i) {
 
-        test_struct_t *test = memory_alloc_default(sizeof(test_struct_t));
+        test_struct_t *test = medium_memory_alloc(sizeof(test_struct_t));
         values[i] = test;
         
         strcpy(test->name, "TEMDISPONIVEL");
@@ -45,13 +45,13 @@ void test_memory() {
 
     for (int j = 0; j < 200; ++j) {
         if (j % 2 == 0) {
-            memory_free_default(values[j]);
+            medium_memory_free(values[j]);
         }
     }
 
     for (int j = 0; j < 200; ++j) {
         if (j % 2 != 0) {
-            memory_free_default(values[j]);
+            medium_memory_free(values[j]);
         }
     }
 
@@ -59,7 +59,7 @@ void test_memory() {
     
     for (int i = 0; i < cont; ++i) {
 
-        test_struct_t *test = memory_alloc_default(sizeof(test_struct_t));
+        test_struct_t *test = medium_memory_alloc(sizeof(test_struct_t));
         values[cont] = test;
 
         strcpy(test->name, "TEMDISPONIVEL 2");
