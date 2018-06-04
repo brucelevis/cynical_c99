@@ -6,13 +6,15 @@
 #define RAW_GL_COMMON_H
 
 #include <stdio.h>
+#include <stdint.h>
 
-typedef unsigned int uint;
-typedef int bool;
+typedef uint32_t uint;
+typedef uint8_t byte;
+typedef uint16_t ushort;
+typedef uint64_t ulong;
+typedef char bool;
 #define true 1
 #define false 0
-typedef unsigned char byte;
-typedef unsigned short ushort;
 #define null NULL
 
 #if defined(_MSC_VER)

@@ -13,12 +13,45 @@
 
 static resources_t resources = {};
 
+#define free_resource(type, variable_name) {\
+    for (int i = 0; i < resources.type##_len; ++i) {\
+        variable_name##_resource_t resource = resources.type[i];\
+        if (resource.variable_name == variable_name) {\
+            if (resource.reference_count > 0) {\
+                resources.type[i].reference_count--;\
+            }\
+        }\
+    }\
+}\
+
 void print_resources() {
     printf("Textures count: %i\n", resources.textures_len);
     fflush(stdout);
 }
 
 void free_unused_resources() {
+#define free_unused_resource(type, variable_name) {\
+    for (int i = resources.type## _len - 1; i >= 0; --i) {\
+        variable_name##_resource_t resource = resources.type[i];\
+\
+        if (resource.reference_count <= 0) {\
+            destroy_##variable_name(resource.variable_name);\
+            free(resources.type[i].variable_name);\
+            resources.type[i].variable_name = null;\
+\            
+            array_move_to_left(resources.type, &resources.type##_len, i);\
+        }\
+    }\
+}\
+
+    free_unused_resource(textures, texture);
+    free_unused_resource(shaders, shader);
+    free_unused_resource(materials, material);
+    free_unused_resource(images, image);
+
+#undef free_resource
+    
+    /*
     for (int i = resources.textures_len - 1; i >= 0; --i) {
         texture_resource_t resource = resources.textures[i];
         
@@ -65,7 +98,7 @@ void free_unused_resources() {
 
             array_move_to_left(resources.images, &resources.images_len, i);
         }
-    }
+    }*/
 }
 
 
@@ -315,3 +348,5 @@ void free_image_resource(const image_t *image) {
         }
     }
 }
+
+#undef free_resource

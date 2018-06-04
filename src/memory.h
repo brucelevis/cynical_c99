@@ -7,30 +7,31 @@
 
 #include "common.h"
 
-typedef struct custom_memory {
-    void *buffer;
-    uint buffer_byte_size;
+#define CHUNK_SIZE 64
+#define DEFAULT_MEMORY_POOL_SIZE (CHUNK_SIZE * 1024)  
+
+typedef struct memory_chunk {
+    void *data;
+    struct memory_chunk *next; 
+} memory_chunk_t;
+
+typedef struct memory {
+    void *data;
     
-    void *current_free_offset_ptr;
+    memory_chunk_t *all_chunks;
+    uint all_chunks_len;
     
-    int water_marker;
-} custom_memory_t;
+    memory_chunk_t *free_list;
+} memory_pool_t;
 
-void initialize_memories(uint frame_buffer_size, uint persistence_buffer_size);
-void reset_buffer(custom_memory_t *memory);
+void create_default_memory_pool();
 
-void reset_frame_buffer();
+void create_memory(uint full_size, memory_pool_t *dest);
 
-void create_custom_memory(uint desired_size, custom_memory_t *dest);
-void free_custom_memory(custom_memory_t *memory);
+void *memory_alloc(memory_pool_t *memory, uint size);
+void memory_free(memory_pool_t *memory, void *data);
 
-void *alloc_memory(custom_memory_t *memory, uint size);
-void free_memory(custom_memory_t *memory, void *pointer);
-
-void *alloc_frame_memory(uint size);
-
-void alloc_persistent_memory(uint size);
-void free_persistent_memory(void *pointer);
-
+void *memory_alloc_default(uint size);
+void memory_free_default(void *data);
 
 #endif //RAW_GL_MEMORY_H

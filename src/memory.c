@@ -3,65 +3,61 @@
 //
 
 #include <malloc.h>
+#include <mem.h>
 #include "memory.h"
 
-custom_memory_t _frame_buffer;
-custom_memory_t _persistent_buffer;
+static memory_pool_t default_memory_pool;
 
-void initialize_memories(uint frame_buffer_size, uint persistence_buffer_size) {
-    create_custom_memory(frame_buffer_size, &_frame_buffer);
-    create_custom_memory(persistence_buffer_size, &_persistent_buffer);
+void create_default_memory_pool() {
+    create_memory(DEFAULT_MEMORY_POOL_SIZE, &default_memory_pool);
 }
 
-void reset_buffer(custom_memory_t *memory) {
-    memory->current_free_offset_ptr = null;
-}
+void create_memory(uint full_size, memory_pool_t *dest) {
+    ASSERT(full_size % CHUNK_SIZE == 0);
 
-void reset_frame_buffer() {
-    reset_buffer(&_frame_buffer);
-}
+    dest->data = malloc(full_size);
+    ASSERT(dest->data);
 
-void create_custom_memory(uint desired_size, custom_memory_t *dest) {
-    dest->buffer = malloc(desired_size);
-    ASSERT(dest->buffer);
-    dest->buffer_byte_size = desired_size;
-    dest->current_free_offset_ptr = null;
-    dest->water_marker = 0;
-}
+    uint chunks_len = full_size / CHUNK_SIZE;
 
-void free_custom_memory(custom_memory_t *memory) {
-    reset_buffer(memory);
-    
-    free(memory->buffer);
-    memory->buffer = null;
-    memory->buffer_byte_size = 0;
-}
+    dest->all_chunks = malloc(sizeof(memory_chunk_t) * chunks_len);
+    dest->all_chunks_len = chunks_len;
+    dest->free_list = &dest->all_chunks[0];
 
-void *alloc_memory(custom_memory_t *memory, uint size) {
-    void *end_of_memory = memory->current_free_offset_ptr + size;
-    ASSERT(end_of_memory < (memory->buffer + memory->buffer_byte_size));
-    void *result = memory->current_free_offset_ptr;
-    memory->current_free_offset_ptr += size;
-    
-    if ((int) memory->current_free_offset_ptr > memory->water_marker) {
-        memory->water_marker = (int) memory->current_free_offset_ptr;
+    for (int i = 0; i < chunks_len - 1; ++i) {
+        dest->all_chunks[i].data = dest->data + (i * CHUNK_SIZE);
+        dest->all_chunks[i].next = &dest->all_chunks[i + 1];
     }
 
-    return result;
+    dest->all_chunks[chunks_len - 1].data = dest->data + ((chunks_len - 1) * CHUNK_SIZE);
+    dest->all_chunks[chunks_len - 1].next = null;
 }
 
-void free_memory(custom_memory_t *memory, void *pointer) {
+void *memory_alloc(memory_pool_t *memory, uint size) {
+    ASSERT(size < CHUNK_SIZE);
+    ASSERT(memory->free_list);
+
+    memory_chunk_t *result = memory->free_list;
+    memory->free_list = result->next;
+
+    return result->data;
+}
+
+void memory_free(memory_pool_t *memory, void *data) {
+    ulong ptr = (data - memory->data);
+    ulong index = ptr / CHUNK_SIZE;
     
+    if (memory->free_list) {
+        memory->all_chunks[index].next = memory->free_list;
+    }
+
+    memory->free_list = &memory->all_chunks[index];
 }
 
-void *alloc_frame_memory(uint size) {
-    alloc_memory(&_frame_buffer, size);
+void *memory_alloc_default(uint size) {
+    return memory_alloc(&default_memory_pool, size);
 }
 
-void alloc_persistent_memory(uint size) {
-    alloc_memory(&_persistent_buffer, size);
-}
-
-void free_persistent_memory(void *pointer) {
-    free_memory(&_persistent_buffer, pointer);
+void memory_free_default(void *data) {
+    memory_free(&default_memory_pool, data);
 }

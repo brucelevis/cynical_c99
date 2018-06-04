@@ -13,6 +13,7 @@
 #include "engine.h"
 
 #include "_TRASH/test_resource_manager.h"
+#include "_TRASH/test_memory.h"
 
 #define CONFIG_FILE_PATH "data/config.data"
 
@@ -39,7 +40,7 @@ void update_engine_based_on_config() {
 }
 
 int main() {
-    test();
+    test_memory();
     
     glfwInit();
 
@@ -52,8 +53,6 @@ int main() {
     glfwMakeContextCurrent(window);
 
     glewInit();
-    
-    initialize_memories(10240, 1024);
     
     model_t quad_model = create_quad();
     quad = create_mesh(&quad_model);
@@ -158,8 +157,6 @@ int main() {
         //glBindTexture(GL_TEXTURE_2D, 0);
         
         glfwSwapBuffers(window);
-        
-        reset_frame_buffer();
     }
 
     destroy_model(&quad_model);
