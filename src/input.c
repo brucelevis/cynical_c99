@@ -6,13 +6,13 @@
 #include "input.h"
 
 // TODO(temdisponivel): get this from a better way
-extern GLFWwindow *window;
+extern GLFWwindow *game_window;
 
 input_state_t current_frame;
 input_state_t last_frame;
 
 key_state_t get_glfw_key_state(key_code_t key) {
-    int state = glfwGetKey(window, key);
+    int state = glfwGetKey(game_window, key);
     if (state == GLFW_PRESS) {
         return KEY_STATE_DOWN;
     } else if (state == GLFW_RELEASE) {

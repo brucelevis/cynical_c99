@@ -1,0 +1,4 @@
+shader data/tests/default_sprite_shader.glsl
+
+texture main_texture ---
+mat4 MVP 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1

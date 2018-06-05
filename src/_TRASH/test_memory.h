@@ -6,6 +6,10 @@
 #define TEST_MEMORY
 
 #include <mem.h>
+#include <sys/types.h>
+#include <sys\timeb.h>
+#include <malloc.h>
+#include <time.h>
 #include "memory.h"
 
 typedef struct test_struct {
@@ -23,23 +27,40 @@ void test_memory() {
 
     printf("size: %i", sizeof(test_struct_t));
     
-    const int cont = 200;
-    test_struct_t *values[cont];
-
+    const int cont = 10000;
     printf("ALLOCATE\n");
     
+    clock_t malloc_start = clock();
+    
     for (int i = 0; i < cont; ++i) {
-
-        test_struct_t *test = medium_memory_alloc(sizeof(test_struct_t));
-        values[i] = test;
+        test_struct_t *test = malloc(sizeof(test_struct_t));
         
         strcpy(test->name, "TEMDISPONIVEL");
         test->a = 1;
         test->pointer = test;
-
-        printf("%i:\n", i);
-        print_test_struct(test);
     }
+
+    clock_t malloc_end = clock();
+
+    clock_t pool_start = clock();
+
+    for (int i = 0; i < cont; ++i) {
+
+        test_struct_t *test = medium_memory_alloc(sizeof(test_struct_t));
+        
+        strcpy(test->name, "TEMDISPONIVEL");
+        test->a = 1;
+        test->pointer = test;
+    }
+
+    clock_t pool_end = clock();
+    
+    double malloc_duration = malloc_end - malloc_start;
+    double pool_duration = pool_end - pool_start;
+    
+    printf("Malloc diff: %f - Pool time %f\n", malloc_duration / CLOCKS_PER_SEC, pool_duration/ CLOCKS_PER_SEC);
+    return;
+    /*
     
     printf("FREE\n");
 
@@ -91,7 +112,7 @@ void test_memory() {
     printf("TEMP FREE\n");
 
     reset_temp_memory_default();
-
+    
     printf("TEMP ALLOCATE\n");
 
     for (int i = 0; i < cont; ++i) {
@@ -107,7 +128,7 @@ void test_memory() {
         print_test_struct(test);
     }
 
-    printf("END\n");    
+    printf("END\n");    */
 }
 
 #endif

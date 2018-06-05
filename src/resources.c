@@ -256,7 +256,7 @@ bool update_config(const char *file_path, config_t *config) {
             fscanf(file, "%s", header_buffer);
             if (strcmp(header_buffer, "#resolution") == 0) {
                 state = read_resolution;
-            } else if (strcmp(header_buffer, "#window-title") == 0) {
+            } else if (strcmp(header_buffer, "#game_window-title") == 0) {
                 state = read_window_title;
             }
         } else {

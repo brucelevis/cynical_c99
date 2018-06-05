@@ -217,6 +217,7 @@ void set_vec2_uniform(const material_t *material, const char *uniform_name, vec2
 
 void use_material(const material_t *material);
 
+// TODO(temdisponivel): Do I need all these parameters?! Can't I just pass the aspect ratio and use default values for the others?!
 void create_camera_orthographic(float left, float right, float bottom, float top, float near_plane, float far_plane, camera_t *dest);
 
 void create_camera_perspective(float fov, float ratio, float near_plane, float far_plane, camera_t *dest);

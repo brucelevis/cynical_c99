@@ -199,7 +199,7 @@ material_t *get_material_resource(const char *material_path) {
     }
 
     if (material == null) {
-        material = (material_t *) enormous_memory_alloc(sizeof(material_t));
+        material = (material_t *) enormous_memory_alloc(sizeof(material));
         create_material_from_file(material_path, material);
 
         material_resource_t resource;

@@ -1,6 +1,7 @@
 /*
- * TODO: FIX DESTIONATION VECTORS - PASS THEM AS POINTERS
- */
+
+// TODO: FIX DESTIONATION VECTORS - PASS THEM AS POINTERS
+
 
 #include <stdio.h>
 #include "GL/glew.h"
@@ -24,19 +25,14 @@
 
 #endif
 
-// TODO(temdisponivel): Move engine related stuff into engine.c
-config_t engine_config = {};
-
 
 // TODO(temdisponivel): Remove me
 vec2_t screen_size;
 mesh_t quad;
 
-GLFWwindow *window;
-
 void update_engine_based_on_config() {
-    glfwSetWindowSize(window, (int) engine_config.resolution.x, (int) engine_config.resolution.y);
-    glfwSetWindowTitle(window, engine_config.window_title);
+    glfwSetWindowSize(game_window, (int) engine_config.resolution.x, (int) engine_config.resolution.y);
+    glfwSetWindowTitle(game_window, engine_config.window_title);
 }
 
 int main() {
@@ -45,13 +41,13 @@ int main() {
     
     glfwInit();
 
-    window = glfwCreateWindow(1024, 768, "Hello world!", NULL, NULL);
+    game_window = glfwCreateWindow(1024, 768, "Hello world!", NULL, NULL);
     
-    if (!window) {
+    if (!game_window) {
         return -1;
     }
 
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(game_window);
 
     glewInit();
     
@@ -110,7 +106,7 @@ int main() {
     texture_renderer_t texture_renderer;
     create_texture_renderer(texture, tex_mat, &texture_renderer);
     
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(game_window)) {
 
 #if DEV
         update_hot_reloader();
@@ -124,7 +120,7 @@ int main() {
         update_input();
 
         int width, height;
-        glfwGetWindowSize(window, &width, &height);
+        glfwGetWindowSize(game_window, &width, &height);
         
         screen_size.x = width;
         screen_size.y = height;
@@ -157,7 +153,7 @@ int main() {
         
         //glBindTexture(GL_TEXTURE_2D, 0);
         
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(game_window);
     }
 
     destroy_model(&quad_model);
@@ -166,8 +162,8 @@ int main() {
 
     CHECK_GL_ERROR();
 
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(game_window);
     glfwTerminate();
 
     return 0;
-}
+}*/

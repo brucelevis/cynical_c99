@@ -18,9 +18,9 @@ INLINE void trans_set(const vec3_t *pos, const vec3_t *scale, const quat_t *rota
 
 INLINE void trans_get_mat4(const transform_t *trans, mat4_t *dest) {
     mat4_identity(dest);
-    mat4_scale(dest, &trans->scale, dest);
-    quat_rotate_matrix(dest, &trans->rotation, dest);
     mat4_translate(dest, &trans->position, dest);
+    quat_rotate_matrix(dest, &trans->rotation, dest);
+    mat4_scale(dest, &trans->scale, dest);
 }
 
 INLINE void trans_get_forward(const transform_t *trans, vec3_t *dest){

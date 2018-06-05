@@ -16,6 +16,12 @@ typedef struct vec2 {
             float x;
             float y;
         };
+
+        struct {
+            float width;
+            float height;
+        };
+        
         float data[2];
     };
 } vec2_t;
@@ -257,6 +263,7 @@ INLINE void mat4_rotate(const mat4_t *mat, const quat_t *rotation, mat4_t *dest)
 
 // ================== TRANSFORM
 
+// TODO(temdisponivel): Make easier functions for this (not using pointers)
 INLINE transform_t trans_make(const vec3_t *pos, const vec3_t *scale, const quat_t *rotation);
 INLINE void trans_set(const vec3_t *pos, const vec3_t *scale, const quat_t *rotation, transform_t *dest);
 INLINE void trans_get_mat4(const transform_t *trans, mat4_t *dest);

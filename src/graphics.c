@@ -21,7 +21,6 @@
 static mat4_t view_proj = {};
 
 // TODO(temdisponivel): Remove me
-extern vec2_t screen_size;
 extern mesh_t quad;
 
 void reload_shader_sources(
@@ -110,20 +109,22 @@ model_t create_quad() {
     vec3_t *positions = (vec3_t *) vertices;
     vec2_t *uvs = (vec2_t *) (((void *) positions) + UV_BYTE_OFFSET(4));
     vec4_t *colors = (vec4_t *) (((void *) positions) + COLOR_BYTE_OFFSET(4));
+    
+    const float SIZE = .5f;
 
-    vec3_set(-.5f, -.5f, 0, &positions[0]);
+    vec3_set(-SIZE, -SIZE, 0, &positions[0]);
     VEC2_SET_ZERO(&uvs[0]);
     COLOR_SET_RED(&colors[0]);
 
-    vec3_set(.5f, -.5f, 0, &positions[1]);
+    vec3_set(SIZE, -SIZE, 0, &positions[1]);
     VEC2_SET_RIGH(&uvs[1]);
     COLOR_SET_GREEN(&colors[1]);
 
-    vec3_set(.5f, .5f, 0, &positions[2]);
+    vec3_set(SIZE, SIZE, 0, &positions[2]);
     VEC2_SET_ONE(&uvs[2]);
     COLOR_SET_BLUE(&colors[2]);
 
-    vec3_set(-.5f, .5f, 0, &positions[3]);
+    vec3_set(-SIZE, SIZE, 0, &positions[3]);
     VEC2_SET_UP(&uvs[3]);
     COLOR_SET_YELLOW(&colors[3]);
 
@@ -383,6 +384,8 @@ INLINE void cache_uniform_info(uniform_info_t *info, const char *name) {
 
 void create_material(const material_definition_t *definition, material_t *dest) {
 
+    // TODO(temdisponivel): Do not require the uniform to be define 
+    
     shader_t *shader = get_shader_resource(definition->shader_file);
 
     dest->shader = shader;
@@ -586,7 +589,7 @@ void camera_set_defaults(camera_t *dest) {
     quat_t rot = QUAT_MAKE_IDENTITY();
     trans_set(&pos, &scale, &rot, &dest->transform);
     dest->depth = -1;
-    dest->clear_color = COLOR_MAKE_CYAN();
+    dest->clear_color = COLOR_MAKE_BLACK();
     dest->clear_depth_only = false;
 }
 
@@ -635,11 +638,15 @@ void draw_texture_renderer(const texture_renderer_t *renderer, const transform_t
     vec2_t tex_size = renderer->size;
     float width_multiplier = 1 / screen_size.x;
     float height_multiplier = 1 / screen_size.y;
-
+    
     width_multiplier *= renderer->texture->texel_size;
     height_multiplier *= renderer->texture->texel_size;
 
-    vec3_t final_size = vec3_make(width_multiplier * tex_size.x, height_multiplier * tex_size.y, 1);
+    vec3_t final_size = vec3_make(
+            tex_size.x, 
+            tex_size.y, 
+            1
+    );
 
     transform_t helper;
     trans_set(&trans->position, &trans->scale, &trans->rotation, &helper);
