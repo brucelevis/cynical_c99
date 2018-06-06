@@ -593,9 +593,26 @@ void camera_set_defaults(camera_t *dest) {
     dest->clear_depth_only = false;
 }
 
+void create_camera_orthographic_default(float aspect_ratio, camera_t *dest) {
+    float size = .5f;
+    create_camera_orthographic(
+            -size * aspect_ratio, 
+            size * aspect_ratio,
+            -size,
+            size,
+            -100,
+            100,
+            dest
+    );
+}
+
 void create_camera_orthographic(float left, float right, float bottom, float top, float near_plane, float far_plane, camera_t *dest) {
     mat4_ortho(left, right, bottom, top, near_plane, far_plane, &dest->projection_matrix);
     camera_set_defaults(dest);
+}
+
+void create_camera_perspective_default(float aspect_ratio, camera_t *dest) {
+    create_camera_perspective(PI / 4, aspect_ratio, .01f, 100, dest);
 }
 
 void create_camera_perspective(float fov, float ratio, float near_plane, float far_plane, camera_t *dest) {
@@ -619,8 +636,16 @@ void use_camera(const camera_t *camera) {
     vec3_t camera_up;
     trans_get_up(&camera->transform, &camera_up);
     
+    vec3_t pos = camera->transform.position;
+    
+    float x_multiplier = 1 / screen_size.width;
+    float y_multiplier = 1 / screen_size.height;
+    
+    pos.x *= x_multiplier;
+    pos.y *= y_multiplier;
+    
     mat4_t view;
-    mat4_look(&camera->transform.position, &camera_dir, &camera_up, &view);
+    mat4_look(&pos, &camera_dir, &camera_up, &view);
     mat4_mul(&camera->projection_matrix, &view, &view_proj);
 }
 
@@ -639,12 +664,12 @@ void draw_texture_renderer(const texture_renderer_t *renderer, const transform_t
     float width_multiplier = 1 / screen_size.x;
     float height_multiplier = 1 / screen_size.y;
     
-    width_multiplier *= renderer->texture->texel_size;
+    width_multiplier  *=  renderer->texture->texel_size;
     height_multiplier *= renderer->texture->texel_size;
 
     vec3_t final_size = vec3_make(
-            tex_size.x, 
-            tex_size.y, 
+            tex_size.x * width_multiplier, 
+            tex_size.y * height_multiplier, 
             1
     );
 

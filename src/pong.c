@@ -45,11 +45,11 @@ int main() {
     float half_width = width / 2.f;
     float half_height = height / 2.f;
 
-    //half_width = 1.f;
-    //half_height = 1.f;
+    half_width = 1.f;
+    half_height = 1.f;
     
-    create_camera_orthographic(-half_width, half_width, -half_height, half_height, 100000, -100000, &game_camera);
-    //create_camera_perspective(RAD(45), width / (height * 1.f), .01f, 10000.f, &game_camera);
+    //create_camera_orthographic_default(screen_size.width / screen_size.height, &game_camera);
+    create_camera_perspective_default(screen_size.width / screen_size.height, &game_camera);
         
     vec3_t zero = vec3_make(0, 0, -.02f);
     vec3_t one = VEC3_MAKE_ONE();
@@ -67,31 +67,51 @@ int main() {
         glViewport(0, 0, width, height);
         
         if (get_key_down(KEY_RIGHT)) {
-            game_camera.transform.position.x += 1;
+            racket_left_trans.position.x += 10;
         } else if (get_key_down(KEY_LEFT)) {
-            game_camera.transform.position.x -= 1;
+            racket_left_trans.position.x -= 10;
         } else if (get_key_down(KEY_UP)) {
-            game_camera.transform.position.y += 1;
+            racket_left_trans.position.y += 10;
         } else if (get_key_down(KEY_DOWN)) {
-            game_camera.transform.position.y -= 1;
+            racket_left_trans.position.y -= 10;
+        }
+
+        if (get_key_down(KEY_D)) {
+            game_camera.transform.position.x += 10;
+        } else if (get_key_down(KEY_A)) {
+            game_camera.transform.position.x -= 10;
+        } else if (get_key_down(KEY_W)) {
+            game_camera.transform.position.y += 10;
+        } else if (get_key_down(KEY_S)) {
+            game_camera.transform.position.y -= 10;
         }
 
         use_camera(&game_camera);
-
-        racket_left_trans.position.y = 0;
-        racket_left_trans.position.x = -half_width;
-
-        vec3_t forward =  VEC3_MAKE_FORWARD();
-        quat_angle_axis(&forward, -RAD(30), &racket_left_trans.rotation);
         
-        vec3_scale(&racket_left_trans.scale, 1, &racket_left_trans.scale);
+        //racket_left_trans.position.y = 0;
+        //racket_left_trans.position.x = -(width / 2.f);
+        
+        vec3_t forward =  VEC3_MAKE_FORWARD();
+        //quat_angle_axis(&forward, -RAD(30), &racket_left_trans.rotation);
+    
+        racket_left_trans.position.z = -1;
+
+
+        printf("camera:\n");
+        PRINT_VEC3(game_camera.transform.position);
+
+        printf("racket:\n");
+        PRINT_VEC3(racket_left_trans.position);
+        
+        //game_camera.transform.position.y = -(screen_size.y / 2.f);
+        //vec3_set(2, 2, 2, &racket_left_trans.scale);
         /*
         racket_right_trans.position.y = height / 2;
         racket_right_trans.position.x = width - racket_texture->size.width;
         
         ball_trans.position.y = height / 2;
         ball_trans.position.x = (width / 2.f) - ball_texture->size.width / 2.f;*/
-        
+                
         //racket.size = vec2_make(width, height);
 
         draw_texture_renderer(&racket, &racket_left_trans);

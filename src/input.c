@@ -675,6 +675,7 @@ key_state_t get_key_state(key_code_t key) {
     }
 }
 
+// TODO(temdisponivel): FIX ME!!!
 bool get_key_pressed(key_code_t key) {
     key_state_t state = get_key_state(key);
     return state == KEY_STATE_PRESSED;

@@ -287,4 +287,10 @@ INLINE void rect_set(const vec2_t *position, const vec2_t *size, rect_t *rect);
 #include "transform.iln"
 #include "rect.iln"
 
+#define PRINT_VEC2(vec) printf("x: %f y: %f\n", vec.x, vec.y)
+#define PRINT_VEC3(vec) printf("x: %f y: %f z: %f\n", vec.x, vec.y, vec.z)
+#define PRINT_VEC4(vec) printf("x: %f y: %f z: %f w: %f\n ", vec.x, vec.y, vec.z, vec.w)
+
+// TODO(temdisponivel): Make functions to print these data types!!!
+
 #endif //RAW_GL_MATH_H

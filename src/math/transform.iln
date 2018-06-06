@@ -17,8 +17,19 @@ INLINE void trans_set(const vec3_t *pos, const vec3_t *scale, const quat_t *rota
 }
 
 INLINE void trans_get_mat4(const transform_t *trans, mat4_t *dest) {
+    vec3_t pos = trans->position;
+    
+    // TODO(temdisponivel): Will this work properly for perspective cameras?!!
+    // HARDCODE
+    // Get the screen size from somewhere
+    float x_multiplier = 1 / 1024.f;
+    float y_multiplier = 1 / 768.f;
+    
+    pos.x *= x_multiplier;
+    pos.y *= y_multiplier;    
+
     mat4_identity(dest);
-    mat4_translate(dest, &trans->position, dest);
+    mat4_translate(dest, &pos, dest);
     quat_rotate_matrix(dest, &trans->rotation, dest);
     mat4_scale(dest, &trans->scale, dest);
 }
