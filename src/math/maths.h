@@ -83,9 +83,11 @@ typedef struct transform {
 } transform_t;
 
 typedef struct rect {
-    vec2_t position;
+    vec2_t bottom_left;
     vec2_t size;
 } rect_t;
+
+extern vec2_t screen_size;
 
 // ============== FLOAT
 
@@ -102,6 +104,7 @@ INLINE vec2_t vec2_make(float x, float y);
 #define VEC2_MAKE_DOWN() vec2_make(0, -1)
 #define VEC2_MAKE_RIGH() vec2_make(1, 0)
 #define VEC2_MAKE_LEFT() vec2_make(-1, 0)
+#define VEC2_FROM_VEC3(vec) vec2_make(vec.x, vec.y);
 
 #define VEC2_SET_ONE(vec) vec2_set(1, 1, vec)
 #define VEC2_SET_ZERO(vec) vec2_set(0, 0, vec)
@@ -139,6 +142,7 @@ INLINE vec3_t vec3_make(float x, float y, float z);
 #define VEC3_MAKE_BACKWARD() vec3_make(0, 0, 1)
 #define VEC3_MAKE_RIGHT() vec3_make(1, 0, 0)
 #define VEC3_MAKE_LEFT() vec3_make(-1, 0, 0)
+#define VEC3_FROM_VEC2(vec) vec3_make(vec.x, vec.y, 0);
 
 #define VEC3_SET_ONE(vec) vec3_set(1, 1, 1, vec)
 #define VEC3_SET_ZERO(vec) vec3_set(0, 0, 0, vec)
@@ -266,6 +270,7 @@ INLINE void mat4_rotate(const mat4_t *mat, const quat_t *rotation, mat4_t *dest)
 // TODO(temdisponivel): Make easier functions for this (not using pointers)
 INLINE transform_t trans_make(const vec3_t *pos, const vec3_t *scale, const quat_t *rotation);
 INLINE void trans_set(const vec3_t *pos, const vec3_t *scale, const quat_t *rotation, transform_t *dest);
+INLINE void trans_identity(transform_t *dest);
 INLINE void trans_get_mat4(const transform_t *trans, mat4_t *dest);
 INLINE void trans_get_forward(const transform_t *trans, vec3_t *dest);
 INLINE void trans_get_up(const transform_t *trans, vec3_t *dest);
@@ -276,8 +281,9 @@ INLINE void trans_get_left(const transform_t *trans, vec3_t *dest);
 
 // ======================= RECT
 
-INLINE rect_t rect_make(const vec2_t *position, const vec2_t *size);
-INLINE void rect_set(const vec2_t *position, const vec2_t *size, rect_t *rect);
+INLINE rect_t rect_make(const vec2_t *bottom_left, const vec2_t *top_right);
+INLINE void rect_set(const vec2_t *bottom_left, const vec2_t *top_right, rect_t *rect);
+INLINE bool rect_touch(const rect_t *a, const rect_t *b);
 
 #include "vec2.iln"
 #include "vec3.iln"

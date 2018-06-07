@@ -16,14 +16,18 @@ INLINE void trans_set(const vec3_t *pos, const vec3_t *scale, const quat_t *rota
     vec4_cpy(rotation, &dest->rotation);
 }
 
+INLINE void trans_identity(transform_t *dest) {
+    vec3_t pos = VEC3_MAKE_ZERO();
+    vec3_t scale = VEC3_MAKE_ONE();
+    quat_t rot = QUAT_MAKE_IDENTITY();
+    trans_set(&pos, &scale, &rot, dest);
+}
+
 INLINE void trans_get_mat4(const transform_t *trans, mat4_t *dest) {
     vec3_t pos = trans->position;
     
-    // TODO(temdisponivel): Will this work properly for perspective cameras?!!
-    // HARDCODE
-    // Get the screen size from somewhere
-    float x_multiplier = 1 / 1024.f;
-    float y_multiplier = 1 / 768.f;
+    float x_multiplier = 1 / screen_size.x;
+    float y_multiplier = 1 / screen_size.y;
     
     pos.x *= x_multiplier;
     pos.y *= y_multiplier;    

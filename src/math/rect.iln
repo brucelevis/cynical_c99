@@ -1,12 +1,34 @@
 
-INLINE rect_t rect_make(const vec2_t *position, const vec2_t *size) {
+INLINE rect_t rect_make(const vec2_t *bottom_left, const vec2_t *size) {
     rect_t dest;
-    rect_set(position, size, &dest);
+    rect_set(bottom_left, size, &dest);
     return dest;
 }
 
-INLINE void rect_set(const vec2_t *position, const vec2_t *size, rect_t *rect) {
-    vec2_cpy(position, &rect->position);
+INLINE void rect_set(const vec2_t *bottom_left, const vec2_t *size, rect_t *rect) {
+    vec2_cpy(bottom_left, &rect->bottom_left);
     vec2_cpy(size, &rect->size);
 }
 
+INLINE bool rect_touch(const rect_t *a, const rect_t *b) {
+    vec2_t a_top_right = vec2_make(a->bottom_left.x + a->size.x, a->bottom_left.y + a->size.y);
+    vec2_t b_top_right = vec2_make(b->bottom_left.x + b->size.x, b->bottom_left.y + b->size.y);
+    
+    if (a_top_right.x < b->bottom_left.x) {
+        return false;
+    }
+    
+    if (a->bottom_left.x > b_top_right.x) {
+        return false;
+    }
+    
+    if (a->bottom_left.y > b_top_right.y) {
+        return false;
+    }
+    
+    if (a_top_right.y < b_top_right.y) {
+        return false;
+    }
+    
+    return true;
+}

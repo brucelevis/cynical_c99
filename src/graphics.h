@@ -180,6 +180,7 @@ typedef struct texture_renderer {
     const texture_t *texture;
     rect_t texture_area;
     vec2_t size;
+    vec2_t pivot;
     const material_t *material;
 } texture_renderer_t;
 
