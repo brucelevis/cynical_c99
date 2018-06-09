@@ -95,6 +95,7 @@ typedef struct rect {
     vec2_t size;
 } rect_t;
 
+// TODO(temdisponivel): Make this not be extern!
 extern vec2_t screen_size;
 
 // ============== FLOAT
@@ -229,7 +230,7 @@ INLINE void quat_normalize(const quat_t *a, quat_t *dest);
 #define COLOR_MAKE_BLACK() vec4_make(0, 0, 0, 1)
 #define COLOR_MAKE_RED() vec4_make(1, 0, 0, 1)
 #define COLOR_MAKE_GREEN() vec4_make(1, 0, 0, 1)
-#define COLOR_MAKE_BLUE() vec4_make(1, 0, 0, 1)
+#define COLOR_MAKE_BLUE() vec4_make(0, 0, 1, 1)
 #define COLOR_MAKE_YELLOW() vec4_make(1, 1, 0, 1)
 #define COLOR_MAKE_MAGENTA() vec4_make(1, 0, 1, 1)
 #define COLOR_MAKE_CYAN() vec4_make(0, 1, 1, 1)

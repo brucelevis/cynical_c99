@@ -10,7 +10,6 @@ INLINE void rect_set(const vec2_t *bottom_left, const vec2_t *size, rect_t *rect
     vec2_cpy(size, &rect->size);
 }
 
-// TODO(temdisponivel): Make this thing work regardless of the order of the parameters
 INLINE bool rect_touch(const rect_t *a, const rect_t *b) {
     vec2_t a_half_size;
     vec2_scale(&a->size, .5f, &a_half_size);

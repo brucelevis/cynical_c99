@@ -1,3 +1,4 @@
+/*
 //
 // Created by temdisponivel on 04/06/2018.
 //
@@ -9,7 +10,7 @@
 #include "input.h"
 #include "math/maths.h"
 
-#define DATA_FOLDER "data/tests/pong/"
+
 
 const int RACKET_SPEED = 500;
 const int BALL_SPEED = 300;
@@ -69,7 +70,7 @@ void setup_scene() {
     //create_camera_perspective_default(screen_size.width / screen_size.height, &game_camera);]
     
     ball.velocity.x = BALL_SPEED;
-    //ball.velocity.y = BALL_SPEED;
+    ball.velocity.y = BALL_SPEED;
     
     move_entity(&left_racket);
     move_entity(&right_racket);
@@ -169,7 +170,7 @@ void draw_entities() {
     draw_texture_renderer(&ball.texture, &ball.transform);
 }
 
-int main() {
+int _main() {
     
     // TODO(temdisponivel): Add hotreloader
     
@@ -213,4 +214,4 @@ int main() {
     }
     
     return 0;
-}
+}*/

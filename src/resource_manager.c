@@ -254,6 +254,8 @@ bool create_image_from_file(const char *image_path, image_t *dest) {
     strcpy(dest->file_path, image_path);
     dest->data = image_data;
     dest->size = vec2_make(width, height);
+    
+    return true;
 }
 
 void destroy_image(const image_t *image) {
@@ -275,7 +277,10 @@ image_t *get_image_resource(const char *image_path) {
 
     if (image == null) {
         image = enormous_memory_alloc(sizeof(image_t));
-        create_image_from_file(image_path, image);
+        if (!create_image_from_file(image_path, image)) {
+            ASSERT(false);
+            return null;
+        }
 
         image_resource_t resource;
         resource.image = image;

@@ -228,13 +228,13 @@ void set_vec2_uniform(const material_t *material, const char *uniform_name, vec2
 
 void use_material(const material_t *material);
 
-void create_camera_orthographic_default(float aspect_ratio, camera_t *dest);
+void create_camera_orthographic_default(camera_t *dest);
 void create_camera_orthographic(float left, float right, float bottom, float top, float near_plane, float far_plane, camera_t *dest);
 
 void create_camera_perspective_default(float aspect_ratio, camera_t *dest);
 void create_camera_perspective(float fov, float ratio, float near_plane, float far_plane, camera_t *dest);
 
-void use_camera(const camera_t *camera);
+void use_camera(camera_t *camera);
 
 rect_t get_camera_rect(const camera_t *camera);
 
