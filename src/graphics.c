@@ -635,12 +635,9 @@ void create_camera_perspective(float fov, float ratio, float near_plane, float f
 
 void use_camera(camera_t *camera) {
     set_default_orthographic_projection(camera);
-
-    uint clear_flags = GL_DEPTH_BUFFER_BIT;
-    if (!camera->clear_depth_only) {
-        clear_flags |= GL_COLOR_BUFFER_BIT;
-    }
     
+    // ========== VIEW PORT
+
     rect_t view_port = camera->view_port;
     
     rect_t real_view_port;
@@ -654,14 +651,30 @@ void use_camera(camera_t *camera) {
     real_view_port.bottom_left.x += screen_size.width / 2.f;
     real_view_port.bottom_left.y += screen_size.height / 2.f;
     
-    glViewport(real_view_port.bottom_left.x, real_view_port.bottom_left.y, real_view_port.size.width, real_view_port.size.height);
+    int x, y, width, height;
+    x = (int) real_view_port.bottom_left.x;
+    y = (int) real_view_port.bottom_left.y;
+    width = (int) real_view_port.size.width;
+    height = (int) real_view_port.size.height;
+    
+    glViewport(x, y, width, height);
+    glScissor(x, y, width, height);
 
-    glScissor(real_view_port.bottom_left.x, real_view_port.bottom_left.y, real_view_port.size.width, real_view_port.size.height);
+    // =========== CLEAR
+    
+    uint clear_flags = GL_DEPTH_BUFFER_BIT;
+    if (!camera->clear_depth_only) {
+        clear_flags |= GL_COLOR_BUFFER_BIT;
+    }
+
 
     glClearColor(camera->clear_color.r, camera->clear_color.g, camera->clear_color.b, camera->clear_color.a);
     glClearDepth(camera->depth);
     glClear(clear_flags);
 
+
+    // ========== MATRIX
+    
     vec3_t camera_dir;
     trans_get_forward(&camera->transform, &camera_dir);
 

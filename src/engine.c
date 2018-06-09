@@ -65,6 +65,10 @@ engine_init_status_t init_engine() {
 }
 
 void start_frame() {
+    glScissor(0, 0, screen_size.width, screen_size.height);
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
     start_time = glfwGetTime();
 
     update_screen_size();
