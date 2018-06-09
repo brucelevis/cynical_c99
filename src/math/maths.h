@@ -293,13 +293,13 @@ INLINE void rect_set(const vec2_t *bottom_left, const vec2_t *top_right, rect_t 
 INLINE bool rect_touch(const rect_t *a, const rect_t *b);
 INLINE vec2_t rect_get_top_right(const rect_t *a);
 
-#include "vec2.iln"
-#include "vec3.iln"
-#include "vec4.iln"
-#include "mat4.iln"
-#include "quat.iln"
-#include "transform.iln"
-#include "rect.iln"
+#include "vec2.h"
+#include "vec3.h"
+#include "vec4.h"
+#include "mat4.h"
+#include "quat.h"
+#include "transform.h"
+#include "rect.h"
 
 #define PRINT_VEC2(vec) printf("x: %f y: %f\n", vec.x, vec.y)
 #define PRINT_VEC3(vec) printf("x: %f y: %f z: %f\n", vec.x, vec.y, vec.z)

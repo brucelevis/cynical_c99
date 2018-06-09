@@ -32,5 +32,13 @@ engine_init_status_t init_engine() {
     quad = create_mesh(&quad_model);
     destroy_model(&quad_model);
     
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);    
+        
+    // Disable V-Sync
+    glfwSwapInterval(0);
+    
+     // TODO(temdisponivel): Create the ability to enable/disable depth test
+    
     return ENGINE_INIT_OK;
 }

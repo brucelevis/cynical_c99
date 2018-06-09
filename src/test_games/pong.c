@@ -30,13 +30,17 @@ entity_t left_racket;
 entity_t right_racket;
 entity_t ball;
 
+double time_to_move_ball;
+
 camera_t game_camera;
 
 void move_entity(entity_t *entity) {
     entity->transform.position.x += entity->velocity.x * delta_time;
     entity->transform.position.y += entity->velocity.y * delta_time;
 
-    entity->rect.bottom_left = entity->transform.position.xy;
+    vec2_t half_size;
+    vec2_scale(&entity->texture.size, .5f, &half_size);
+    vec2_sub(&entity->transform.position.xy, &half_size, &entity->rect.bottom_left);
 }
 
 void setup_scene() {
@@ -65,7 +69,7 @@ void setup_scene() {
     //create_camera_perspective_default(screen_size.width / screen_size.height, &game_camera);]
     
     ball.velocity.x = BALL_SPEED;
-    ball.velocity.y = BALL_SPEED;
+    //ball.velocity.y = BALL_SPEED;
     
     move_entity(&left_racket);
     move_entity(&right_racket);
@@ -129,7 +133,8 @@ void update_entities() {
     } else if (top_right.y >= half_screen_size.y) {
         ball.velocity.y *= -1;
     }
-    
+
+    bool scored = false;
     if (rect_touch(&left_racket.rect, &ball.rect)) {
         ball.velocity.x *= -1;
     } else if (rect_touch(&right_racket.rect, &ball.rect)) {
@@ -138,15 +143,24 @@ void update_entities() {
         if (ball.rect.bottom_left.x >= half_screen_size.width) {
             left_points++;
             printf("Left scored!\n");
-            ball.transform.position = VEC3_MAKE_ZERO();
+            scored = true;
         } else if (ball.rect.bottom_left.x <= -half_screen_size.width) {
             right_points++;
             printf("Right scored!\n");
-            ball.transform.position = VEC3_MAKE_ZERO();
+            scored = true;
         }
     }
+
+    if (scored) {
+        ball.transform.position = VEC3_MAKE_ZERO();
+        time_to_move_ball = glfwGetTime() + 1;
+        ball.rect.bottom_left = ball.transform.position.xy;
+    }
     
-    move_entity(&ball);
+    double time = glfwGetTime();
+    if (time >= time_to_move_ball) {
+        move_entity(&ball);
+    }
 }
 
 void draw_entities() {
