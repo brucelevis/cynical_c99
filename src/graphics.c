@@ -110,7 +110,7 @@ model_t create_quad() {
     vec2_t *uvs = (vec2_t *) (((void *) positions) + UV_BYTE_OFFSET(4));
     vec4_t *colors = (vec4_t *) (((void *) positions) + COLOR_BYTE_OFFSET(4));
 
-    const float SIZE = .5f;
+    const float SIZE = 1.f;
 
     vec3_set(-SIZE, -SIZE, 0, &positions[0]);
     VEC2_SET_ZERO(&uvs[0]);
@@ -593,10 +593,15 @@ void camera_set_defaults(camera_t *dest) {
     dest->depth = -1;
     dest->clear_color = COLOR_MAKE_BLACK();
     dest->clear_depth_only = false;
+    
+    vec2_t bottom_left = vec2_make(-.5f, -.5f);
+    vec2_t size = VEC2_MAKE_ONE();
+    dest->view_port = rect_make(&bottom_left, &size);
 }
 
 void set_default_orthographic_projection(camera_t *camera) {
-    float size = .5f;
+    // TODO(temdisponivel): Maybe we should make the 0 0 be the bottom_left
+    float size = 1.f;
     mat4_ortho(
             -size * aspect_ratio,
             size * aspect_ratio,
@@ -614,8 +619,7 @@ void create_camera_orthographic_default(camera_t *dest) {
     camera_set_defaults(dest);
 }
 
-void create_camera_orthographic(float left, float right, float bottom, float top, float near_plane, float far_plane,
-                                camera_t *dest) {
+void create_camera_orthographic(float left, float right, float bottom, float top, float near_plane, float far_plane, camera_t *dest) {
     mat4_ortho(left, right, bottom, top, near_plane, far_plane, &dest->projection_matrix);
     camera_set_defaults(dest);
 }
@@ -636,6 +640,23 @@ void use_camera(camera_t *camera) {
     if (!camera->clear_depth_only) {
         clear_flags |= GL_COLOR_BUFFER_BIT;
     }
+    
+    rect_t view_port = camera->view_port;
+    
+    rect_t real_view_port;
+    real_view_port.bottom_left.x = view_port.bottom_left.x * screen_size.x;
+    real_view_port.bottom_left.y = view_port.bottom_left.y * screen_size.y;
+    
+    real_view_port.size.width =  view_port.size.width  * screen_size.width;
+    real_view_port.size.height = view_port.size.height * screen_size.height;
+
+    // Transform to opengl coordinates
+    real_view_port.bottom_left.x += screen_size.width / 2.f;
+    real_view_port.bottom_left.y += screen_size.height / 2.f;
+    
+    glViewport(real_view_port.bottom_left.x, real_view_port.bottom_left.y, real_view_port.size.width, real_view_port.size.height);
+
+    glScissor(real_view_port.bottom_left.x, real_view_port.bottom_left.y, real_view_port.size.width, real_view_port.size.height);
 
     glClearColor(camera->clear_color.r, camera->clear_color.g, camera->clear_color.b, camera->clear_color.a);
     glClearDepth(camera->depth);

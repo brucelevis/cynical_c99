@@ -174,6 +174,8 @@ typedef struct camera_t {
     bool clear_depth_only;
     color_t clear_color;
     int depth;
+    
+    rect_t view_port;
 } camera_t;
 
 // TODO(temdisponivel): Make functions to set this pivots

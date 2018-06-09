@@ -19,6 +19,17 @@ float aspect_ratio;
 
 static double start_time, end_time;
 
+INLINE void update_screen_size() {
+    // NOTE(temdisponivel): This will actually not be needed, because the game_window will not be resizable through operational system, only inside the game
+    int width, height;
+    glfwGetWindowSize(game_window, &width, &height);
+
+    screen_size.width = width;
+    screen_size.height = height;
+
+    aspect_ratio = screen_size.width / screen_size.height;    
+}
+
 engine_init_status_t init_engine() {
     create_default_memory_pool();
 
@@ -30,6 +41,8 @@ engine_init_status_t init_engine() {
         return ENGINE_INIT_CANNOT_CREATE_WINDOW;
     }
 
+    update_screen_size();
+
     glfwMakeContextCurrent(game_window);
 
     glewInit();
@@ -39,7 +52,9 @@ engine_init_status_t init_engine() {
     destroy_model(&quad_model);
     
     glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);    
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glEnable(GL_SCISSOR_TEST);
         
     // Disable V-Sync
     glfwSwapInterval(0);
@@ -52,17 +67,7 @@ engine_init_status_t init_engine() {
 void start_frame() {
     start_time = glfwGetTime();
 
-    // NOTE(temdisponivel): This will actually not be needed, because the game_window will not be resizable through operational system, only inside the game
-    int width, height;
-    glfwGetWindowSize(game_window, &width, &height);
-    
-    // TODO(temdisponivel): Move viewport to camera
-    glViewport(0, 0, width, height);
-
-    screen_size.width = width;
-    screen_size.height = height;
-    
-    aspect_ratio = screen_size.width / screen_size.height;
+    update_screen_size();
 
     update_input();
 
