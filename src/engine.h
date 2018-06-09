@@ -23,9 +23,7 @@ typedef enum engine_init_status {
 
 extern config_t engine_config;
 GLFWwindow *game_window;
-
-// TODO(temdisponivel): This must be visible by everyone!
-extern vec2_t screen_size;
+vec2_t screen_size;
 mesh_t quad;
 
 engine_init_status_t init_engine();

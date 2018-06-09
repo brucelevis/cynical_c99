@@ -23,7 +23,6 @@ out vec4 out_color;
 
 void main() {
     out_color = texture(main_texture, frag_uv);
-    out_color = vec4(1, 0, 0, 1);
 }
 
 #end_fragment

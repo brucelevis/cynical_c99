@@ -10,9 +10,10 @@ INLINE void rect_set(const vec2_t *bottom_left, const vec2_t *size, rect_t *rect
     vec2_cpy(size, &rect->size);
 }
 
+// TODO(temdisponivel): Make this thing work regardless of the order of the parameters
 INLINE bool rect_touch(const rect_t *a, const rect_t *b) {
-    vec2_t a_top_right = vec2_make(a->bottom_left.x + a->size.x, a->bottom_left.y + a->size.y);
-    vec2_t b_top_right = vec2_make(b->bottom_left.x + b->size.x, b->bottom_left.y + b->size.y);
+    vec2_t a_top_right = rect_get_top_right(a);
+    vec2_t b_top_right = rect_get_top_right(b);
     
     if (a_top_right.x < b->bottom_left.x) {
         return false;
@@ -31,4 +32,8 @@ INLINE bool rect_touch(const rect_t *a, const rect_t *b) {
     }
     
     return true;
+}
+
+INLINE vec2_t rect_get_top_right(const rect_t *a) {
+    return vec2_make(a->bottom_left.x + a->size.x, a->bottom_left.y + a->size.y);
 }

@@ -679,7 +679,7 @@ void draw_texture_renderer(const texture_renderer_t *renderer, const transform_t
     
     transform_t helper;
     
-    vec3_t pivot = VEC3_FROM_VEC2(renderer->pivot);
+    vec3_t pivot = vec3_make(renderer->pivot.x, renderer->pivot.y, 0);
     vec3_t pos;
     vec3_add(&trans->position, &pivot, &pos);
     

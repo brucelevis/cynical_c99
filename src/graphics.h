@@ -176,6 +176,16 @@ typedef struct camera_t {
     int depth;
 } camera_t;
 
+// TODO(temdisponivel): Make functions to set this pivots
+typedef enum texture_pivots {
+    TEX_PIVOT_CENTER,
+    TEX_PIVOT_BOTTOM_LEFT,
+    TEX_PIVOT_BOTTOM_RIGHT,
+    TEX_PIVOT_TOP_LEFT,
+    TEX_PIVOT_TOP_RIGHT,
+    TEX_PIVOT_DEFAULT = TEX_PIVOT_CENTER
+} texture_pivots_t;
+
 typedef struct texture_renderer {
     const texture_t *texture;
     rect_t texture_area;
@@ -225,6 +235,8 @@ void create_camera_perspective_default(float aspect_ratio, camera_t *dest);
 void create_camera_perspective(float fov, float ratio, float near_plane, float far_plane, camera_t *dest);
 
 void use_camera(const camera_t *camera);
+
+rect_t get_camera_rect(const camera_t *camera);
 
 void create_texture_renderer(const texture_t *texture, const material_t *material, texture_renderer_t *dest);
 void draw_texture_renderer(const texture_renderer_t *renderer, const transform_t *trans);

@@ -4,8 +4,7 @@
 
 #include "resources.h"
 #include "file.h"
-
-
+#include <mem.h>
 
 bool read_shader_file(
         const char *file_path,
@@ -122,7 +121,7 @@ bool read_shader_file(
         }
     }
 
-#if DEV
+#if DEV && 0
     printf("Vertex shader: \n '%s' \n", start_vertex_buffer);
     printf("Fragment shader: \n '%s' \n", start_frag_buffer);
 #endif

@@ -11,7 +11,13 @@
 
 #define DATA_FOLDER "data/tests/pong/"
 
-const int RACKET_SPEED = 10;
+const int RACKET_SPEED = 500;
+const int BALL_SPEED = 300;
+float delta_time;
+float aspect_ratio;
+vec2_t half_screen_size;
+
+float left_points, right_points;
 
 typedef struct entity {
     transform_t transform;
@@ -25,6 +31,13 @@ entity_t right_racket;
 entity_t ball;
 
 camera_t game_camera;
+
+void move_entity(entity_t *entity) {
+    entity->transform.position.x += entity->velocity.x * delta_time;
+    entity->transform.position.y += entity->velocity.y * delta_time;
+
+    entity->rect.bottom_left = entity->transform.position.xy;
+}
 
 void setup_scene() {
     material_t *material = get_material_resource(DATA_FOLDER "pong_sprite_material.mat_def");
@@ -44,18 +57,21 @@ void setup_scene() {
     trans_identity(&right_racket.transform);
     trans_identity(&ball.transform);
     
-    left_racket.transform.position.x = -screen_size.x / 2.f;
-    right_racket.transform.position.x = screen_size.x / 2.f;
+    float aspect_ratio = screen_size.width / screen_size.height;
+    left_racket.transform.position.x = ((-screen_size.width / 2.f) * aspect_ratio) + racket_texture->size.width / 2.f;
+    right_racket.transform.position.x = ((screen_size.width / 2.f) * aspect_ratio) - racket_texture->size.width / 2.f;
 
     create_camera_orthographic_default(screen_size.width / screen_size.height, &game_camera);
     //create_camera_perspective_default(screen_size.width / screen_size.height, &game_camera);]
-}
-
-void move_entity(entity_t *entity) {
-    entity->transform.position.x += entity->velocity.x;
-    entity->transform.position.y += entity->velocity.y;
     
-    entity->rect.bottom_left = VEC2_FROM_VEC3(entity->transform.position);
+    ball.velocity.x = BALL_SPEED;
+    ball.velocity.y = BALL_SPEED;
+    
+    move_entity(&left_racket);
+    move_entity(&right_racket);
+    
+    left_points = 0;
+    right_points = 0;
 }
 
 void update_entities() {
@@ -69,7 +85,7 @@ void update_entities() {
         left_racket.velocity.y = -RACKET_SPEED;
         move_entity(&left_racket);
     }
-
+    
     if (get_key_down(KEY_UP)) {
         right_racket.velocity.y = RACKET_SPEED;
         move_entity(&right_racket);
@@ -79,6 +95,31 @@ void update_entities() {
         right_racket.velocity.y = -RACKET_SPEED;
         move_entity(&right_racket);
     }
+
+    vec2_t top_right = rect_get_top_right(&ball.rect);
+    if (ball.rect.bottom_left.y <= -half_screen_size.height ) {
+        ball.velocity.y *= -1;
+    } else if (top_right.y >= half_screen_size.y) {
+        ball.velocity.y *= -1;
+    }
+    
+    if (rect_touch(&left_racket.rect, &ball.rect)) {
+        ball.velocity.x *= -1;
+    } else if (rect_touch(&right_racket.rect, &ball.rect)) {
+        ball.velocity.x *= -1;
+    } else {
+        if (ball.rect.bottom_left.x >= half_screen_size.width) {
+            left_points++;
+            printf("Left scored!\n");
+            ball.transform.position = VEC3_MAKE_ZERO();
+        } else if (ball.rect.bottom_left.x <= -half_screen_size.width) {
+            right_points++;
+            printf("Right scored!\n");
+            ball.transform.position = VEC3_MAKE_ZERO();
+        }
+    }
+    
+    move_entity(&ball);
 }
 
 void draw_entities() {
@@ -103,12 +144,16 @@ int main() {
     
     setup_scene();
     
-    while (!glfwWindowShouldClose(game_window)) {        
+    while (!glfwWindowShouldClose(game_window)) {
+        float start_time = glfwGetTime();
         update_input();
         
         glfwGetWindowSize(game_window, &width, &height);
         screen_size.width = width;
         screen_size.height = height;
+        aspect_ratio = screen_size.width / screen_size.height;
+        vec2_scale(&screen_size, .5f, &half_screen_size);
+        half_screen_size.x *= aspect_ratio;
         
         glViewport(0, 0, width, height);
         
@@ -119,6 +164,9 @@ int main() {
         draw_entities();
         
         glfwSwapBuffers(game_window);
+        float end_time = glfwGetTime();
+        
+        delta_time = end_time - start_time;
     }
     
     return 0;
