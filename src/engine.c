@@ -18,7 +18,7 @@ engine_init_status_t init_engine() {
 
     glfwInit();
 
-    game_window = glfwCreateWindow(1024, 768, "Hello world!", NULL, NULL);
+    game_window = glfwCreateWindow(1600, 1024, "Hello world!", NULL, NULL);
 
     if (!game_window) {
         return ENGINE_INIT_CANNOT_CREATE_WINDOW;

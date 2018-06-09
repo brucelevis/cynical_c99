@@ -13,7 +13,7 @@
 
 const int RACKET_SPEED = 500;
 const int BALL_SPEED = 300;
-float delta_time;
+double delta_time;
 float aspect_ratio;
 vec2_t half_screen_size;
 
@@ -74,26 +74,53 @@ void setup_scene() {
     right_points = 0;
 }
 
+typedef enum direction {
+    UP,
+    DOWN
+} direction_t;
+
+bool can_move_racket(const entity_t *racket, direction_t direction) {
+    float y = racket->transform.position.y;
+    if (direction == UP) {
+        y += racket->texture.size.height / 2.f;
+        return y < half_screen_size.height;
+    } else {
+        y -= racket->texture.size.height / 2.f;
+        return y > -half_screen_size.height;
+    }
+}
+
 void update_entities() {
+
+    left_racket.transform.position.x = (-half_screen_size.width) + left_racket.texture.size.width / 2.f;
+    right_racket.transform.position.x = (half_screen_size.width) - right_racket.texture.size.width / 2.f;
+    
     if (get_key_down(KEY_W)) {
-        left_racket.velocity.y = RACKET_SPEED;
-        if (left_racket.transform.position.y < (screen_size.y / 2.f))
+        if (can_move_racket(&left_racket, UP)) {
+            left_racket.velocity.y = RACKET_SPEED;
             move_entity(&left_racket);
+        }
     }
 
     if (get_key_down(KEY_S)) {
-        left_racket.velocity.y = -RACKET_SPEED;
-        move_entity(&left_racket);
+        if (can_move_racket(&left_racket, DOWN)) {
+            left_racket.velocity.y = -RACKET_SPEED;
+            move_entity(&left_racket);
+        }
     }
     
     if (get_key_down(KEY_UP)) {
-        right_racket.velocity.y = RACKET_SPEED;
-        move_entity(&right_racket);
+        if (can_move_racket(&right_racket, UP)) {
+            right_racket.velocity.y = RACKET_SPEED;
+            move_entity(&right_racket);
+        }
     }
 
     if (get_key_down(KEY_DOWN)) {
-        right_racket.velocity.y = -RACKET_SPEED;
-        move_entity(&right_racket);
+        if (can_move_racket(&right_racket, DOWN)) {
+            right_racket.velocity.y = -RACKET_SPEED;
+            move_entity(&right_racket);
+        }
     }
 
     vec2_t top_right = rect_get_top_right(&ball.rect);
@@ -143,9 +170,11 @@ int main() {
     screen_size.height = height;
     
     setup_scene();
-    
+
+    double start_time = 0, end_time = 0;
     while (!glfwWindowShouldClose(game_window)) {
-        float start_time = glfwGetTime();
+        delta_time = end_time - start_time;
+        start_time = glfwGetTime();
         update_input();
         
         glfwGetWindowSize(game_window, &width, &height);
@@ -154,6 +183,8 @@ int main() {
         aspect_ratio = screen_size.width / screen_size.height;
         vec2_scale(&screen_size, .5f, &half_screen_size);
         half_screen_size.x *= aspect_ratio;
+        
+        create_camera_orthographic_default(aspect_ratio, &game_camera);
         
         glViewport(0, 0, width, height);
         
@@ -164,9 +195,7 @@ int main() {
         draw_entities();
         
         glfwSwapBuffers(game_window);
-        float end_time = glfwGetTime();
-        
-        delta_time = end_time - start_time;
+        end_time = glfwGetTime();
     }
     
     return 0;
