@@ -147,11 +147,21 @@ void update_entities() {
         if (was_key_just_pressed(KEY_SPACE)) {
             printf("used: %i \n", used_projectiles);
             
-            projectiles[used_projectiles].active = true;
+            entity_t *projectile = &projectiles[used_projectiles];
+            projectile->active = true;
             
             vec3_t up;
             trans_get_up(&player->transform, &up);
-            vec3_scale(&up, PROJECTILE_VELOCITY, &projectiles[used_projectiles].velocity);
+            vec3_scale(&up, PROJECTILE_VELOCITY, &projectile->velocity);
+            vec3_add(&projectile->velocity, &player->velocity, &projectile->velocity);
+            projectile->transform.rotation = player->transform.rotation;
+            
+            vec3_scale(&up, player->texture.size.height, &up);
+            
+            vec3_t offset;
+            vec3_add(&player->transform.position, &up, &offset);
+            projectile->transform.position = offset;
+            
             used_projectiles++;
         }
     }
