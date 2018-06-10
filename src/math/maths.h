@@ -97,6 +97,7 @@ typedef struct rect {
 
 // TODO(temdisponivel): Make this not be extern!
 extern vec2_t screen_size;
+extern float aspect_ratio;
 
 // ============== FLOAT
 

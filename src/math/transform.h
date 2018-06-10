@@ -2,8 +2,6 @@
 // Created by temdisponivel on 25/05/2018.
 //
 
-#include "maths.h"
-
 INLINE transform_t trans_make(const vec3_t *pos, const vec3_t *scale, const quat_t *rotation) {
     transform_t dest;
     trans_set(pos, scale, rotation, &dest);

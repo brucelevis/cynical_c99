@@ -133,10 +133,10 @@ typedef enum {
 } key_code_t;
 
 typedef enum {
-    KEY_STATE_NORMAL,
-    KEY_STATE_PRESSED,
-    KEY_STATE_UP,
-    KEY_STATE_DOWN
+    KEY_STATE_NORMAL, // NOT PRESSED AT ALL (NORMAL STATE)
+    KEY_STATE_DOWN, // PRESSED THROUGH MULTIPLE FRAME
+    KEY_STATE_JUST_PRESSED,  // KEY WAS PRESSED ON THE CURRENT FRAME
+    KEY_STATE_JUST_RELEASED,  // KEY WAS RELEASED ON THIS FRAME
 } key_state_t;
 
 typedef struct input_state {
@@ -266,10 +266,10 @@ key_state_t get_key_state(key_code_t key);
 
 void update_input();
 
-bool get_key_pressed(key_code_t key);
+bool was_key_just_pressed(key_code_t key);
 
-bool get_key_up(key_code_t key);
+bool was_key_just_released(key_code_t key);
 
-bool get_key_down(key_code_t key);
+bool is_key_down(key_code_t key);
 
 #endif //RAW_GL_INPUT_H

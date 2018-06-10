@@ -614,7 +614,6 @@ void set_default_orthographic_projection(camera_t *camera) {
 }
 
 void create_camera_orthographic_default(camera_t *dest) {
-    float size = .5f;
     set_default_orthographic_projection(dest);
     camera_set_defaults(dest);
 }
@@ -706,8 +705,8 @@ void create_texture_renderer(const texture_t *texture, const material_t *materia
 
 void draw_texture_renderer(const texture_renderer_t *renderer, const transform_t *trans) {
     vec2_t tex_size = renderer->size;
-    float width_multiplier = 1 / screen_size.x;
-    float height_multiplier = 1 / screen_size.y;
+    float width_multiplier = 1 / screen_size.width;
+    float height_multiplier = 1 / screen_size.height;
 
     width_multiplier *= renderer->texture->texel_size;
     height_multiplier *= renderer->texture->texel_size;
@@ -724,6 +723,7 @@ void draw_texture_renderer(const texture_renderer_t *renderer, const transform_t
     vec3_t pos;
     vec3_add(&trans->position, &pivot, &pos);
 
+    pos.x *= aspect_ratio;
     trans_set(&pos, &trans->scale, &trans->rotation, &helper);
     vec3_scale_vec3(&helper.scale, &final_size, &helper.scale);
 

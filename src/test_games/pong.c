@@ -121,7 +121,7 @@ void update_entities() {
         }
     }
 
-    if (get_key_down(KEY_DOWN)) {
+    if (is_key_down(KEY_DOWN)) {
         if (can_move_racket(&right_racket, DOWN)) {
             right_racket.velocity.y = -RACKET_SPEED;
             move_entity(&right_racket);
