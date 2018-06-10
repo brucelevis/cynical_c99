@@ -160,6 +160,8 @@ INLINE vec3_t vec3_make(float x, float y, float z);
 #define VEC3_SET_RIGHT(vec) vec3_set(1, 0, 0, vec)
 #define VEC3_SET_LEFT(vec) vec3_set(-1, 0, 0, vec)
 
+#define VEC3_FROM_VEC2(vec) vec3_make(vec.x, vec.y, 0)
+
 INLINE void vec3_set(float x, float y, float z, vec3_t *dest);
 INLINE void vec3_cpy(const vec3_t *src, vec3_t *dest);
 INLINE void vec3_add(const vec3_t *a, const vec3_t *b, vec3_t *dest);

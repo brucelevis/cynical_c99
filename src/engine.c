@@ -65,6 +65,9 @@ engine_init_status_t init_engine() {
 }
 
 void start_frame() {
+    // NOTE(temdisponivel): Maybe we should not clear the screen here. Maybe the game wants to use the color buffer from the previous frame or something. This basically overrides the depth-only property of cameras!
+    
+    // Clear the whole screen before using any camera
     glScissor(0, 0, screen_size.width, screen_size.height);
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);

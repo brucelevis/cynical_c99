@@ -667,11 +667,9 @@ void use_camera(camera_t *camera) {
         clear_flags |= GL_COLOR_BUFFER_BIT;
     }
 
-
     glClearColor(camera->clear_color.r, camera->clear_color.g, camera->clear_color.b, camera->clear_color.a);
     glClearDepth(camera->depth);
     glClear(clear_flags);
-
 
     // ========== MATRIX
     
