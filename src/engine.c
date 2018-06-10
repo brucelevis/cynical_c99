@@ -17,7 +17,7 @@ float delta_time;
 vec2_t screen_size;
 float aspect_ratio;
 
-static double start_time, end_time;
+static double end_time;
 
 INLINE void update_screen_size() {
     // NOTE(temdisponivel): This will actually not be needed, because the game_window will not be resizable through operational system, only inside the game
@@ -72,7 +72,7 @@ void start_frame() {
     glClearColor(0, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
     
-    start_time = glfwGetTime();
+    current_time = (float) glfwGetTime();
 
     update_screen_size();
 
@@ -85,5 +85,5 @@ void end_frame() {
     glfwSwapBuffers(game_window);
     
     end_time = glfwGetTime();    
-    delta_time = (float) (end_time - start_time);
+    delta_time = (float) (end_time - current_time);
 }

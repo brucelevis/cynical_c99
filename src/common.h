@@ -36,6 +36,8 @@ typedef char bool;
 #define CREATE_TEMP_NAMED_STR_BUFFER(name) char name[TEMP_STR_BUFFER_LEN]
 #define CLEAR_TEMP_NAMED_STR_BUFFER(name) memset(name, 0, TEMP_STR_BUFFER_LEN * sizeof(char))
 
+#define RANDOM() (rand() / (RAND_MAX * 1.f))
+
 #define array_move_to_left(array, array_len, start_index) {\
     uint len = (*(array_len));\
     for (int j = (start_index); j < len; ++j) {\

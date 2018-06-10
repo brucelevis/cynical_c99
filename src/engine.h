@@ -26,6 +26,7 @@ extern config_t engine_config;
 GLFWwindow *game_window;
 mesh_t quad;
 float delta_time;
+float current_time;
 vec2_t screen_size;
 float aspect_ratio;
 bool should_quit;

@@ -157,10 +157,6 @@ void update_input() {
     
     last_frame = current_frame;
     update_input_state(&last_frame, &current_frame);
-    
-    if (current_frame.key_space == KEY_STATE_JUST_PRESSED) {
-        printf("space just pressed!\n");
-    }
 }
 
 key_state_t get_key_state(key_code_t key) {
