@@ -346,6 +346,7 @@ void update_texture_data(uint handle, const image_t *image) {
     );
     CHECK_GL_ERROR();
 
+
     // TODO: parameterize this
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -400,7 +401,10 @@ void create_material(const material_definition_t *definition, material_t *dest) 
     ASSERT(dest->texture_uniforms_len < MAX_TEXTURES);
 
     dest->vec2_uniforms_len = definition->vec2s_len;
-    ASSERT(dest->vec2_uniforms_len < MAX_FLOATS);
+    ASSERT(dest->vec2_uniforms_len < MAX_VEC2S);
+
+    dest->vec4_uniforms_len = definition->vec4s_len;
+    ASSERT(dest->vec4_uniforms_len < MAX_VEC4S);
 
     // ============= FLOAT
 
@@ -464,6 +468,19 @@ void create_material(const material_definition_t *definition, material_t *dest) 
 
         dest->vec2_uniforms[i] = vec2_uni;
     }
+
+    // ============= VEC4
+
+    for (int i = 0; i < definition->vec4s_len; ++i) {
+        vec4_uniform_definition_t vec4_def = definition->vec4s[i];
+
+        vec4_uniform_t vec4_uni;
+        cache_uniform_info(&vec4_uni.info, vec4_def.uniform_name);
+
+        vec4_uni.value = vec4_def.default_value;
+
+        dest->vec4_uniforms[i] = vec4_uni;
+    }
 }
 
 void destroy_material(const material_t *material) {
@@ -523,6 +540,16 @@ void use_material(const material_t *material) {
 
     CHECK_GL_ERROR();
 
+    for (int i = 0; i < material->vec4_uniforms_len; ++i) {
+        vec4_uniform_t uniform = material->vec4_uniforms[i];
+        int loc = glGetUniformLocation(material->shader->handle, uniform.info.name);
+        if (loc >= 0) {
+            glUniform4fv(loc, 1, &uniform.value.data);
+        }
+    }
+
+    CHECK_GL_ERROR();
+    
     // TODO(temdisponivel): Should I create a function that will unbind all these uniforms?!
 }
 
@@ -574,6 +601,22 @@ void set_vec2_uniform(const material_t *material, const char *uniform_name, vec2
     int hashed_name = hash_string(uniform_name);
     for (int i = 0; i < material->vec2_uniforms_len; ++i) {
         vec2_uniform_t *uniform = &material->vec2_uniforms[i];
+        if (uniform->info.hashed_name == hashed_name) {
+            uniform->value = value;
+            found = true;
+        }
+    }
+
+#if VERBOSE_DEV
+    ASSERT(found);
+#endif
+}
+
+void set_vec4_uniform(const material_t *material, const char *uniform_name, vec4_t value) {
+    bool found = false;
+    int hashed_name = hash_string(uniform_name);
+    for (int i = 0; i < material->vec4_uniforms_len; ++i) {
+        vec4_uniform_t *uniform = &material->vec4_uniforms[i];
         if (uniform->info.hashed_name == hashed_name) {
             uniform->value = value;
             found = true;
@@ -735,4 +778,13 @@ void draw_texture_renderer(const texture_renderer_t *renderer, const transform_t
     set_texture_uniform(renderer->material, MAIN_TEX_UNI_NAME, renderer->texture);
 
     draw_mesh(&quad, renderer->material, &helper);
+}
+
+void set_blend_state(bool enabled) {
+    if (enabled) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    } else {
+        glDisable(GL_BLEND);
+    }
 }

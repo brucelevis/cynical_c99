@@ -1,0 +1,5 @@
+shader data/shaders/text_renderer.glsl
+
+mat4 MVP 1 0 0 0 1 0 0 0 1 0 0 0 1 0 0 0
+texture main_texture ---
+vec4 color 1 0 0 1

@@ -121,7 +121,7 @@ bool read_shader_file(
         }
     }
 
-#if DEV && 0
+#if DEV
     printf("Vertex shader: \n '%s' \n", start_vertex_buffer);
     printf("Fragment shader: \n '%s' \n", start_frag_buffer);
 #endif
@@ -141,6 +141,7 @@ bool read_material_definition_file(const char *file_path, material_definition_t 
     definition->mat4s_len = 0;
     definition->floats_len = 0;
     definition->vec2s_len = 0;
+    definition->vec4s_len = 0;
     
     char helper_buffer[128];
     
@@ -224,6 +225,20 @@ bool read_material_definition_file(const char *file_path, material_definition_t 
             ASSERT(definition->vec2s_len < MAX_VEC2S);
 
             definition->vec2s[definition->vec2s_len++] = def;
+        } else if (strcmp(helper_buffer, "vec4") == 0) {
+
+            float x, y, z, w;
+            fscanf(file, "%s %f %f %f %f", helper_buffer, &x, &y, &z, &w);
+
+            ASSERT(strlen(helper_buffer));
+
+            vec4_uniform_definition_t def;
+            strcpy(def.uniform_name, helper_buffer);
+            def.default_value = vec4_make(x, y, z, w);
+
+            ASSERT(definition->vec4s_len < MAX_VEC4S);
+
+            definition->vec4s[definition->vec4s_len++] = def;
         }
     }
 

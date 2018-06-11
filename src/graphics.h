@@ -38,6 +38,7 @@
 #define MAX_FLOATS 5
 #define MAX_MAT4S 5
 #define MAX_VEC2S 5
+#define MAX_VEC4S 5
 
 #define DEFAULT_IMAGE_FILE_PATH "data/textures/default.png"
 
@@ -98,6 +99,11 @@ typedef struct float_uniform {
     float value;
 } float_uniform_t;
 
+typedef struct vec4_uniform {
+    uniform_info_t info;
+    vec4_t value;
+} vec4_uniform_t;
+
 typedef struct mat4_uniform {
     uniform_info_t info;
     mat4_t value;
@@ -114,7 +120,7 @@ typedef struct vec2_uniform {
     vec2_t value;
 } vec2_uniform_t;
 
-// TODO(temdisponivel): Make everyone that used material actually reference it through pointers instead of copies - necessary because of hot reloadign
+// TODO(temdisponivel): Add "is_transparency" and "blend_mode" to materials - read from file
 typedef struct material {
     const shader_t *shader;
     
@@ -129,6 +135,9 @@ typedef struct material {
 
     vec2_uniform_t vec2_uniforms[MAX_VEC2S];
     uint vec2_uniforms_len;
+
+    vec4_uniform_t vec4_uniforms[MAX_VEC2S];
+    uint vec4_uniforms_len;
 } material_t;
 
 typedef struct float_uniform_definition {
@@ -151,6 +160,11 @@ typedef struct vec2_uniform_definition {
     vec2_t default_value;
 } vec2_uniform_definition_t;
 
+typedef struct vec4_uniform_definition {
+    char uniform_name[DEFAULT_NAME_LEN];
+    vec4_t default_value;
+} vec4_uniform_definition_t;
+
 typedef struct material_definition {
     char shader_file[DEFAULT_FILE_NAME_LEN];
     
@@ -165,6 +179,9 @@ typedef struct material_definition {
 
     vec2_uniform_definition_t vec2s[MAX_VEC2S];
     uint vec2s_len;
+
+    vec4_uniform_definition_t vec4s[MAX_VEC4S];
+    uint vec4s_len;
 } material_definition_t;
 
 typedef struct camera_t {
@@ -227,6 +244,7 @@ void set_texture_uniform(const material_t *material, const char *uniform_name, c
 void set_float_uniform(const material_t *material, const char *uniform_name, float value);
 void set_mat4_uniform(const material_t *material, const char *uniform_name, const mat4_t *value);
 void set_vec2_uniform(const material_t *material, const char *uniform_name, vec2_t value);
+void set_vec4_uniform(const material_t *material, const char *uniform_name, vec4_t value);
 
 void use_material(const material_t *material);
 
@@ -242,6 +260,8 @@ rect_t get_camera_rect(const camera_t *camera);
 
 void create_texture_renderer(const texture_t *texture, const material_t *material, texture_renderer_t *dest);
 void draw_texture_renderer(const texture_renderer_t *renderer, const transform_t *trans);
+
+void set_blend_state(bool enabled);
 
 #ifdef DEV
 
