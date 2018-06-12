@@ -179,7 +179,7 @@ RECENT REVISION HISTORY:
 // make more explicit reasons why performance can't be emphasized.
 //
 //    - Portable ("ease of use")
-//    - Small source code footprint ("easy to maintain")
+//    - Small source code_points footprint ("easy to maintain")
 //    - No dependencies ("ease of use")
 //
 // ===========================================================================
@@ -203,7 +203,7 @@ RECENT REVISION HISTORY:
 // request it.
 //
 // (The old do-it-yourself SIMD API is no longer supported in the current
-// code.)
+// code_points.)
 //
 // On x86, SSE2 will automatically be used when available based on a run-time
 // test; if not, the generic C versions are used as a fall-back. On ARM targets,
@@ -211,7 +211,7 @@ RECENT REVISION HISTORY:
 // (at least this is true for iOS and Android). Therefore, the NEON support is
 // toggled by a build flag: define STBI_NEON to get NEON loops.
 //
-// If for some reason you do not want to use any of SIMD code, or if
+// If for some reason you do not want to use any of SIMD code_points, or if
 // you have issues compiling it, you can disable it entirely by
 // defining STBI_NO_SIMD.
 //
@@ -271,7 +271,7 @@ RECENT REVISION HISTORY:
 // ADDITIONAL CONFIGURATION
 //
 //  - You can suppress implementation of any of the decoders to reduce
-//    your code footprint by #defining one or more of the following
+//    your code_points footprint by #defining one or more of the following
 //    symbols before creating the implementation.
 //
 //        STBI_NO_JPEG
@@ -861,7 +861,7 @@ static void *stbi__malloc(size_t size)
 
 // stb_image uses ints pervasively, including for offset calculations.
 // therefore the largest decoded image size we can support with the
-// current code, even on 64-bit targets, is INT_MAX. this is not a
+// current code_points, even on 64-bit targets, is INT_MAX. this is not a
 // significant limitation for the intended use case.
 //
 // we do, however, need to make sure our size calculations don't
@@ -1377,7 +1377,7 @@ STBIDEF void   stbi_hdr_to_ldr_scale(float scale) { stbi__h2l_scale_i = 1/scale;
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Common code used by all image loaders
+// Common code_points used by all image loaders
 //
 
 enum
@@ -1765,14 +1765,14 @@ static int stbi__build_huffman(stbi__huffman *h, int *count)
    code = 0;
    k = 0;
    for(j=1; j <= 16; ++j) {
-      // compute delta to add to code to compute symbol id
+      // compute delta to add to code_points to compute symbol id
       h->delta[j] = k - code;
       if (h->size[k] == j) {
          while (h->size[k] == j)
             h->code[k++] = (stbi__uint16) (code++);
-         if (code-1 >= (1u << j)) return stbi__err("bad code lengths","Corrupt JPEG");
+         if (code-1 >= (1u << j)) return stbi__err("bad code_points lengths","Corrupt JPEG");
       }
-      // compute largest code + 1 for this size, preshifted as needed later
+      // compute largest code_points + 1 for this size, preshifted as needed later
       h->maxcode[j] = code << (16-j);
       code <<= 1;
    }
@@ -1808,7 +1808,7 @@ static void stbi__build_fast_ac(stbi__int16 *fast_ac, stbi__huffman *h)
          int len = h->size[fast];
 
          if (magbits && len + magbits <= FAST_BITS) {
-            // magnitude code followed by receive_extend code
+            // magnitude code_points followed by receive_extend code_points
             int k = ((i << len) & ((1 << FAST_BITS) - 1)) >> (FAST_BITS - magbits);
             int m = 1 << (magbits - 1);
             if (k < m) k += (~0U << magbits) + 1;
@@ -1850,7 +1850,7 @@ stbi_inline static int stbi__jpeg_huff_decode(stbi__jpeg *j, stbi__huffman *h)
    if (j->code_bits < 16) stbi__grow_buffer_unsafe(j);
 
    // look at the top FAST_BITS and determine what symbol ID it is,
-   // if the code is <= FAST_BITS
+   // if the code_points is <= FAST_BITS
    c = (j->code_buffer >> (32 - FAST_BITS)) & ((1 << FAST_BITS)-1);
    k = h->fast[c];
    if (k < 255) {
@@ -1873,7 +1873,7 @@ stbi_inline static int stbi__jpeg_huff_decode(stbi__jpeg *j, stbi__huffman *h)
       if (temp < h->maxcode[k])
          break;
    if (k == 17) {
-      // error! code not found
+      // error! code_points not found
       j->code_bits -= 16;
       return -1;
    }
@@ -1881,7 +1881,7 @@ stbi_inline static int stbi__jpeg_huff_decode(stbi__jpeg *j, stbi__huffman *h)
    if (k > j->code_bits)
       return -1;
 
-   // convert the huffman code to the symbol id
+   // convert the huffman code_points to the symbol id
    c = ((j->code_buffer >> (32 - k)) & stbi__bmask[k]) + h->delta[k];
    STBI_ASSERT((((j->code_buffer) >> (32 - h->size[c])) & stbi__bmask[h->size[c]]) == h->code[c]);
 
@@ -1958,7 +1958,7 @@ static int stbi__jpeg_decode_block(stbi__jpeg *j, short data[64], stbi__huffman 
 
    if (j->code_bits < 16) stbi__grow_buffer_unsafe(j);
    t = stbi__jpeg_huff_decode(j, hdc);
-   if (t < 0) return stbi__err("bad huffman code","Corrupt JPEG");
+   if (t < 0) return stbi__err("bad huffman code_points","Corrupt JPEG");
 
    // 0 all the ac values now so we can do it 32-bits at a time
    memset(data,0,64*sizeof(data[0]));
@@ -1986,7 +1986,7 @@ static int stbi__jpeg_decode_block(stbi__jpeg *j, short data[64], stbi__huffman 
          data[zig] = (short) ((r >> 8) * dequant[zig]);
       } else {
          int rs = stbi__jpeg_huff_decode(j, hac);
-         if (rs < 0) return stbi__err("bad huffman code","Corrupt JPEG");
+         if (rs < 0) return stbi__err("bad huffman code_points","Corrupt JPEG");
          s = rs & 15;
          r = rs >> 4;
          if (s == 0) {
@@ -2059,7 +2059,7 @@ static int stbi__jpeg_decode_block_prog_ac(stbi__jpeg *j, short data[64], stbi__
             data[zig] = (short) ((r >> 8) << shift);
          } else {
             int rs = stbi__jpeg_huff_decode(j, hac);
-            if (rs < 0) return stbi__err("bad huffman code","Corrupt JPEG");
+            if (rs < 0) return stbi__err("bad huffman code_points","Corrupt JPEG");
             s = rs & 15;
             r = rs >> 4;
             if (s == 0) {
@@ -2101,7 +2101,7 @@ static int stbi__jpeg_decode_block_prog_ac(stbi__jpeg *j, short data[64], stbi__
          do {
             int r,s;
             int rs = stbi__jpeg_huff_decode(j, hac); // @OPTIMIZE see if we can use the fast path here, advance-by-r is so slow, eh
-            if (rs < 0) return stbi__err("bad huffman code","Corrupt JPEG");
+            if (rs < 0) return stbi__err("bad huffman code_points","Corrupt JPEG");
             s = rs & 15;
             r = rs >> 4;
             if (s == 0) {
@@ -2116,7 +2116,7 @@ static int stbi__jpeg_decode_block_prog_ac(stbi__jpeg *j, short data[64], stbi__
                   // so we don't have to do anything special here
                }
             } else {
-               if (s != 1) return stbi__err("bad huffman code", "Corrupt JPEG");
+               if (s != 1) return stbi__err("bad huffman code_points", "Corrupt JPEG");
                // sign bit
                if (stbi__jpeg_get_bit(j))
                   s = bit;
@@ -3363,7 +3363,7 @@ static stbi_uc *stbi__resample_row_generic(stbi_uc *out, stbi_uc *in_near, stbi_
 }
 
 // this is a reduced-precision calculation of YCbCr-to-RGB introduced
-// to make sure the code produces the same results in both SIMD and scalar
+// to make sure the code_points produces the same results in both SIMD and scalar
 #define stbi__float2fixed(x)  (((int) ((x) * 4096.0f + 0.5f)) << 8)
 static void stbi__YCbCr_to_RGB_row(stbi_uc *out, const stbi_uc *y, const stbi_uc *pcb, const stbi_uc *pcr, int count, int step)
 {
@@ -3790,7 +3790,7 @@ static int stbi__jpeg_info(stbi__context *s, int *x, int *y, int *comp)
 #define STBI__ZFAST_MASK  ((1 << STBI__ZFAST_BITS) - 1)
 
 // zlib-style huffman encoding
-// (jpegs packs from left, zlib from right, so can't share code)
+// (jpegs packs from left, zlib from right, so can't share code_points)
 typedef struct
 {
    stbi__uint16 fast[1 << STBI__ZFAST_BITS];
@@ -3919,8 +3919,8 @@ static int stbi__zhuffman_decode_slowpath(stbi__zbuf *a, stbi__zhuffman *z)
    for (s=STBI__ZFAST_BITS+1; ; ++s)
       if (k < z->maxcode[s])
          break;
-   if (s == 16) return -1; // invalid code!
-   // code size is s, so:
+   if (s == 16) return -1; // invalid code_points!
+   // code_points size is s, so:
    b = (k >> (16-s)) - z->firstcode[s] + z->firstsymbol[s];
    STBI_ASSERT(z->size[b] == s);
    a->code_buffer >>= s;
@@ -3981,7 +3981,7 @@ static int stbi__parse_huffman_block(stbi__zbuf *a)
    for(;;) {
       int z = stbi__zhuffman_decode(a, &a->z_length);
       if (z < 256) {
-         if (z < 0) return stbi__err("bad huffman code","Corrupt PNG"); // error in huffman codes
+         if (z < 0) return stbi__err("bad huffman code_points","Corrupt PNG"); // error in huffman codes
          if (zout >= a->zout_end) {
             if (!stbi__zexpand(a, zout, 1)) return 0;
             zout = a->zout;
@@ -3998,7 +3998,7 @@ static int stbi__parse_huffman_block(stbi__zbuf *a)
          len = stbi__zlength_base[z];
          if (stbi__zlength_extra[z]) len += stbi__zreceive(a, stbi__zlength_extra[z]);
          z = stbi__zhuffman_decode(a, &a->z_distance);
-         if (z < 0) return stbi__err("bad huffman code","Corrupt PNG");
+         if (z < 0) return stbi__err("bad huffman code_points","Corrupt PNG");
          dist = stbi__zdist_base[z];
          if (stbi__zdist_extra[z]) dist += stbi__zreceive(a, stbi__zdist_extra[z]);
          if (zout - a->zout_start < dist) return stbi__err("bad dist","Corrupt PNG");
@@ -4153,7 +4153,7 @@ static int stbi__parse_zlib(stbi__zbuf *a, int parse_header)
          return 0;
       } else {
          if (type == 1) {
-            // use fixed code lengths
+            // use fixed code_points lengths
             if (!stbi__zbuild_huffman(&a->z_length  , stbi__zdefault_length  , 288)) return 0;
             if (!stbi__zbuild_huffman(&a->z_distance, stbi__zdefault_distance,  32)) return 0;
          } else {
@@ -4452,7 +4452,7 @@ static int stbi__create_png_image_raw(stbi__png *a, stbi_uc *raw, stbi__uint32 r
    }
 
    // we make a separate pass to expand bits to pixels; for performance,
-   // this could run two scanlines behind the above code, so it won't
+   // this could run two scanlines behind the above code_points, so it won't
    // intefere with filtering but will still be in the cache.
    if (depth < 8) {
       for (j=0; j < y; ++j) {
@@ -5152,7 +5152,7 @@ static void *stbi__bmp_load(stbi__context *s, int *x, int *y, int *comp, int req
 
    info.all_a = 255;
    if (stbi__bmp_parse_header(s, &info) == NULL)
-      return NULL; // error code already set
+      return NULL; // error code_points already set
 
    flip_vertically = ((int) s->img_y) > 0;
    s->img_y = abs((int) s->img_y);
@@ -6271,7 +6271,7 @@ static stbi_uc *stbi__process_gif_raster(stbi__context *s, stbi__gif *g)
       g->codes[init_code].suffix = (stbi_uc) init_code;
    }
 
-   // support no starting clear code
+   // support no starting clear code_points
    avail = clear+2;
    oldcode = -1;
 
@@ -6291,20 +6291,20 @@ static stbi_uc *stbi__process_gif_raster(stbi__context *s, stbi__gif *g)
          bits >>= codesize;
          valid_bits -= codesize;
          // @OPTIMIZE: is there some way we can accelerate the non-clear path?
-         if (code == clear) {  // clear code
+         if (code == clear) {  // clear code_points
             codesize = lzw_cs + 1;
             codemask = (1 << codesize) - 1;
             avail = clear + 2;
             oldcode = -1;
             first = 0;
-         } else if (code == clear + 1) { // end of stream code
+         } else if (code == clear + 1) { // end of stream code_points
             stbi__skip(s, len);
             while ((len = stbi__get8(s)) > 0)
                stbi__skip(s,len);
             return g->out;
          } else if (code <= avail) {
             if (first) {
-               return stbi__errpuc("no clear code", "Corrupt GIF");
+               return stbi__errpuc("no clear code_points", "Corrupt GIF");
             }
 
             if (oldcode >= 0) {
@@ -6317,7 +6317,7 @@ static stbi_uc *stbi__process_gif_raster(stbi__context *s, stbi__gif *g)
                p->first = g->codes[oldcode].first;
                p->suffix = (code == avail) ? p->first : g->codes[code].first;
             } else if (code == avail)
-               return stbi__errpuc("illegal code in raster", "Corrupt GIF");
+               return stbi__errpuc("illegal code_points in raster", "Corrupt GIF");
 
             stbi__out_gif_code(g, (stbi__uint16) code);
 
@@ -6328,7 +6328,7 @@ static stbi_uc *stbi__process_gif_raster(stbi__context *s, stbi__gif *g)
 
             oldcode = code;
          } else {
-            return stbi__errpuc("illegal code in raster", "Corrupt GIF");
+            return stbi__errpuc("illegal code_points in raster", "Corrupt GIF");
          }
       }
    }
@@ -6489,11 +6489,11 @@ static stbi_uc *stbi__gif_load_next(stbi__context *s, stbi__gif *g, int *comp, i
             break;
          }
 
-         case 0x3B: // gif stream termination code
+         case 0x3B: // gif stream termination code_points
             return (stbi_uc *) s; // using '1' causes warning on some compilers
 
          default:
-            return stbi__errpuc("unknown code", "Corrupt GIF");
+            return stbi__errpuc("unknown code_points", "Corrupt GIF");
       }
    }
 }
@@ -7268,9 +7268,9 @@ STBIDEF int stbi_is_16_bit_from_callbacks(stbi_io_callbacks const *c, void *user
       2.09  (2016-01-16) allow comments in PNM files
                          16-bit-per-pixel TGA (not bit-per-component)
                          info() for TGA could break due to .hdr handling
-                         info() for BMP to shares code instead of sloppy parse
+                         info() for BMP to shares code_points instead of sloppy parse
                          can use STBI_REALLOC_SIZED if allocator doesn't support realloc
-                         code cleanup
+                         code_points cleanup
       2.08  (2015-09-13) fix to 2.07 cleanup, reading RGB PSD as RGBA
       2.07  (2015-09-13) fix compiler warnings
                          partial animated GIF support
@@ -7303,9 +7303,9 @@ STBIDEF int stbi_is_16_bit_from_callbacks(stbi_io_callbacks const *c, void *user
       1.44  (2014-08-07)
               various warning fixes from Ronny Chevalier
       1.43  (2014-07-15)
-              fix MSVC-only compiler problem in code changed in 1.42
+              fix MSVC-only compiler problem in code_points changed in 1.42
       1.42  (2014-07-09)
-              don't define _CRT_SECURE_NO_WARNINGS (affects user code)
+              don't define _CRT_SECURE_NO_WARNINGS (affects user code_points)
               fixes to stbi__cleanup_jpeg path
               added STBI_ASSERT to avoid requiring assert.h
       1.41  (2014-06-25)
@@ -7381,8 +7381,8 @@ STBIDEF int stbi_is_16_bit_from_callbacks(stbi_io_callbacks const *c, void *user
       1.11    Support installable IDCT, colorspace conversion routines
       1.10    Fixes for 64-bit (don't use "unsigned long")
               optimized upsampling by Fabian "ryg" Giesen
-      1.09    Fix format-conversion for PSD code (bad global variables!)
-      1.08    Thatcher Ulrich's PSD code integrated by Nicolas Schulz
+      1.09    Fix format-conversion for PSD code_points (bad global variables!)
+      1.08    Thatcher Ulrich's PSD code_points integrated by Nicolas Schulz
       1.07    attempt to fix C++ warning/errors again
       1.06    attempt to fix C++ warning/errors again
       1.05    fix TGA loading to return correct *comp and use good luminance calc
@@ -7444,7 +7444,7 @@ SOFTWARE.
 ALTERNATIVE B - Public Domain (www.unlicense.org)
 This is free and unencumbered software released into the public domain.
 Anyone is free to copy, modify, publish, use, compile, sell, or distribute this
-software, either in source code form or as a compiled binary, for any purpose,
+software, either in source code_points form or as a compiled binary, for any purpose,
 commercial or non-commercial, and by any means.
 In jurisdictions that recognize copyright laws, the author or authors of this
 software dedicate any and all copyright interest in the software to the public

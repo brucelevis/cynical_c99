@@ -9,6 +9,7 @@
 #include "GLFW/glfw3.h"
 #include "math/maths.h"
 #include "graphics.h"
+#include "text.h"
 
 typedef struct config {
     vec2_t resolution;    
@@ -30,6 +31,8 @@ float current_time;
 vec2_t screen_size;
 float aspect_ratio;
 bool should_quit;
+material_t *default_text_material;
+font_t default_font;
 
 engine_init_status_t init_engine();
 

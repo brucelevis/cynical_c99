@@ -245,7 +245,7 @@
 // SOURCE STATISTICS (based on v0.6c, 2050 LOC)
 //
 //   Documentation & header file        520 LOC  \___ 660 LOC documentation
-//   Sample code                        140 LOC  /
+//   Sample code_points                        140 LOC  /
 //   Truetype parsing                   620 LOC  ---- 620 LOC TrueType
 //   Software rasterization             240 LOC  \                           .
 //   Curve tesselation                  120 LOC   \__ 550 LOC Bitmap creation
@@ -803,7 +803,7 @@ STBTT_DEF int  stbtt_GetGlyphBox(const stbtt_fontinfo *info, int glyph_index, in
 #endif
 
 #ifndef stbtt_vertex // you can predefine this to use different values
-                   // (we share this with other code at RAD)
+                   // (we share this with other code_points at RAD)
    #define stbtt_vertex_type short // can't use stbtt_int16 because that's not visible in the header file
    typedef struct
    {
@@ -3621,7 +3621,7 @@ STBTT_DEF void stbtt_MakeCodepointBitmap(const stbtt_fontinfo *info, unsigned ch
 //
 // bitmap baking
 //
-// This is SUPER-CRAPPY packing to keep source code small
+// This is SUPER-CRAPPY packing to keep source code_points small
 
 static int stbtt_BakeFontBitmap_internal(unsigned char *data, int offset,  // font location (use offset=0 for plain .ttf)
                                 float pixel_height,                     // height of font in pixels
@@ -4487,7 +4487,7 @@ STBTT_DEF unsigned char * stbtt_GetGlyphSDF(const stbtt_fontinfo *info, float sc
                               float root = (float) STBTT_sqrt(discriminant);
                               res[0] = (-b - root)/(2*a);
                               res[1] = (-b + root)/(2*a);
-                              num = 2; // don't bother distinguishing 1-solution case, as code below will still work
+                              num = 2; // don't bother distinguishing 1-solution case, as code_points below will still work
                            }
                         }
                      } else {
@@ -4835,7 +4835,7 @@ SOFTWARE.
 ALTERNATIVE B - Public Domain (www.unlicense.org)
 This is free and unencumbered software released into the public domain.
 Anyone is free to copy, modify, publish, use, compile, sell, or distribute this 
-software, either in source code form or as a compiled binary, for any purpose, 
+software, either in source code_points form or as a compiled binary, for any purpose, 
 commercial or non-commercial, and by any means.
 In jurisdictions that recognize copyright laws, the author or authors of this 
 software dedicate any and all copyright interest in the software to the public 

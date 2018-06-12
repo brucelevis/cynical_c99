@@ -1,4 +1,4 @@
-shader data/shaders/texture_renderer_shader.glsl
+shader data/shaders/default_text_renderer.glsl
 
 texture main_texture data/textures/witness.jpg
 

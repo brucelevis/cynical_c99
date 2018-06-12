@@ -259,6 +259,7 @@ void use_camera(camera_t *camera);
 rect_t get_camera_rect(const camera_t *camera);
 
 void create_texture_renderer(const texture_t *texture, const material_t *material, texture_renderer_t *dest);
+void texture_renderer_set_texture(texture_renderer_t rendere, const texture_t *texture);
 void draw_texture_renderer(const texture_renderer_t *renderer, const transform_t *trans);
 
 void set_blend_state(bool enabled);

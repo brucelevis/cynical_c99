@@ -8,13 +8,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <file.h>
+#include <text.h>
 #include "graphics.h"
-
-#define STB_TRUETYPE_IMPLEMENTATION
-
-#include "stb_truetype.h"
-
-#undef STB_TRUETYPE_IMPLEMENTATION
 
 #define DATA_FOLDER "data/tests/asteroids/"
 #define TEXTURE_DATA_FOLDER DATA_FOLDER "textures"
@@ -57,7 +52,7 @@ entity_t *player;
 entity_t *asteroids;
 entity_t *projectiles;
 
-entity_t letter_entity;
+//entity_t letter_entity;
 
 float points;
 
@@ -130,71 +125,19 @@ void reset_game() {
 
 
 texture_t *load_letter() {
-    stbtt_fontinfo font;
-
-    uint len;
-    byte *file_data = read_file_data_alloc("c:/windows/fonts/arial.ttf", &len);
-    ASSERT(file_data);
-
-    bool result = stbtt_InitFont(&font, file_data, stbtt_GetFontOffsetForIndex(file_data, 0));
-    ASSERT(result);
-
-    int width, height, x_offset, y_offset;
-    byte *data = stbtt_GetCodepointBitmap(
-            &font,
-            0,
-            stbtt_ScaleForPixelHeight(&font, 128),
-            'M',
-            &width,
-            &height,
-            &x_offset,
-            &y_offset
-    );
-
-    image_t image;
-    image.size = vec2_make(width, height);
-    image.data = malloc(sizeof(int) * (width * height));
-
-    const int pitch = (width * 4);
-    byte *src_data = data;
-    byte *dest_data = image.data + (height - 1) * pitch;
-    for (int i = 0; i < height; ++i) {
-        
-        uint *dest = (uint *) dest_data;
-        
-        for (int j = 0; j < width; ++j) {
-            
-            byte alpha = *src_data++;
-            uint pixel_color = (
-                        (alpha << 24) |
-                        (alpha << 16) |
-                        (alpha << 8) |
-                        (alpha << 0)
-                    );
-            *dest++ = pixel_color;
-        }
-        dest_data -= pitch;
-    }
     
-    texture_t *texture = malloc(sizeof(texture_t));
-    create_texture(&image, texture);
-    
-    stbtt_FreeBitmap(data, 0);
-    free_file_data(file_data);
-    
-    return texture;
 }
 
 
 void setup_scene() {
     create_camera_orthographic_default(&game_camera);
-    game_camera.clear_color = COLOR_MAKE_RED();
+    //game_camera.clear_color = COLOR_MAKE_RED();
 
     texture_t *ship_texture = get_texture_resource(TEXTURE_DATA_FOLDER "/player_ship.png");
     texture_t *asteroid_texture = get_texture_resource(TEXTURE_DATA_FOLDER "/asteroid.png");
     texture_t *projectile_texture = get_texture_resource(TEXTURE_DATA_FOLDER "/projectile.png");
     material_t *material = get_material_resource("data/tests/pong/pong_sprite_material.mat_def");
-    material_t *text_renderer_material = get_material_resource("data/shaders/text_renderer.mat_def");
+    //material_t *text_renderer_material = get_material_resource("data/shaders/text_renderer.mat_def");
 
     player = &all_entities[0];
     projectiles = &all_entities[1];
@@ -202,9 +145,9 @@ void setup_scene() {
 
     create_texture_renderer(ship_texture, material, &player->texture);
 
-    texture_t *letter_texture = load_letter();
+    /*texture_t *letter_texture = load_letter();
     create_texture_renderer(letter_texture, text_renderer_material, &letter_entity.texture);    
-    trans_identity(&letter_entity.transform);
+    trans_identity(&letter_entity.transform);*/
 
     for (int i = 0; i < MAX_PROJECTILES; ++i) {
         create_texture_renderer(projectile_texture, material, &projectiles[i].texture);
@@ -422,7 +365,8 @@ int main() {
  
         set_blend_state(true);
 
-        draw_texture_renderer(&letter_entity.texture, &letter_entity.transform);
+        //draw_texture_renderer(&letter_entity.texture, &letter_entity.transform);
+        draw_string(&default_font, "the witness is the best game ever made!", VEC2_MAKE_ZERO());
         //set_blend_state(false);
 
         end_frame();

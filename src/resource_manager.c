@@ -174,7 +174,6 @@ void free_shader_resource(const shader_t *shader) {
     }
 }
 
-
 void create_material_from_file(const char *file_path, material_t *dest) {
     material_definition_t definition;
     bool read = read_material_definition_file(file_path, &definition);
@@ -183,7 +182,6 @@ void create_material_from_file(const char *file_path, material_t *dest) {
 
     watch_material_definition_file(dest, file_path);
 }
-
 
 material_t *get_material_resource(const char *material_path) {
     material_t *material = null;

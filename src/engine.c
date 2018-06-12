@@ -8,6 +8,8 @@
 #include "memory.h"
 #include "graphics.h"
 #include "input.h"
+#include "text.h"
+#include "resource_manager.h"
 
 config_t engine_config = {};
 GLFWwindow *game_window;
@@ -16,6 +18,10 @@ mesh_t quad;
 float delta_time;
 vec2_t screen_size;
 float aspect_ratio;
+
+// NOTE(temdisponivel): Maybe these are temporary, we'll see
+material_t *default_text_material;
+font_t default_font;
 
 static double end_time;
 
@@ -60,6 +66,9 @@ engine_init_status_t init_engine() {
     glfwSwapInterval(0);
     
      // TODO(temdisponivel): Create the ability to enable/disable depth test
+    
+    default_text_material = get_material_resource("data/shaders/default_text_renderer.mat_def");
+    load_font("data/fonts/arial.ttf", 64, default_text_material, &default_font);
     
     return ENGINE_INIT_OK;
 }
