@@ -7,12 +7,14 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdarg.h>
 
 typedef uint32_t uint;
 typedef uint8_t byte;
 typedef uint16_t ushort;
 typedef uint64_t ulong;
 typedef char bool;
+
 #define true 1
 #define false 0
 #define null NULL
@@ -35,6 +37,9 @@ typedef char bool;
 #define CREATE_TEMP_STR_BUFFER() CREATE_TEMP_NAMED_STR_BUFFER(TEMP_BUFFER) 
 #define CREATE_TEMP_NAMED_STR_BUFFER(name) char name[TEMP_STR_BUFFER_LEN]
 #define CLEAR_TEMP_NAMED_STR_BUFFER(name) memset(name, 0, TEMP_STR_BUFFER_LEN * sizeof(char))
+
+#define KILO_BYTE (sizeof(byte) * 1024)
+#define MEGA_BYTE (KILO_BYTE * 1024)
 
 #define RANDOM() (rand() / (RAND_MAX * 1.f))
 

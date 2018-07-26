@@ -8,6 +8,7 @@
 
 #include "stb_truetype.h"
 #include "file.h"
+#include "memory.h"
 
 #undef STB_TRUETYPE_IMPLEMENTATION
 
@@ -15,21 +16,20 @@ void load_font(
         const char *font_path, 
         float size, 
         material_t *material,
-        font_t *dest
+        font_t *result
 ) {
-    stbtt_fontinfo font;
-
-    
+    stbtt_fontinfo font = {};
 
     uint len;
     byte *file_data = read_file_data_alloc(font_path, &len);
     ASSERT(file_data);
 
-    bool result = stbtt_InitFont(&font, file_data, stbtt_GetFontOffsetForIndex(file_data, 0));
-    ASSERT(result);
+    int offset = stbtt_GetFontOffsetForIndex(file_data, 0);
+    bool init_font = stbtt_InitFont(&font, file_data, offset);
+    ASSERT(init_font);
 
-    byte *buffer = malloc(sizeof(int) * (1024 * 1024));
-    for (int character = INITIAL_CHARACTER; character < MAX_CHARACTERS; ++character) {
+    byte *buffer = allocate(&__temp_mem_pool, MEGA_BYTE * 4);
+    for (int character = 0; character < MAX_CHARACTERS; ++character) {
         int width, height, x_offset, y_offset;
         
         byte *data = stbtt_GetCodepointBitmap(
@@ -42,6 +42,8 @@ void load_font(
                 &x_offset,
                 &y_offset
         );
+        
+        assert(data);
 
         image_t image;
         image.size = vec2_make(width, height);
@@ -74,14 +76,12 @@ void load_font(
         code_point_t code_point;
         code_point.texture = texture;
         code_point.offset = vec2_make(x_offset, y_offset);
-        dest->code_points[character] = code_point;
+        result->code_points[character] = code_point;
 
         stbtt_FreeBitmap(data, 0);
     }
     
-    free(buffer);
-    
-    dest->material = material;
+    result->material = material;
 
     free_file_data(file_data);
 }

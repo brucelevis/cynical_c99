@@ -7,8 +7,8 @@
 
 #include "graphics.h"
 
-#define INITIAL_CHARACTER 0
-#define MAX_CHARACTERS 128
+#define INITIAL_CHARACTER 32
+#define MAX_CHARACTERS 32
 
 typedef struct code_point {
     texture_t texture;
@@ -20,7 +20,7 @@ typedef struct font {
     material_t *material; // TODO(temdisponivel): Maybe this should be global or passed into the draw functions as a parameter
 } font_t;
 
-void load_font(const char *font_path, float size, material_t *material, font_t *dest);
+void load_font(const char *font_path, float size, material_t *material, font_t *result);
 
 void draw_string(const font_t *font, const char *string, vec2_t position);
 

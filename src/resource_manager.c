@@ -36,7 +36,7 @@ void free_unused_resources() {
 \
         if (resource.reference_count <= 0) {\
             destroy_##variable_name(resource.variable_name);\
-            enormous_memory_free(resources.type[i].variable_name);\
+            heap_free(resources.type[i].variable_name);\
             resources.type[i].variable_name = null;\
 \            
             array_move_to_left(resources.type, &resources.type##_len, i);\
@@ -73,7 +73,7 @@ texture_t *get_texture_resource(const char *texture_path) {
     
     if (texture == null) {
         // TODO(temdisponivel): Remove this after our temp memory/custom allocator
-        texture = (texture_t *) enormous_memory_alloc(sizeof(texture_t));
+        texture = (texture_t *) heap_alloc(sizeof(texture_t));
         create_texture_from_file(texture_path, texture);
 
         texture_resource_t resource;
@@ -149,7 +149,7 @@ shader_t *get_shader_resource(const char *shader_path) {
     }
     
     if (shader == null) {
-        shader = (shader_t *) enormous_memory_alloc(sizeof(shader_t));
+        shader = (shader_t *) heap_alloc(sizeof(shader_t));
         create_shader_from_file(shader_path, shader);
         
         shader_resource_t resource;
@@ -197,7 +197,7 @@ material_t *get_material_resource(const char *material_path) {
     }
 
     if (material == null) {
-        material = (material_t *) enormous_memory_alloc(sizeof(material));
+        material = (material_t *) heap_alloc(sizeof(material_t));
         create_material_from_file(material_path, material);
 
         material_resource_t resource;
@@ -274,7 +274,7 @@ image_t *get_image_resource(const char *image_path) {
     }
 
     if (image == null) {
-        image = enormous_memory_alloc(sizeof(image_t));
+        image = heap_alloc(sizeof(image_t));
         if (!create_image_from_file(image_path, image)) {
             ASSERT(false);
             return null;

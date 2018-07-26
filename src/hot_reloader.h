@@ -10,7 +10,7 @@
 #include <time.h>
 
 #define MAX_SHADER_CACHE 32
-#define MAX_TEXTURE_CACHE 128
+#define MAX_TEXTURE_CACHE 512
 #define MAX_MATERIAL_DEFINITION_CACHE 16
 
 // TODO(temdisponivel): Should I create a cache struct with a handle and file path

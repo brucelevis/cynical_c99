@@ -104,7 +104,7 @@ model_t create_quad() {
     const int QUAD_VERT_COUNT = 4;
     const int QUAD_INDEX_COUNT = 6;
 
-    float *vertices = enormous_memory_alloc(FULL_MODEL_BYTE_SIZE(QUAD_VERT_COUNT));
+    float *vertices = heap_alloc(FULL_MODEL_BYTE_SIZE(QUAD_VERT_COUNT));
 
     vec3_t *positions = (vec3_t *) vertices;
     vec2_t *uvs = (vec2_t *) (((void *) positions) + UV_BYTE_OFFSET(4));
@@ -128,7 +128,7 @@ model_t create_quad() {
     VEC2_SET_UP(&uvs[3]);
     COLOR_SET_YELLOW(&colors[3]);
 
-    uint *index = enormous_memory_alloc(sizeof(uint) * QUAD_INDEX_COUNT);
+    uint *index = heap_alloc(sizeof(uint) * QUAD_INDEX_COUNT);
     index[0] = 0;
     index[1] = 1;
     index[2] = 2;
@@ -148,9 +148,9 @@ model_t create_quad() {
 }
 
 void destroy_model(const model_t *model) {
-    enormous_memory_free(model->full_vertices_data);
+    heap_free(model->full_vertices_data);
     if (model->indexes) {
-        enormous_memory_free(model->indexes);
+        heap_free(model->indexes);
     }
 }
 

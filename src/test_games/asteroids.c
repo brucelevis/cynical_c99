@@ -366,7 +366,12 @@ int main() {
         set_blend_state(true);
 
         //draw_texture_renderer(&letter_entity.texture, &letter_entity.transform);
-        draw_string(&default_font, "the witness is the best game ever made!", VEC2_MAKE_ZERO());
+        
+        vec2_t position = vec2_make(-screen_size.width / 2.f, 0);
+        draw_string(&default_font, "0123456789 ç é [ ] {} è ~ ê / ; . , ? , ", position);
+
+        position.y += 100;
+        draw_string(&default_font, ")\\ / | ! ' \" - = & * ( ) ¨ % $ # @ ë the witness is the best game ever made!", position);
         //set_blend_state(false);
 
         end_frame();

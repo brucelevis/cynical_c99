@@ -22,72 +22,53 @@
 #define ENORMOUS_CHUNK_SIZE 2048
 #define ENORMOUS_MEMORY_POOL_SIZE (ENORMOUS_CHUNK_SIZE * 1024)
 
-#define TEMP_MEMORY_SIZE (1024 * 1024)
+#define TEMP_MEMORY_SIZE (MEGA_BYTE * 4)
 
-// TODO(temdisponivel): Should we actually support dynamic chunk size?!
-// TODO(temdisponivel): Create a temporary memory alloction
-
-typedef struct memory_chunk {
+typedef struct memory_pool {
     void *data;
-    struct memory_chunk *next; 
-} memory_chunk_t;
-
-typedef struct memory {
-    void *data;
-    
-    memory_chunk_t *all_chunks;
-    uint all_chunks_len;
-    
-    uint chunk_size;
-    
-    memory_chunk_t *free_list;
+    uint size;
+    uint capacity;
 } memory_pool_t;
 
-typedef struct temp_memory {
-    void *data;
-    uint data_size;
-    
-    void *current_free_ptr;
-    uint used_size;
-    
-    uint water_mark;
-} temp_memory_t;
+memory_pool_t __temp_mem_pool;
 
-memory_pool_t small_memory_pool;
-memory_pool_t medium_memory_pool;
-memory_pool_t big_memory_pool;
-memory_pool_t gigantic_memory_pool;
-memory_pool_t enormous_memory_pool;
+INLINE void make_pool(memory_pool_t *pool, uint size);
+INLINE void *allocate(memory_pool_t *pool, uint size);
+INLINE void clear_pool(memory_pool_t *pool);
 
-temp_memory_t temporary_memory;
+INLINE void *heap_alloc(uint size);
+INLINE void heap_free(void *ptr);
 
-void create_default_memory_pool();
-void create_temp_memory(uint size, temp_memory_t *dest);
 
-void create_memory_pool(uint full_size, uint chunk_size, memory_pool_t *dest);
+INLINE void make_pool(memory_pool_t *pool, uint size) {
+    pool->data = malloc(size);
+    pool->capacity = size;
+    pool->size = 0;
+}
 
-void *memory_alloc(memory_pool_t *memory, uint size);
-void memory_free(memory_pool_t *memory, void *data);
+INLINE void *allocate(memory_pool_t *pool, uint size) {
+    if (pool->size + size > pool->capacity) {
+        return null;
+    } else {
+        void *result = pool->data;
+        pool->size += size;
+        pool->data += size;
+        return result;
+    }
+}
 
-#define small_memory_alloc(size) memory_alloc(&small_memory_pool, size)
-#define small_memory_free(data) memory_free(&small_memory_pool, data)
+INLINE void clear_pool(memory_pool_t *pool) {
+    pool->data -= pool->size;
+    pool->size = 0;
+}
 
-#define medium_memory_alloc(size) memory_alloc(&medium_memory_pool, size)
-#define medium_memory_free(data) memory_free(&medium_memory_pool, data)
+// TODO(temdisponivel): Go through every use of this and see if we can convert this into a memory pool
+INLINE void *heap_alloc(uint size) {
+    return malloc(size);
+}
 
-#define big_memory_alloc(size) memory_alloc(&big_memory_pool, size)
-#define big_memory_free(data) memory_free(&big_memory_pool, data)
-
-#define gigantic_memory_alloc(size) memory_alloc(&gigantic_memory_pool, size)
-#define gigantic_memory_free(data) memory_free(&gigantic_memory_pool, data)
-
-#define enormous_memory_alloc(size) memory_alloc(&enormous_memory_pool, size)
-#define enormous_memory_free(data) memory_free(&enormous_memory_pool, data);
-
-void *memory_temp_alloc(temp_memory_t *memory, uint size);
-void reset_temp_memory(temp_memory_t *memory);
-
-#define memory_temp_alloc_default(size) memory_temp_alloc(&temporary_memory, size)
-#define reset_temp_memory_default() reset_temp_memory(&temporary_memory)
+INLINE void heap_free(void *ptr) {
+    free(ptr);
+}
 
 #endif //RAW_GL_MEMORY_H
